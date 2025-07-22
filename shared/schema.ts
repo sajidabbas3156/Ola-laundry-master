@@ -413,8 +413,29 @@ export const insertBusinessSettingSchema = createInsertSchema(businessSettings).
   updatedAt: true,
 });
 
+// Workflow automation tables
+export const workflows = pgTable("workflows", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  trigger: jsonb("trigger").notNull(), // { type, condition, value }
+  actions: jsonb("actions").notNull(), // Array of actions
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertWorkflowSchema = createInsertSchema(workflows).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
+export type InsertWorkflow = z.infer<typeof insertWorkflowSchema>;
+export type Workflow = typeof workflows.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Customer = typeof customers.$inferSelect;
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;

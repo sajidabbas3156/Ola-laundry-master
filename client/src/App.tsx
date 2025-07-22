@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import NotFound from "@/pages/not-found";
 import Navigation from "@/components/layout/navigation";
+import { MobileNavigation } from "@/components/common/mobile-navigation";
+import { useWebSocket } from "@/hooks/use-websocket";
 import AdminDashboard from "@/pages/admin-dashboard";
 import MobilePOS from "@/pages/mobile-pos";
 import CustomerApp from "@/pages/customer-app";
@@ -20,6 +22,7 @@ import { RoleDashboard } from "@/components/dashboard/role-dashboard";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { isConnected } = useWebSocket();
 
   if (isLoading) {
     return (
@@ -62,8 +65,10 @@ function Router() {
   }
 
   return (
-    <Switch>
-      <Route path="/" component={RoleDashboard} />
+    <>
+      <MobileNavigation />
+      <Switch>
+        <Route path="/" component={RoleDashboard} />
       <Route path="/admin">
         <RoleGuard allowedRoles={["superadmin", "org_owner", "branch_manager", "inventory_manager"]}>
           <AdminDashboard />
@@ -100,8 +105,9 @@ function Router() {
       <Route path="/notifications">
         <NotificationCenter />
       </Route>
-      <Route component={NotFound} />
-    </Switch>
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 

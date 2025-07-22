@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
+import { initializeWebSocket, getWebSocketManager } from "./websocket";
 import { 
   insertUserSchema, 
   insertCustomerSchema, 
@@ -493,10 +494,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fullOrder = await storage.getOrder(order.id);
       
       // Broadcast real-time update
-      broadcast({
-        type: 'ORDER_CREATED',
-        order: fullOrder,
-      });
+      const wsManager = getWebSocketManager();
+      if (wsManager) {
+        wsManager.broadcast({
+          type: 'order_created',
+          data: fullOrder,
+        });
+      }
 
       res.json(fullOrder);
     } catch (error: any) {
@@ -513,12 +517,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fullOrder = await storage.getOrder(order.id);
       
       // Broadcast real-time update
-      broadcast({
-        type: 'ORDER_UPDATED',
-        order: fullOrder,
-      });
+      const wsManager = getWebSocketManager();
+      if (wsManager) {
+        wsManager.broadcast({
+          type: 'order_updated',
+          data: fullOrder,
+        });
+      }
 
       res.json(fullOrder);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Workflow management routes
+  app.get("/api/workflows", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const workflows = await storage.getAllWorkflows(tenantId);
+      res.json(workflows);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/workflows", authenticateToken, async (req, res) => {
+    try {
+      const workflow = await storage.createWorkflow(req.body);
+      res.status(201).json(workflow);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/workflows/:id", authenticateToken, async (req, res) => {
+    try {
+      const workflow = await storage.updateWorkflow(parseInt(req.params.id), req.body);
+      res.json(workflow);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/workflows/:id", authenticateToken, async (req, res) => {
+    try {
+      await storage.deleteWorkflow(parseInt(req.params.id));
+      res.status(204).send();
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }
@@ -540,10 +585,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const machine = await storage.updateMachine(parseInt(req.params.id), updates);
       
       // Broadcast real-time update
-      broadcast({
-        type: 'MACHINE_UPDATED',
-        machine,
-      });
+      const wsManager = getWebSocketManager();
+      if (wsManager) {
+        wsManager.broadcast({
+          type: 'machine_updated',
+          data: machine,
+        });
+      }
 
       res.json(machine);
     } catch (error: any) {
@@ -581,10 +629,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const newRoute = routes.find(r => r.id === route.id);
       
       // Broadcast real-time update
-      broadcast({
-        type: 'ROUTE_CREATED',
-        route: newRoute,
-      });
+      const wsManager = getWebSocketManager();
+      if (wsManager) {
+        wsManager.broadcast({
+          type: 'route_created',
+          data: newRoute,
+        });
+      }
 
       res.json(newRoute);
     } catch (error: any) {
@@ -598,10 +649,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const route = await storage.updateDeliveryRoute(parseInt(req.params.id), updates);
       
       // Broadcast real-time update
-      broadcast({
-        type: 'ROUTE_UPDATED',
-        route,
-      });
+      const wsManager = getWebSocketManager();
+      if (wsManager) {
+        wsManager.broadcast({
+          type: 'route_updated',
+          data: route,
+        });
+      }
 
       res.json(route);
     } catch (error: any) {
@@ -615,10 +669,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stop = await storage.updateDeliveryStop(parseInt(req.params.id), updates);
       
       // Broadcast real-time update
-      broadcast({
-        type: 'STOP_UPDATED',
-        stop,
-      });
+      const wsManager = getWebSocketManager();
+      if (wsManager) {
+        wsManager.broadcast({
+          type: 'stop_updated',
+          data: stop,
+        });
+      }
 
       res.json(stop);
     } catch (error: any) {

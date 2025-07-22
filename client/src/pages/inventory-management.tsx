@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, Plus, Minus, AlertTriangle, TrendingUp, TrendingDown } from "lucide-react";
+import { Package, Plus, Minus, AlertTriangle, TrendingUp, TrendingDown, Edit2, Trash2 } from "lucide-react";
+import { SearchFilter } from "@/components/common/search-filter";
+import { exportToCSV, formatDataForExport } from "@/lib/export-utils";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,6 +31,8 @@ export default function InventoryManagement() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [stockAdjustmentItem, setStockAdjustmentItem] = useState<InventoryItem | null>(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -135,6 +139,95 @@ export default function InventoryManagement() {
     ).toFixed(2);
   };
 
+  // Filter options for SearchFilter component
+  const filterOptions = [
+    {
+      key: "category",
+      label: "Category",
+      type: "select" as const,
+      options: [
+        { value: "detergents", label: "Detergents" },
+        { value: "fabric_softeners", label: "Fabric Softeners" },
+        { value: "stain_removers", label: "Stain Removers" },
+        { value: "bleach", label: "Bleach" },
+        { value: "packaging", label: "Packaging" },
+        { value: "maintenance", label: "Maintenance" },
+      ],
+    },
+    {
+      key: "stockStatus",
+      label: "Stock Status",
+      type: "select" as const,
+      options: [
+        { value: "in_stock", label: "In Stock" },
+        { value: "low_stock", label: "Low Stock" },
+        { value: "out_of_stock", label: "Out of Stock" },
+      ],
+    },
+    {
+      key: "stockRange",
+      label: "Stock Quantity",
+      type: "range" as const,
+    },
+  ];
+
+  // Filtered data based on search and filters
+  const filteredInventory = useMemo(() => {
+    let filtered = inventory.filter((item: InventoryItem) => {
+      const matchesSearch = searchValue === "" || 
+        item.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.supplier.toLowerCase().includes(searchValue.toLowerCase());
+      
+      const matchesCategory = !activeFilters.category || item.category === activeFilters.category;
+      
+      const matchesStockStatus = !activeFilters.stockStatus || (() => {
+        if (activeFilters.stockStatus === "out_of_stock") return item.currentStock === 0;
+        if (activeFilters.stockStatus === "low_stock") return item.currentStock <= item.minStockLevel && item.currentStock > 0;
+        if (activeFilters.stockStatus === "in_stock") return item.currentStock > item.minStockLevel;
+        return true;
+      })();
+      
+      const matchesStockRange = !activeFilters.stockRange || (() => {
+        const min = activeFilters.stockRange.min ? parseInt(activeFilters.stockRange.min) : 0;
+        const max = activeFilters.stockRange.max ? parseInt(activeFilters.stockRange.max) : Number.MAX_SAFE_INTEGER;
+        return item.currentStock >= min && item.currentStock <= max;
+      })();
+      
+      return matchesSearch && matchesCategory && matchesStockStatus && matchesStockRange;
+    });
+    
+    return filtered;
+  }, [inventory, searchValue, activeFilters]);
+
+  const handleFilterChange = (key: string, value: any) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setActiveFilters({});
+  };
+
+  const handleExport = () => {
+    try {
+      const exportData = formatDataForExport(filteredInventory, ['tenantId']);
+      exportToCSV(exportData, 'inventory-report');
+      toast({
+        title: "Export Successful",
+        description: "Inventory data has been exported to CSV",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to export inventory data",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="p-6">
@@ -227,6 +320,19 @@ export default function InventoryManagement() {
         </Dialog>
       </div>
 
+      {/* Enhanced Search and Filter */}
+      <SearchFilter
+        searchPlaceholder="Search inventory items..."
+        searchValue={searchValue}
+        onSearchChange={setSearchValue}
+        filters={filterOptions}
+        activeFilters={activeFilters}
+        onFilterChange={handleFilterChange}
+        onClearFilters={handleClearFilters}
+        onExport={handleExport}
+        showExport={true}
+      />
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -235,7 +341,10 @@ export default function InventoryManagement() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{inventory.length}</div>
+            <div className="text-2xl font-bold">{filteredInventory.length}</div>
+            {filteredInventory.length !== inventory.length && (
+              <p className="text-xs text-muted-foreground">of {inventory.length} total</p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -298,7 +407,7 @@ export default function InventoryManagement() {
 
       {/* Inventory Items Grid */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {inventory.map((item: InventoryItem) => {
+        {filteredInventory.map((item: InventoryItem) => {
           const stockStatus = getStockStatus(item);
           return (
             <Card key={item.id} className="hover:shadow-md transition-shadow">
