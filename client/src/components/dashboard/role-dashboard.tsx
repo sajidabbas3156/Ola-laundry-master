@@ -14,7 +14,11 @@ import {
   Shirt,
   Monitor,
   Smartphone,
-  LogOut
+  LogOut,
+  Tag,
+  Bell,
+  TrendingUp,
+  Archive
 } from "lucide-react";
 
 export function RoleDashboard() {
@@ -214,6 +218,136 @@ export function RoleDashboard() {
               </CardContent>
             </Card>
           </RoleGuard>
+
+          {/* Inventory Management */}
+          <RoleGuard allowedRoles={[USER_ROLES.INVENTORY_MANAGER, USER_ROLES.BRANCH_MANAGER, USER_ROLES.ORG_OWNER]}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/inventory'}>
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <Archive className="w-6 h-6 text-amber-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Inventory Management</CardTitle>
+                    <CardDescription>Stock tracking and management</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2">
+                    <Package className="w-4 h-4" />
+                    <span>Stock Levels</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Bell className="w-4 h-4" />
+                    <span>Low Stock Alerts</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Usage Analytics</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Promotions Management */}
+          <RoleGuard allowedRoles={[USER_ROLES.BRANCH_MANAGER, USER_ROLES.ORG_OWNER]}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/promotions'}>
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-pink-100 rounded-lg">
+                    <Tag className="w-6 h-6 text-pink-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Promotions & Offers</CardTitle>
+                    <CardDescription>Marketing and discount campaigns</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2">
+                    <Tag className="w-4 h-4" />
+                    <span>Discount Codes</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-4 h-4" />
+                    <span>Customer Targeting</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Campaign Performance</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Analytics Dashboard */}
+          <RoleGuard allowedRoles={[USER_ROLES.BRANCH_MANAGER, USER_ROLES.ORG_OWNER, USER_ROLES.SUPER_ADMIN]}>
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/analytics'}>
+              <CardHeader>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <TrendingUp className="w-6 h-6 text-indigo-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Analytics Dashboard</CardTitle>
+                    <CardDescription>Business insights and reports</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2">
+                    <BarChart3 className="w-4 h-4" />
+                    <span>Revenue Analytics</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Users className="w-4 h-4" />
+                    <span>Customer Insights</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-4 h-4" />
+                    <span>Performance Metrics</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </RoleGuard>
+
+          {/* Notification Center */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => window.location.href = '/notifications'}>
+            <CardHeader>
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Bell className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Notification Center</CardTitle>
+                  <CardDescription>System alerts and messages</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm text-gray-600">
+                <div className="flex items-center space-x-2">
+                  <Bell className="w-4 h-4" />
+                  <span>System Alerts</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Users className="w-4 h-4" />
+                  <span>User Messages</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Settings className="w-4 h-4" />
+                  <span>Notification Settings</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Super Admin Only - Organization Management */}
           <RoleGuard allowedRoles={[USER_ROLES.SUPER_ADMIN]}>

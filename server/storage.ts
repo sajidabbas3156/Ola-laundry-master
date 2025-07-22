@@ -7,6 +7,13 @@ import {
   machines,
   deliveryRoutes,
   deliveryStops,
+  tenants,
+  inventoryItems,
+  promotions,
+  reviews,
+  notifications,
+  analyticsEvents,
+  businessSettings,
   type User,
   type InsertUser,
   type Customer,
@@ -23,6 +30,20 @@ import {
   type InsertDeliveryRoute,
   type DeliveryStop,
   type InsertDeliveryStop,
+  type Tenant,
+  type InsertTenant,
+  type InventoryItem,
+  type InsertInventoryItem,
+  type Promotion,
+  type InsertPromotion,
+  type Review,
+  type InsertReview,
+  type Notification,
+  type InsertNotification,
+  type AnalyticsEvent,
+  type InsertAnalyticsEvent,
+  type BusinessSetting,
+  type InsertBusinessSetting,
   type OrderWithDetails,
   type RouteWithDetails,
 } from "@shared/schema";
@@ -82,6 +103,48 @@ export interface IStorage {
     pendingOrders: number;
     activeCustomers: number;
   }>;
+
+  // Tenant operations
+  getAllTenants(): Promise<Tenant[]>;
+  getTenant(id: number): Promise<Tenant | undefined>;
+  getTenantBySubdomain(subdomain: string): Promise<Tenant | undefined>;
+  createTenant(tenant: InsertTenant): Promise<Tenant>;
+  updateTenant(id: number, updates: Partial<InsertTenant>): Promise<Tenant>;
+
+  // Inventory operations
+  getAllInventoryItems(tenantId?: number): Promise<InventoryItem[]>;
+  getInventoryItem(id: number): Promise<InventoryItem | undefined>;
+  createInventoryItem(item: InsertInventoryItem): Promise<InventoryItem>;
+  updateInventoryItem(id: number, updates: Partial<InsertInventoryItem>): Promise<InventoryItem>;
+
+  // Promotion operations
+  getAllPromotions(tenantId?: number): Promise<Promotion[]>;
+  getActivePromotions(tenantId?: number): Promise<Promotion[]>;
+  getPromotion(id: number): Promise<Promotion | undefined>;
+  getPromotionByCode(code: string): Promise<Promotion | undefined>;
+  createPromotion(promotion: InsertPromotion): Promise<Promotion>;
+  updatePromotion(id: number, updates: Partial<InsertPromotion>): Promise<Promotion>;
+
+  // Review operations
+  getAllReviews(tenantId?: number): Promise<Review[]>;
+  getReviewsByCustomer(customerId: number): Promise<Review[]>;
+  createReview(review: InsertReview): Promise<Review>;
+  updateReview(id: number, updates: Partial<InsertReview>): Promise<Review>;
+
+  // Notification operations
+  getAllNotifications(userId?: number): Promise<Notification[]>;
+  getUnreadNotifications(userId: number): Promise<Notification[]>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  markNotificationAsRead(id: number): Promise<Notification>;
+
+  // Analytics operations
+  createAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent>;
+  getAnalyticsEvents(tenantId?: number, eventType?: string): Promise<AnalyticsEvent[]>;
+
+  // Business settings operations
+  getAllBusinessSettings(tenantId?: number): Promise<BusinessSetting[]>;
+  getBusinessSetting(tenantId: number, key: string): Promise<BusinessSetting | undefined>;
+  setBusinessSetting(setting: InsertBusinessSetting): Promise<BusinessSetting>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -412,6 +475,224 @@ export class DatabaseStorage implements IStorage {
       pendingOrders: pendingOrdersResult.count,
       activeCustomers: activeCustomersResult.count,
     };
+  }
+
+  // Tenant operations
+  async getAllTenants(): Promise<Tenant[]> {
+    return await db.select().from(tenants).orderBy(desc(tenants.createdAt));
+  }
+
+  async getTenant(id: number): Promise<Tenant | undefined> {
+    const [tenant] = await db.select().from(tenants).where(eq(tenants.id, id));
+    return tenant;
+  }
+
+  async getTenantBySubdomain(subdomain: string): Promise<Tenant | undefined> {
+    const [tenant] = await db.select().from(tenants).where(eq(tenants.subdomain, subdomain));
+    return tenant;
+  }
+
+  async createTenant(tenant: InsertTenant): Promise<Tenant> {
+    const [newTenant] = await db.insert(tenants).values(tenant).returning();
+    return newTenant;
+  }
+
+  async updateTenant(id: number, updates: Partial<InsertTenant>): Promise<Tenant> {
+    const [updatedTenant] = await db
+      .update(tenants)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(tenants.id, id))
+      .returning();
+    return updatedTenant;
+  }
+
+  // Inventory operations
+  async getAllInventoryItems(tenantId?: number): Promise<InventoryItem[]> {
+    const query = db.select().from(inventoryItems);
+    if (tenantId) {
+      return await query.where(eq(inventoryItems.tenantId, tenantId));
+    }
+    return await query;
+  }
+
+  async getInventoryItem(id: number): Promise<InventoryItem | undefined> {
+    const [item] = await db.select().from(inventoryItems).where(eq(inventoryItems.id, id));
+    return item;
+  }
+
+  async createInventoryItem(item: InsertInventoryItem): Promise<InventoryItem> {
+    const [newItem] = await db.insert(inventoryItems).values(item).returning();
+    return newItem;
+  }
+
+  async updateInventoryItem(id: number, updates: Partial<InsertInventoryItem>): Promise<InventoryItem> {
+    const [updatedItem] = await db
+      .update(inventoryItems)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(inventoryItems.id, id))
+      .returning();
+    return updatedItem;
+  }
+
+  // Promotion operations
+  async getAllPromotions(tenantId?: number): Promise<Promotion[]> {
+    const query = db.select().from(promotions);
+    if (tenantId) {
+      return await query.where(eq(promotions.tenantId, tenantId));
+    }
+    return await query;
+  }
+
+  async getActivePromotions(tenantId?: number): Promise<Promotion[]> {
+    const now = new Date();
+    const query = db.select().from(promotions).where(
+      and(
+        eq(promotions.isActive, true),
+        sql`${promotions.validFrom} <= ${now}`,
+        sql`${promotions.validUntil} >= ${now}`
+      )
+    );
+    if (tenantId) {
+      return await query.where(eq(promotions.tenantId, tenantId));
+    }
+    return await query;
+  }
+
+  async getPromotion(id: number): Promise<Promotion | undefined> {
+    const [promotion] = await db.select().from(promotions).where(eq(promotions.id, id));
+    return promotion;
+  }
+
+  async getPromotionByCode(code: string): Promise<Promotion | undefined> {
+    const [promotion] = await db.select().from(promotions).where(eq(promotions.code, code));
+    return promotion;
+  }
+
+  async createPromotion(promotion: InsertPromotion): Promise<Promotion> {
+    const [newPromotion] = await db.insert(promotions).values(promotion).returning();
+    return newPromotion;
+  }
+
+  async updatePromotion(id: number, updates: Partial<InsertPromotion>): Promise<Promotion> {
+    const [updatedPromotion] = await db
+      .update(promotions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(promotions.id, id))
+      .returning();
+    return updatedPromotion;
+  }
+
+  // Review operations
+  async getAllReviews(tenantId?: number): Promise<Review[]> {
+    const query = db.select().from(reviews);
+    if (tenantId) {
+      return await query.where(eq(reviews.tenantId, tenantId));
+    }
+    return await query;
+  }
+
+  async getReviewsByCustomer(customerId: number): Promise<Review[]> {
+    return await db.select().from(reviews).where(eq(reviews.customerId, customerId));
+  }
+
+  async createReview(review: InsertReview): Promise<Review> {
+    const [newReview] = await db.insert(reviews).values(review).returning();
+    return newReview;
+  }
+
+  async updateReview(id: number, updates: Partial<InsertReview>): Promise<Review> {
+    const [updatedReview] = await db
+      .update(reviews)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(reviews.id, id))
+      .returning();
+    return updatedReview;
+  }
+
+  // Notification operations
+  async getAllNotifications(userId?: number): Promise<Notification[]> {
+    const query = db.select().from(notifications);
+    if (userId) {
+      return await query.where(eq(notifications.userId, userId));
+    }
+    return await query;
+  }
+
+  async getUnreadNotifications(userId: number): Promise<Notification[]> {
+    return await db.select().from(notifications).where(
+      and(
+        eq(notifications.userId, userId),
+        eq(notifications.isRead, false)
+      )
+    );
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [newNotification] = await db.insert(notifications).values(notification).returning();
+    return newNotification;
+  }
+
+  async markNotificationAsRead(id: number): Promise<Notification> {
+    const [updatedNotification] = await db
+      .update(notifications)
+      .set({ isRead: true, readAt: new Date() })
+      .where(eq(notifications.id, id))
+      .returning();
+    return updatedNotification;
+  }
+
+  // Analytics operations
+  async createAnalyticsEvent(event: InsertAnalyticsEvent): Promise<AnalyticsEvent> {
+    const [newEvent] = await db.insert(analyticsEvents).values(event).returning();
+    return newEvent;
+  }
+
+  async getAnalyticsEvents(tenantId?: number, eventType?: string): Promise<AnalyticsEvent[]> {
+    let query = db.select().from(analyticsEvents);
+    
+    const conditions = [];
+    if (tenantId) conditions.push(eq(analyticsEvents.tenantId, tenantId));
+    if (eventType) conditions.push(eq(analyticsEvents.eventType, eventType));
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(analyticsEvents.timestamp));
+  }
+
+  // Business settings operations
+  async getAllBusinessSettings(tenantId?: number): Promise<BusinessSetting[]> {
+    const query = db.select().from(businessSettings);
+    if (tenantId) {
+      return await query.where(eq(businessSettings.tenantId, tenantId));
+    }
+    return await query;
+  }
+
+  async getBusinessSetting(tenantId: number, key: string): Promise<BusinessSetting | undefined> {
+    const [setting] = await db.select().from(businessSettings).where(
+      and(
+        eq(businessSettings.tenantId, tenantId),
+        eq(businessSettings.settingKey, key)
+      )
+    );
+    return setting;
+  }
+
+  async setBusinessSetting(setting: InsertBusinessSetting): Promise<BusinessSetting> {
+    const [newSetting] = await db.insert(businessSettings)
+      .values(setting)
+      .onConflictDoUpdate({
+        target: [businessSettings.tenantId, businessSettings.settingKey],
+        set: {
+          settingValue: setting.settingValue,
+          updatedAt: new Date(),
+          updatedBy: setting.updatedBy
+        }
+      })
+      .returning();
+    return newSetting;
   }
 }
 

@@ -28,11 +28,15 @@ Preferred communication style: Simple, everyday language.
 - **API Design**: RESTful API with consistent error handling
 
 ### Multiple Client Applications
-The system provides four distinct user interfaces:
+The system provides eight comprehensive user interfaces:
 1. **Web Admin Dashboard** (`/admin`) - Complete business management interface
 2. **Mobile POS App** (`/pos`) - Point of sale for staff to process orders
 3. **Customer App** (`/customer`) - Customer order placement and tracking
 4. **Delivery App** (`/delivery`) - Driver route management and delivery tracking
+5. **Inventory Management** (`/inventory`) - Stock tracking and management
+6. **Promotion Management** (`/promotions`) - Marketing campaigns and discount codes
+7. **Analytics Dashboard** (`/analytics`) - Business insights and performance metrics
+8. **Notification Center** (`/notifications`) - System alerts and messaging
 
 ## Key Components
 
@@ -43,6 +47,12 @@ The system provides four distinct user interfaces:
 - **Orders**: Order management with items, status tracking, and payment information
 - **Machines**: Equipment status and scheduling
 - **Delivery Routes**: Route optimization and delivery stop management
+- **Inventory**: Stock management with automated reorder points and usage tracking
+- **Promotions**: Marketing campaigns with discount codes and customer targeting
+- **Reviews**: Customer feedback system with ratings and detailed comments
+- **Analytics Events**: Business intelligence tracking for comprehensive reporting
+- **Notifications**: System-wide messaging and alert management
+- **Organizations & Branches**: Multi-tenant infrastructure with hierarchy support
 
 ### Authentication & Authorization
 - JWT token-based authentication system

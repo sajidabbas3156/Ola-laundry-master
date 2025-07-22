@@ -10,6 +10,10 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import MobilePOS from "@/pages/mobile-pos";
 import CustomerApp from "@/pages/customer-app";
 import DeliveryApp from "@/pages/delivery-app";
+import InventoryManagement from "@/pages/inventory-management";
+import PromotionManagement from "@/pages/promotion-management";
+import AnalyticsDashboard from "@/pages/analytics-dashboard";
+import NotificationCenter from "@/pages/notification-center";
 import { useAuth } from "@/hooks/use-auth";
 import { RoleGuard } from "@/components/auth/role-guard";
 import { RoleDashboard } from "@/components/dashboard/role-dashboard";
@@ -77,6 +81,24 @@ function Router() {
         <RoleGuard allowedRoles={["delivery_agent", "branch_manager", "org_owner"]}>
           <DeliveryApp />
         </RoleGuard>
+      </Route>
+      <Route path="/inventory">
+        <RoleGuard allowedRoles={["inventory_manager", "branch_manager", "org_owner"]}>
+          <InventoryManagement />
+        </RoleGuard>
+      </Route>
+      <Route path="/promotions">
+        <RoleGuard allowedRoles={["branch_manager", "org_owner"]}>
+          <PromotionManagement />
+        </RoleGuard>
+      </Route>
+      <Route path="/analytics">
+        <RoleGuard allowedRoles={["branch_manager", "org_owner", "superadmin"]}>
+          <AnalyticsDashboard />
+        </RoleGuard>
+      </Route>
+      <Route path="/notifications">
+        <NotificationCenter />
       </Route>
       <Route component={NotFound} />
     </Switch>

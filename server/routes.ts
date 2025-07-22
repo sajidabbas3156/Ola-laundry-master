@@ -139,6 +139,258 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Tenant management routes
+  app.get("/api/tenants", authenticateToken, async (req, res) => {
+    try {
+      const tenants = await storage.getAllTenants();
+      res.json(tenants);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/tenants/:id", authenticateToken, async (req, res) => {
+    try {
+      const tenant = await storage.getTenant(parseInt(req.params.id));
+      if (!tenant) {
+        return res.status(404).json({ message: "Tenant not found" });
+      }
+      res.json(tenant);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/tenants", authenticateToken, async (req, res) => {
+    try {
+      const tenant = await storage.createTenant(req.body);
+      res.status(201).json(tenant);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/tenants/:id", authenticateToken, async (req, res) => {
+    try {
+      const tenant = await storage.updateTenant(parseInt(req.params.id), req.body);
+      res.json(tenant);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Inventory management routes
+  app.get("/api/inventory", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const items = await storage.getAllInventoryItems(tenantId);
+      res.json(items);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/inventory/:id", authenticateToken, async (req, res) => {
+    try {
+      const item = await storage.getInventoryItem(parseInt(req.params.id));
+      if (!item) {
+        return res.status(404).json({ message: "Inventory item not found" });
+      }
+      res.json(item);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/inventory", authenticateToken, async (req, res) => {
+    try {
+      const item = await storage.createInventoryItem(req.body);
+      res.status(201).json(item);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/inventory/:id", authenticateToken, async (req, res) => {
+    try {
+      const item = await storage.updateInventoryItem(parseInt(req.params.id), req.body);
+      res.json(item);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Promotion management routes
+  app.get("/api/promotions", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const activeOnly = req.query.activeOnly === 'true';
+      
+      const promotions = activeOnly 
+        ? await storage.getActivePromotions(tenantId)
+        : await storage.getAllPromotions(tenantId);
+      res.json(promotions);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/promotions/code/:code", authenticateToken, async (req, res) => {
+    try {
+      const promotion = await storage.getPromotionByCode(req.params.code);
+      if (!promotion) {
+        return res.status(404).json({ message: "Promotion not found" });
+      }
+      res.json(promotion);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/promotions", authenticateToken, async (req, res) => {
+    try {
+      const promotion = await storage.createPromotion(req.body);
+      res.status(201).json(promotion);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/promotions/:id", authenticateToken, async (req, res) => {
+    try {
+      const promotion = await storage.updatePromotion(parseInt(req.params.id), req.body);
+      res.json(promotion);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Review management routes
+  app.get("/api/reviews", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const customerId = req.query.customerId ? parseInt(req.query.customerId as string) : undefined;
+      
+      let reviews;
+      if (customerId) {
+        reviews = await storage.getReviewsByCustomer(customerId);
+      } else {
+        reviews = await storage.getAllReviews(tenantId);
+      }
+      res.json(reviews);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/reviews", authenticateToken, async (req, res) => {
+    try {
+      const review = await storage.createReview(req.body);
+      res.status(201).json(review);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/reviews/:id", authenticateToken, async (req, res) => {
+    try {
+      const review = await storage.updateReview(parseInt(req.params.id), req.body);
+      res.json(review);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Notification routes
+  app.get("/api/notifications", authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.query.userId ? parseInt(req.query.userId as string) : req.user.id;
+      const unreadOnly = req.query.unreadOnly === 'true';
+      
+      const notifications = unreadOnly 
+        ? await storage.getUnreadNotifications(userId)
+        : await storage.getAllNotifications(userId);
+      res.json(notifications);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/notifications", authenticateToken, async (req, res) => {
+    try {
+      const notification = await storage.createNotification(req.body);
+      res.status(201).json(notification);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/notifications/:id/read", authenticateToken, async (req, res) => {
+    try {
+      const notification = await storage.markNotificationAsRead(parseInt(req.params.id));
+      res.json(notification);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Analytics routes
+  app.get("/api/analytics/events", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const eventType = req.query.eventType as string;
+      
+      const events = await storage.getAnalyticsEvents(tenantId, eventType);
+      res.json(events);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/analytics/events", authenticateToken, async (req, res) => {
+    try {
+      const event = await storage.createAnalyticsEvent(req.body);
+      res.status(201).json(event);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Business settings routes
+  app.get("/api/settings", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const settings = await storage.getAllBusinessSettings(tenantId);
+      res.json(settings);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/settings/:tenantId/:key", authenticateToken, async (req, res) => {
+    try {
+      const setting = await storage.getBusinessSetting(
+        parseInt(req.params.tenantId), 
+        req.params.key
+      );
+      if (!setting) {
+        return res.status(404).json({ message: "Setting not found" });
+      }
+      res.json(setting);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/settings", authenticateToken, async (req, res) => {
+    try {
+      const setting = await storage.setBusinessSetting(req.body);
+      res.status(201).json(setting);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Customer routes
   app.get("/api/customers", authenticateToken, async (req, res) => {
     try {

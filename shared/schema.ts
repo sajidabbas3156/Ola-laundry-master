@@ -197,6 +197,138 @@ export const deliveryStopsRelations = relations(deliveryStops, ({ one }) => ({
   }),
 }));
 
+// Tenants table for multi-tenant SaaS functionality
+export const tenants = pgTable("tenants", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  subdomain: varchar("subdomain", { length: 100 }).notNull().unique(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull(),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  address: text("address"),
+  logo: text("logo"),
+  primaryColor: varchar("primary_color", { length: 7 }),
+  subscriptionStatus: varchar("subscription_status", { length: 20 }).default("trial"),
+  subscriptionPlan: varchar("subscription_plan", { length: 20 }).default("basic"),
+  trialEndsAt: timestamp("trial_ends_at"),
+  isActive: boolean("is_active").default(true),
+  whatsappNumber: varchar("whatsapp_number", { length: 20 }),
+  customDomain: varchar("custom_domain", { length: 255 }),
+  defaultCurrency: varchar("default_currency", { length: 3 }).default("BHD"),
+  defaultLanguage: varchar("default_language", { length: 2 }).default("en"),
+  googleMapsApiKey: text("google_maps_api_key"),
+  locationData: jsonb("location_data"),
+  businessHours: jsonb("business_hours"),
+  settings: jsonb("settings"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Inventory items
+export const inventoryItems = pgTable("inventory_items", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }),
+  sku: varchar("sku", { length: 100 }),
+  barcode: varchar("barcode", { length: 100 }),
+  currentStock: integer("current_stock").default(0),
+  minStock: integer("min_stock").default(0),
+  maxStock: integer("max_stock"),
+  unitCost: decimal("unit_cost", { precision: 10, scale: 2 }),
+  supplier: varchar("supplier", { length: 255 }),
+  location: varchar("location", { length: 100 }),
+  expiryDate: timestamp("expiry_date"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Promotions and discounts
+export const promotions = pgTable("promotions", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  code: varchar("code", { length: 50 }),
+  type: varchar("type", { length: 20 }).notNull(),
+  value: decimal("value", { precision: 10, scale: 2 }).notNull(),
+  minOrderValue: decimal("min_order_value", { precision: 10, scale: 2 }),
+  maxDiscountAmount: decimal("max_discount_amount", { precision: 10, scale: 2 }),
+  usageLimit: integer("usage_limit"),
+  usageCount: integer("usage_count").default(0),
+  customerLimit: integer("customer_limit"),
+  validFrom: timestamp("valid_from").notNull(),
+  validUntil: timestamp("valid_until").notNull(),
+  applicableServices: jsonb("applicable_services"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Customer reviews and ratings
+export const reviews = pgTable("reviews", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  customerId: integer("customer_id").references(() => customers.id),
+  orderId: integer("order_id").references(() => orders.id),
+  rating: integer("rating").notNull(),
+  title: varchar("title", { length: 255 }),
+  comment: text("comment"),
+  photos: jsonb("photos"),
+  response: text("response"),
+  responseBy: integer("response_by").references(() => users.id),
+  responseAt: timestamp("response_at"),
+  isVerified: boolean("is_verified").default(false),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Notifications
+export const notifications = pgTable("notifications", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  userId: integer("user_id").references(() => users.id),
+  type: varchar("type", { length: 50 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message").notNull(),
+  data: jsonb("data"),
+  channels: jsonb("channels"),
+  isRead: boolean("is_read").default(false),
+  readAt: timestamp("read_at"),
+  sentAt: timestamp("sent_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Analytics events
+export const analyticsEvents = pgTable("analytics_events", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  eventName: varchar("event_name", { length: 100 }).notNull(),
+  userId: integer("user_id").references(() => users.id),
+  sessionId: varchar("session_id", { length: 100 }),
+  properties: jsonb("properties"),
+  timestamp: timestamp("timestamp").defaultNow(),
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address", { length: 45 }),
+});
+
+// Business settings
+export const businessSettings = pgTable("business_settings", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  settingKey: varchar("setting_key", { length: 100 }).notNull(),
+  settingValue: jsonb("setting_value"),
+  category: varchar("category", { length: 50 }),
+  isPublic: boolean("is_public").default(false),
+  updatedBy: integer("updated_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -241,6 +373,46 @@ export const insertDeliveryStopSchema = createInsertSchema(deliveryStops).omit({
   createdAt: true,
 });
 
+export const insertTenantSchema = createInsertSchema(tenants).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertInventoryItemSchema = createInsertSchema(inventoryItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPromotionSchema = createInsertSchema(promotions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+  id: true,
+  timestamp: true,
+});
+
+export const insertBusinessSettingSchema = createInsertSchema(businessSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -258,6 +430,20 @@ export type DeliveryRoute = typeof deliveryRoutes.$inferSelect;
 export type InsertDeliveryRoute = z.infer<typeof insertDeliveryRouteSchema>;
 export type DeliveryStop = typeof deliveryStops.$inferSelect;
 export type InsertDeliveryStop = z.infer<typeof insertDeliveryStopSchema>;
+export type Tenant = typeof tenants.$inferSelect;
+export type InsertTenant = z.infer<typeof insertTenantSchema>;
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type InsertInventoryItem = z.infer<typeof insertInventoryItemSchema>;
+export type Promotion = typeof promotions.$inferSelect;
+export type InsertPromotion = z.infer<typeof insertPromotionSchema>;
+export type Review = typeof reviews.$inferSelect;
+export type InsertReview = z.infer<typeof insertReviewSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
+export type BusinessSetting = typeof businessSettings.$inferSelect;
+export type InsertBusinessSetting = z.infer<typeof insertBusinessSettingSchema>;
 
 // Extended types for API responses
 export type OrderWithDetails = Order & {
