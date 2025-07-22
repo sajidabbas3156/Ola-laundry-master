@@ -531,6 +531,191 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Supplier management routes
+  app.get("/api/suppliers", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const suppliers = await storage.getAllSuppliers(tenantId);
+      res.json(suppliers);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/suppliers/:id", authenticateToken, async (req, res) => {
+    try {
+      const supplier = await storage.getSupplier(parseInt(req.params.id));
+      if (!supplier) {
+        return res.status(404).json({ message: "Supplier not found" });
+      }
+      res.json(supplier);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/suppliers", authenticateToken, async (req, res) => {
+    try {
+      const supplier = await storage.createSupplier(req.body);
+      res.status(201).json(supplier);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/suppliers/:id", authenticateToken, async (req, res) => {
+    try {
+      const supplier = await storage.updateSupplier(parseInt(req.params.id), req.body);
+      res.json(supplier);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/suppliers/:id", authenticateToken, async (req, res) => {
+    try {
+      await storage.deleteSupplier(parseInt(req.params.id));
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Purchase order management routes
+  app.get("/api/purchase-orders", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const purchaseOrders = await storage.getAllPurchaseOrders(tenantId);
+      res.json(purchaseOrders);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/purchase-orders/:id", authenticateToken, async (req, res) => {
+    try {
+      const purchaseOrder = await storage.getPurchaseOrder(parseInt(req.params.id));
+      if (!purchaseOrder) {
+        return res.status(404).json({ message: "Purchase order not found" });
+      }
+      res.json(purchaseOrder);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/purchase-orders", authenticateToken, async (req, res) => {
+    try {
+      const purchaseOrder = await storage.createPurchaseOrder(req.body);
+      res.status(201).json(purchaseOrder);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/purchase-orders/:id", authenticateToken, async (req, res) => {
+    try {
+      const purchaseOrder = await storage.updatePurchaseOrder(parseInt(req.params.id), req.body);
+      res.json(purchaseOrder);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Purchase order items
+  app.get("/api/purchase-orders/:id/items", authenticateToken, async (req, res) => {
+    try {
+      const items = await storage.getPurchaseOrderItems(parseInt(req.params.id));
+      res.json(items);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/purchase-orders/:id/items", authenticateToken, async (req, res) => {
+    try {
+      const item = await storage.createPurchaseOrderItem({
+        ...req.body,
+        purchaseOrderId: parseInt(req.params.id),
+      });
+      res.status(201).json(item);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Inventory transactions
+  app.get("/api/inventory/transactions", authenticateToken, async (req, res) => {
+    try {
+      const inventoryItemId = req.query.inventoryItemId ? parseInt(req.query.inventoryItemId as string) : undefined;
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const transactions = await storage.getInventoryTransactions(inventoryItemId, tenantId);
+      res.json(transactions);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/inventory/transactions", authenticateToken, async (req, res) => {
+    try {
+      const transaction = await storage.createInventoryTransaction(req.body);
+      
+      // Update inventory item stock based on transaction
+      const item = await storage.getInventoryItem(transaction.inventoryItemId);
+      if (item) {
+        const quantity = parseFloat(transaction.quantity);
+        let newStock = parseFloat(item.currentStock.toString());
+        
+        if (transaction.transactionType === 'in') {
+          newStock += quantity;
+        } else if (transaction.transactionType === 'out') {
+          newStock -= quantity;
+        } else if (transaction.transactionType === 'adjustment') {
+          newStock = quantity; // Direct adjustment
+        }
+        
+        await storage.updateInventoryItem(transaction.inventoryItemId, {
+          currentStock: newStock.toString(),
+        });
+      }
+      
+      res.status(201).json(transaction);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Automatic reordering endpoints
+  app.get("/api/inventory/reorder-alerts", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const items = await storage.getItemsBelowReorderPoint(tenantId);
+      res.json(items);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/inventory/auto-reorder", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      const purchaseOrders = await storage.checkAndCreateReorders(tenantId);
+      res.json({ message: `Created ${purchaseOrders.length} purchase orders`, purchaseOrders });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/inventory/update-usage-rates", authenticateToken, async (req, res) => {
+    try {
+      const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
+      await storage.updateUsageRates(tenantId);
+      res.json({ message: "Usage rates updated successfully" });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Workflow management routes
   app.get("/api/workflows", authenticateToken, async (req, res) => {
     try {

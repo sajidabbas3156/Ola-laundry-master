@@ -13,6 +13,8 @@ import MobilePOS from "@/pages/mobile-pos";
 import CustomerApp from "@/pages/customer-app";
 import DeliveryApp from "@/pages/delivery-app";
 import InventoryManagement from "@/pages/inventory-management";
+import SupplierManagement from "@/pages/supplier-management";
+import PurchaseOrders from "@/pages/purchase-orders";
 import PromotionManagement from "@/pages/promotion-management";
 import AnalyticsDashboard from "@/pages/analytics-dashboard";
 import NotificationCenter from "@/pages/notification-center";
@@ -90,6 +92,16 @@ function Router() {
       <Route path="/inventory">
         <RoleGuard allowedRoles={["inventory_manager", "branch_manager", "org_owner"]}>
           <InventoryManagement />
+        </RoleGuard>
+      </Route>
+      <Route path="/suppliers">
+        <RoleGuard allowedRoles={["inventory_manager", "branch_manager", "org_owner"]}>
+          <SupplierManagement />
+        </RoleGuard>
+      </Route>
+      <Route path="/purchase-orders">
+        <RoleGuard allowedRoles={["inventory_manager", "branch_manager", "org_owner"]}>
+          <PurchaseOrders />
         </RoleGuard>
       </Route>
       <Route path="/promotions">

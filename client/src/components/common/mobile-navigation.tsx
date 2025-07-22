@@ -12,6 +12,8 @@ import {
   Smartphone,
   Truck,
   Archive,
+  Building2,
+  ShoppingCart,
   Tag,
   TrendingUp,
   Bell,
@@ -61,6 +63,18 @@ const navigationItems: NavigationItem[] = [
     name: "Inventory",
     href: "/inventory",
     icon: Archive,
+    allowedRoles: [USER_ROLES.INVENTORY_MANAGER, USER_ROLES.BRANCH_MANAGER, USER_ROLES.ORG_OWNER],
+  },
+  {
+    name: "Suppliers",
+    href: "/suppliers",
+    icon: Building2,
+    allowedRoles: [USER_ROLES.INVENTORY_MANAGER, USER_ROLES.BRANCH_MANAGER, USER_ROLES.ORG_OWNER],
+  },
+  {
+    name: "Purchase Orders",
+    href: "/purchase-orders",
+    icon: ShoppingCart,
     allowedRoles: [USER_ROLES.INVENTORY_MANAGER, USER_ROLES.BRANCH_MANAGER, USER_ROLES.ORG_OWNER],
   },
   {

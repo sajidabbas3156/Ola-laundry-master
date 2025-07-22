@@ -49,6 +49,18 @@ import {
   workflows,
   type Workflow,
   type InsertWorkflow,
+  suppliers,
+  type Supplier,
+  type InsertSupplier,
+  purchaseOrders,
+  type PurchaseOrder,
+  type InsertPurchaseOrder,
+  purchaseOrderItems,
+  type PurchaseOrderItem,
+  type InsertPurchaseOrderItem,
+  inventoryTransactions,
+  type InventoryTransaction,
+  type InsertInventoryTransaction,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, like, count, sum, sql } from "drizzle-orm";
@@ -155,6 +167,34 @@ export interface IStorage {
   createWorkflow(workflow: InsertWorkflow): Promise<Workflow>;
   updateWorkflow(id: number, updates: Partial<InsertWorkflow>): Promise<Workflow>;
   deleteWorkflow(id: number): Promise<void>;
+
+  // Supplier management
+  getAllSuppliers(tenantId?: number): Promise<Supplier[]>;
+  getSupplier(id: number): Promise<Supplier | undefined>;
+  createSupplier(supplier: InsertSupplier): Promise<Supplier>;
+  updateSupplier(id: number, updates: Partial<InsertSupplier>): Promise<Supplier>;
+  deleteSupplier(id: number): Promise<void>;
+
+  // Purchase order management
+  getAllPurchaseOrders(tenantId?: number): Promise<PurchaseOrder[]>;
+  getPurchaseOrder(id: number): Promise<PurchaseOrder | undefined>;
+  createPurchaseOrder(purchaseOrder: InsertPurchaseOrder): Promise<PurchaseOrder>;
+  updatePurchaseOrder(id: number, updates: Partial<InsertPurchaseOrder>): Promise<PurchaseOrder>;
+  generatePurchaseOrderNumber(): Promise<string>;
+  
+  // Purchase order items
+  getPurchaseOrderItems(purchaseOrderId: number): Promise<PurchaseOrderItem[]>;
+  createPurchaseOrderItem(item: InsertPurchaseOrderItem): Promise<PurchaseOrderItem>;
+  updatePurchaseOrderItem(id: number, updates: Partial<InsertPurchaseOrderItem>): Promise<PurchaseOrderItem>;
+
+  // Inventory transactions
+  getInventoryTransactions(inventoryItemId?: number, tenantId?: number): Promise<InventoryTransaction[]>;
+  createInventoryTransaction(transaction: InsertInventoryTransaction): Promise<InventoryTransaction>;
+  
+  // Automatic reordering
+  checkAndCreateReorders(tenantId?: number): Promise<PurchaseOrder[]>;
+  getItemsBelowReorderPoint(tenantId?: number): Promise<InventoryItem[]>;
+  updateUsageRates(tenantId?: number): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -740,6 +780,285 @@ export class DatabaseStorage implements IStorage {
 
   async deleteWorkflow(id: number): Promise<void> {
     await db.delete(workflows).where(eq(workflows.id, id));
+  }
+
+  // Supplier operations
+  async getAllSuppliers(tenantId?: number): Promise<Supplier[]> {
+    const conditions: any[] = [];
+    if (tenantId) {
+      conditions.push(eq(suppliers.tenantId, tenantId));
+    }
+
+    return await db
+      .select()
+      .from(suppliers)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(suppliers.createdAt));
+  }
+
+  async getSupplier(id: number): Promise<Supplier | undefined> {
+    const [supplier] = await db.select().from(suppliers).where(eq(suppliers.id, id));
+    return supplier;
+  }
+
+  async createSupplier(supplier: InsertSupplier): Promise<Supplier> {
+    const [newSupplier] = await db.insert(suppliers).values(supplier).returning();
+    return newSupplier;
+  }
+
+  async updateSupplier(id: number, updates: Partial<InsertSupplier>): Promise<Supplier> {
+    const [updatedSupplier] = await db
+      .update(suppliers)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(suppliers.id, id))
+      .returning();
+    return updatedSupplier;
+  }
+
+  async deleteSupplier(id: number): Promise<void> {
+    await db.delete(suppliers).where(eq(suppliers.id, id));
+  }
+
+  // Purchase order operations
+  async getAllPurchaseOrders(tenantId?: number): Promise<PurchaseOrder[]> {
+    const conditions: any[] = [];
+    if (tenantId) {
+      conditions.push(eq(purchaseOrders.tenantId, tenantId));
+    }
+
+    return await db
+      .select()
+      .from(purchaseOrders)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(purchaseOrders.createdAt));
+  }
+
+  async getPurchaseOrder(id: number): Promise<PurchaseOrder | undefined> {
+    const [purchaseOrder] = await db.select().from(purchaseOrders).where(eq(purchaseOrders.id, id));
+    return purchaseOrder;
+  }
+
+  async generatePurchaseOrderNumber(): Promise<string> {
+    const count = await db.select({ count: sql`count(*)` }).from(purchaseOrders);
+    const orderCount = Number(count[0].count) + 1;
+    return `PO-${orderCount.toString().padStart(6, '0')}`;
+  }
+
+  async createPurchaseOrder(purchaseOrder: InsertPurchaseOrder): Promise<PurchaseOrder> {
+    const orderNumber = await this.generatePurchaseOrderNumber();
+    const [newPurchaseOrder] = await db
+      .insert(purchaseOrders)
+      .values({ ...purchaseOrder, orderNumber })
+      .returning();
+    return newPurchaseOrder;
+  }
+
+  async updatePurchaseOrder(id: number, updates: Partial<InsertPurchaseOrder>): Promise<PurchaseOrder> {
+    const [updatedPurchaseOrder] = await db
+      .update(purchaseOrders)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(purchaseOrders.id, id))
+      .returning();
+    return updatedPurchaseOrder;
+  }
+
+  // Purchase order items operations
+  async getPurchaseOrderItems(purchaseOrderId: number): Promise<PurchaseOrderItem[]> {
+    return await db
+      .select()
+      .from(purchaseOrderItems)
+      .where(eq(purchaseOrderItems.purchaseOrderId, purchaseOrderId));
+  }
+
+  async createPurchaseOrderItem(item: InsertPurchaseOrderItem): Promise<PurchaseOrderItem> {
+    const [newItem] = await db.insert(purchaseOrderItems).values(item).returning();
+    return newItem;
+  }
+
+  async updatePurchaseOrderItem(id: number, updates: Partial<InsertPurchaseOrderItem>): Promise<PurchaseOrderItem> {
+    const [updatedItem] = await db
+      .update(purchaseOrderItems)
+      .set(updates)
+      .where(eq(purchaseOrderItems.id, id))
+      .returning();
+    return updatedItem;
+  }
+
+  // Inventory transaction operations
+  async getInventoryTransactions(inventoryItemId?: number, tenantId?: number): Promise<InventoryTransaction[]> {
+    const conditions: any[] = [];
+    if (inventoryItemId) {
+      conditions.push(eq(inventoryTransactions.inventoryItemId, inventoryItemId));
+    }
+    if (tenantId) {
+      conditions.push(eq(inventoryTransactions.tenantId, tenantId));
+    }
+
+    return await db
+      .select()
+      .from(inventoryTransactions)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(inventoryTransactions.createdAt));
+  }
+
+  async createInventoryTransaction(transaction: InsertInventoryTransaction): Promise<InventoryTransaction> {
+    const [newTransaction] = await db.insert(inventoryTransactions).values(transaction).returning();
+    return newTransaction;
+  }
+
+  // Simple inventory method to replace complex one
+  async getInventoryItems(): Promise<InventoryItem[]> {
+    const result = await db.select().from(inventoryItems);
+    return result;
+  }
+
+  async createInventoryItem(item: InsertInventoryItem): Promise<InventoryItem> {
+    const [newItem] = await db.insert(inventoryItems).values(item).returning();
+    return newItem;
+  }
+
+  // Simple supplier methods
+  async getSuppliers(): Promise<Supplier[]> {
+    const result = await db.select().from(suppliers);
+    return result;
+  }
+
+  async createSupplier(supplier: InsertSupplier): Promise<Supplier> {
+    const [newSupplier] = await db.insert(suppliers).values(supplier).returning();
+    return newSupplier;
+  }
+
+  // Purchase order methods
+  async getPurchaseOrders(): Promise<PurchaseOrder[]> {
+    const result = await db.select().from(purchaseOrders);
+    return result;
+  }
+
+  async createPurchaseOrder(order: InsertPurchaseOrder): Promise<PurchaseOrder> {
+    const [newOrder] = await db.insert(purchaseOrders).values(order).returning();
+    return newOrder;
+  }
+
+  // Advanced inventory management with automatic reordering
+  async getItemsBelowReorderPoint(tenantId?: number): Promise<InventoryItem[]> {
+    const conditions: any[] = [
+      eq(inventoryItems.autoReorder, true),
+      eq(inventoryItems.isActive, true),
+    ];
+    
+    if (tenantId) {
+      conditions.push(eq(inventoryItems.tenantId, tenantId));
+    }
+
+    return await db
+      .select()
+      .from(inventoryItems)
+      .where(
+        and(
+          ...conditions,
+          sql`${inventoryItems.currentStock} <= ${inventoryItems.reorderPoint}`
+        )
+      );
+  }
+
+  async checkAndCreateReorders(tenantId?: number): Promise<PurchaseOrder[]> {
+    const itemsToReorder = await this.getItemsBelowReorderPoint(tenantId);
+    const createdOrders: PurchaseOrder[] = [];
+
+    // Group items by supplier
+    const itemsBySupplier = itemsToReorder.reduce((acc, item) => {
+      const supplierId = item.supplierId || 0; // Default supplier
+      if (!acc[supplierId]) {
+        acc[supplierId] = [];
+      }
+      acc[supplierId].push(item);
+      return acc;
+    }, {} as Record<number, InventoryItem[]>);
+
+    // Create purchase orders for each supplier
+    for (const [supplierId, items] of Object.entries(itemsBySupplier)) {
+      const supplierIdNum = parseInt(supplierId);
+      
+      const purchaseOrder = await this.createPurchaseOrder({
+        tenantId: tenantId || items[0].tenantId,
+        supplierId: supplierIdNum === 0 ? null : supplierIdNum,
+        status: 'draft',
+        isAutoGenerated: true,
+        notes: 'Automatically generated reorder based on stock levels',
+      });
+
+      let totalAmount = 0;
+
+      // Add items to purchase order
+      for (const item of items) {
+        const quantity = item.reorderQuantity || (item.maximumStock ? parseFloat(item.maximumStock.toString()) - parseFloat(item.currentStock.toString()) : 50);
+        const unitPrice = item.unitCost || 0;
+        const totalPrice = quantity * parseFloat(unitPrice.toString());
+        totalAmount += totalPrice;
+
+        await this.createPurchaseOrderItem({
+          purchaseOrderId: purchaseOrder.id,
+          inventoryItemId: item.id,
+          quantity: quantity.toString(),
+          unitPrice: unitPrice.toString(),
+          totalPrice: totalPrice.toString(),
+        });
+
+        // Update last reorder date
+        await this.updateInventoryItem(item.id, {
+          lastReorderDate: new Date(),
+        });
+      }
+
+      // Update total amount
+      await this.updatePurchaseOrder(purchaseOrder.id, {
+        totalAmount: totalAmount.toString(),
+      });
+
+      createdOrders.push(purchaseOrder);
+    }
+
+    return createdOrders;
+  }
+
+  async updateUsageRates(tenantId?: number): Promise<void> {
+    // Calculate usage rates based on transaction history (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const conditions: any[] = [
+      eq(inventoryTransactions.transactionType, 'out'),
+    ];
+    
+    if (tenantId) {
+      conditions.push(eq(inventoryTransactions.tenantId, tenantId));
+    }
+
+    const transactions = await db
+      .select({
+        inventoryItemId: inventoryTransactions.inventoryItemId,
+        totalUsage: sql`SUM(${inventoryTransactions.quantity})`,
+      })
+      .from(inventoryTransactions)
+      .where(
+        and(
+          ...conditions,
+          sql`${inventoryTransactions.createdAt} >= ${thirtyDaysAgo}`
+        )
+      )
+      .groupBy(inventoryTransactions.inventoryItemId);
+
+    // Update usage rates for each item
+    for (const transaction of transactions) {
+      const dailyUsage = parseFloat(transaction.totalUsage.toString()) / 30;
+      await db
+        .update(inventoryItems)
+        .set({ 
+          averageUsageRate: dailyUsage.toString(),
+          updatedAt: new Date(),
+        })
+        .where(eq(inventoryItems.id, transaction.inventoryItemId));
+    }
   }
 }
 
