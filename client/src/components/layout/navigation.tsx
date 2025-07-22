@@ -11,28 +11,28 @@ import { useState } from "react";
 
 const navigationItems = [
   {
-    name: "Web Admin Dashboard",
+    name: "Admin Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
-    description: "Complete business management interface"
+    description: "Manage your entire laundry business"
   },
   {
-    name: "Mobile POS App",
+    name: "Point of Sale",
     href: "/pos",
     icon: CreditCard,
-    description: "Point of sale interface"
+    description: "Process orders and payments quickly"
   },
   {
-    name: "Customer App",
+    name: "Customer Portal",
     href: "/customer",
     icon: Smartphone,
-    description: "Customer order and tracking"
+    description: "Customer self-service and tracking"
   },
   {
-    name: "Delivery App",
+    name: "Delivery Hub",
     href: "/delivery",
     icon: Truck,
-    description: "Driver route management"
+    description: "Manage deliveries and routes"
   }
 ];
 
@@ -41,20 +41,23 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">LP</span>
+            <Link href="/" className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">LP</span>
               </div>
-              <span className="text-xl font-bold text-gray-900">LaundryPro</span>
+              <div>
+                <span className="text-xl font-bold text-gray-900">LaundryPro</span>
+                <p className="text-xs text-gray-500 -mt-1">Smart Management</p>
+              </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1">
+          <div className="hidden md:flex items-center space-x-2">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = location === item.href || 
@@ -65,14 +68,20 @@ export default function Navigation() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-colors",
+                    "group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 relative",
                     isActive
-                      ? "bg-primary text-white"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-blue-50 hover:shadow-md"
                   )}
                 >
                   <Icon className="w-4 h-4 mr-2" />
-                  {item.name}
+                  <span>{item.name.replace(' App', '').replace(' Dashboard', '')}</span>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                    {item.description}
+                    <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900 rotate-45"></div>
+                  </div>
                 </Link>
               );
             })}

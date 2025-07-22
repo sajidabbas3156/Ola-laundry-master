@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
+import { WelcomeBanner } from "@/components/common/welcome-banner";
 
 interface InventoryItem {
   id: number;
@@ -118,20 +119,25 @@ export default function InventoryManagement() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="p-6 space-y-6">
+        {/* Welcome Banner */}
+        <WelcomeBanner />
+        
+        {/* Header */}
+        <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Inventory Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Monitor stock levels, manage suppliers, and automate reordering
+          <h1 className="text-3xl font-bold text-gray-900">📦 Inventory Management</h1>
+          <p className="text-gray-600 mt-2 text-lg">
+            Keep your supplies in check with smart tracking and automatic reordering
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Button
             onClick={() => updateUsageRatesMutation.mutate()}
             disabled={updateUsageRatesMutation.isPending}
             variant="outline"
+            className="shadow-md hover:shadow-lg transition-all duration-200"
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             Update Usage Rates
@@ -139,9 +145,10 @@ export default function InventoryManagement() {
           <Button
             onClick={() => autoReorderMutation.mutate()}
             disabled={autoReorderMutation.isPending}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all duration-200"
           >
             <RefreshCw className="w-4 h-4 mr-2" />
-            Auto Reorder
+            Smart Reorder
           </Button>
         </div>
       </div>
@@ -318,6 +325,7 @@ export default function InventoryManagement() {
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

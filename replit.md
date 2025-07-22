@@ -7,6 +7,7 @@ LaundryPro is a comprehensive laundry management system built with a modern full
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+UI/UX Design: Friendly, welcoming, and easy to use interface with modern design elements.
 
 ## System Architecture
 
