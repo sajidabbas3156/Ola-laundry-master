@@ -10,48 +10,76 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import MobilePOS from "@/pages/mobile-pos";
 import CustomerApp from "@/pages/customer-app";
 import DeliveryApp from "@/pages/delivery-app";
-import { useAuth, demoLogin } from "@/lib/auth";
+import { useAuth } from "@/hooks/use-auth";
+import { RoleGuard } from "@/components/auth/role-guard";
+import { RoleDashboard } from "@/components/dashboard/role-dashboard";
 
 function Router() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
 
-  if (!isAuthenticated()) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
-          <div className="text-center mb-6">
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
+          <div className="text-center">
             <div className="w-16 h-16 bg-primary rounded-lg flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-xl">LP</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">LaundryPro Bahrain</h1>
-            <p className="text-gray-600 mt-2">Complete Laundry Management Suite</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">LaundryPro SaaS</h1>
+            <p className="text-gray-600 mb-8">Multi-Tenant Laundry Management Platform</p>
+            <div className="space-y-4">
+              <a 
+                href="/api/login"
+                className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-primary/90 transition-colors inline-block text-center font-medium"
+              >
+                Sign In
+              </a>
+              <p className="text-sm text-gray-500">
+                Demo Credentials:<br />
+                • Super Admin: superadmin@laundrypro.com<br />
+                • Owner: owner@laundrypro.bh<br />
+                • Manager: manager@laundrypro.bh<br />
+                • Cashier: cashier@laundrypro.bh<br />
+                Password: demo123
+              </p>
+            </div>
           </div>
-          <Button 
-            onClick={demoLogin} 
-            className="w-full py-3 text-lg font-semibold"
-          >
-            Demo Login (Admin Access)
-          </Button>
-          <p className="text-xs text-gray-500 text-center mt-4">
-            Demo includes: Web Dashboard, Mobile POS, Customer App, and Delivery App
-          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-      <Switch>
-        <Route path="/" component={AdminDashboard} />
-        <Route path="/admin" component={AdminDashboard} />
-        <Route path="/pos" component={MobilePOS} />
-        <Route path="/customer" component={CustomerApp} />
-        <Route path="/delivery" component={DeliveryApp} />
-        <Route component={NotFound} />
-      </Switch>
-    </div>
+    <Switch>
+      <Route path="/" component={RoleDashboard} />
+      <Route path="/admin">
+        <RoleGuard allowedRoles={["superadmin", "org_owner", "branch_manager", "inventory_manager"]}>
+          <AdminDashboard />
+        </RoleGuard>
+      </Route>
+      <Route path="/pos">
+        <RoleGuard allowedRoles={["cashier", "laundry_staff", "branch_manager", "org_owner"]}>
+          <MobilePOS />
+        </RoleGuard>
+      </Route>
+      <Route path="/customer">
+        <CustomerApp />
+      </Route>
+      <Route path="/delivery">
+        <RoleGuard allowedRoles={["delivery_agent", "branch_manager", "org_owner"]}>
+          <DeliveryApp />
+        </RoleGuard>
+      </Route>
+      <Route component={NotFound} />
+    </Switch>
   );
 }
 

@@ -2,19 +2,86 @@ import { storage } from "./storage";
 import bcrypt from "bcryptjs";
 
 export async function seedDatabase() {
-  console.log("Seeding database with Bahrain demo data...");
+  console.log("Seeding database with Bahrain demo data and role-based system...");
 
   try {
-    // Create demo users
+    // Check if users already exist
+    const existingAdmin = await storage.getUserByEmail("superadmin@laundrypro.com");
+    if (existingAdmin) {
+      console.log("Users already exist, skipping seed...");
+      return;
+    }
+
+    // Create demo users with different roles
     const hashedPassword = await bcrypt.hash("demo123", 10);
     
-    // Admin user
-    const adminUser = await storage.createUser({
-      email: "admin@laundrypro.bh",
+    // Super Admin (Platform level)
+    const superAdminUser = await storage.createUser({
+      email: "superadmin@laundrypro.com",
+      firstName: "System",
+      lastName: "Administrator",
+      phone: "+973-1111-0000",
+      role: "superadmin",
+      password: hashedPassword,
+    });
+
+    // Organization Owner (Vendor level)
+    const orgOwnerUser = await storage.createUser({
+      email: "owner@laundrypro.bh",
       firstName: "Ahmad",
       lastName: "Al-Mahmood",
       phone: "+973-3300-1234",
-      role: "admin",
+      role: "org_owner",
+      password: hashedPassword,
+    });
+
+    // Branch Manager
+    const branchManagerUser = await storage.createUser({
+      email: "manager@laundrypro.bh",
+      firstName: "Fatima",
+      lastName: "Al-Zahra",
+      phone: "+973-3300-2345",
+      role: "branch_manager",
+      password: hashedPassword,
+    });
+
+    // Inventory Manager
+    const inventoryManagerUser = await storage.createUser({
+      email: "inventory@laundrypro.bh",
+      firstName: "Omar",
+      lastName: "Al-Rashid",
+      phone: "+973-3300-3456",
+      role: "inventory_manager",
+      password: hashedPassword,
+    });
+
+    // Laundry Staff
+    const laundryStaffUser = await storage.createUser({
+      email: "staff@laundrypro.bh",
+      firstName: "Mariam",
+      lastName: "Al-Mansouri",
+      phone: "+973-3300-4567",
+      role: "laundry_staff",
+      password: hashedPassword,
+    });
+
+    // Cashier
+    const cashierUser = await storage.createUser({
+      email: "cashier@laundrypro.bh",
+      firstName: "Khalid",
+      lastName: "Al-Bahrani",
+      phone: "+973-3300-5678",
+      role: "cashier",
+      password: hashedPassword,
+    });
+
+    // Delivery Agent
+    const deliveryAgentUser = await storage.createUser({
+      email: "delivery@laundrypro.bh",
+      firstName: "Ali",
+      lastName: "Al-Kuwari",
+      phone: "+973-3333-4567",
+      role: "delivery_agent",
       password: hashedPassword,
     });
 
@@ -37,17 +104,7 @@ export async function seedDatabase() {
       password: hashedPassword,
     });
 
-    // Driver user
-    const driverUser = await storage.createUser({
-      email: "driver@laundrypro.bh",
-      firstName: "Ali",
-      lastName: "Al-Kuwari",
-      phone: "+973-3333-4567",
-      role: "driver",
-      password: hashedPassword,
-    });
-
-    // Create customers
+    // Create customers (simplified for working system)
     const customer1 = await storage.createCustomer({
       userId: customer1User.id,
       address: "Building 123, Road 456, Block 789",

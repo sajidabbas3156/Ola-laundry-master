@@ -31,7 +31,7 @@ export default function MobilePOS() {
     queryKey: ["/api/services"],
   });
 
-  const { data: customers = [] } = useQuery({
+  const { data: customers = [] } = useQuery<any[]>({
     queryKey: ["/api/customers"],
   });
 
@@ -79,7 +79,7 @@ export default function MobilePOS() {
     
     try {
       // Process payment with selected Bahrain payment method
-      const paymentResult = await processPayment(selectedPaymentMethod, cartTotal, 'BHD');
+      const paymentResult = await processPayment(selectedPaymentMethod, cartTotal, 'BHD') as any;
       
       if (paymentResult.success) {
         const orderData = {
@@ -197,7 +197,7 @@ export default function MobilePOS() {
         </div>
 
         {/* Service Selection */}
-        <div className="p-4 flex-1 overflow-y-auto">
+        <div className="p-4 flex-1 overflow-y-auto min-h-0">
           <h3 className="font-semibold text-gray-900 mb-3">Select Services</h3>
           
           {Object.entries(servicesByCategory).map(([category, categoryServices]) => (

@@ -15,15 +15,15 @@ import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Users table for authentication and staff management
+// Users table for authentication and staff management with role-based access
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   firstName: varchar("first_name", { length: 100 }),
   lastName: varchar("last_name", { length: 100 }),
   phone: varchar("phone", { length: 20 }),
-  role: varchar("role", { length: 50 }).notNull().default("customer"), // customer, staff, admin, driver
   password: text("password").notNull(),
+  role: varchar("role", { length: 50 }).notNull().default("customer"), // superadmin, org_owner, branch_manager, inventory_manager, laundry_staff, cashier, delivery_agent, customer
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -57,10 +57,9 @@ export const services = pgTable("services", {
 // Orders
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
-  orderNumber: varchar("order_number", { length: 50 }).notNull().unique(),
   customerId: integer("customer_id").references(() => customers.id).notNull(),
-  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, processing, ready, delivered, cancelled
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, processing, ready, delivered, cancelled
   itemCount: integer("item_count").default(0),
   weight: decimal("weight", { precision: 5, scale: 2 }), // in lbs
   pickupDate: timestamp("pickup_date"),
@@ -70,10 +69,12 @@ export const orders = pgTable("orders", {
   paymentStatus: varchar("payment_status", { length: 50 }).default("pending"), // pending, paid, refunded
   paymentMethod: varchar("payment_method", { length: 50 }),
   instructions: text("instructions"),
-  driverId: integer("driver_id").references(() => users.id),
+  processedBy: integer("processed_by").references(() => users.id), // staff who processed the order
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_orders_status").on(table.status),
+]);
 
 // Order items
 export const orderItems = pgTable("order_items", {
@@ -87,7 +88,7 @@ export const orderItems = pgTable("order_items", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Machines for equipment management
+// Machines for equipment management  
 export const machines = pgTable("machines", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 100 }).notNull(),
@@ -96,6 +97,7 @@ export const machines = pgTable("machines", {
   location: varchar("location", { length: 100 }),
   capacity: decimal("capacity", { precision: 5, scale: 2 }), // in lbs
   timeRemaining: integer("time_remaining"), // in minutes
+  currentOrderId: integer("current_order_id").references(() => orders.id),
   lastMaintenance: timestamp("last_maintenance"),
   nextMaintenance: timestamp("next_maintenance"),
   isActive: boolean("is_active").default(true),
@@ -153,8 +155,8 @@ export const ordersRelations = relations(orders, ({ one, many }) => ({
     fields: [orders.customerId],
     references: [customers.id],
   }),
-  driver: one(users, {
-    fields: [orders.driverId],
+  processedByUser: one(users, {
+    fields: [orders.processedBy],
     references: [users.id],
   }),
   items: many(orderItems),

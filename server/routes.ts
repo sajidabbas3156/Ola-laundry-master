@@ -33,7 +33,7 @@ const authenticateToken = async (req: any, res: any, next: any) => {
       email: 'admin@laundrypro.bh',
       firstName: 'Admin',
       lastName: 'User',
-      role: 'admin'
+      role: 'org_owner'
     };
     return next();
   }
@@ -121,6 +121,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.get("/api/auth/me", authenticateToken, async (req: any, res) => {
+    res.json({ ...req.user, password: undefined });
+  });
+
+  // Role-based user endpoint for React Query
+  app.get("/api/auth/user", authenticateToken, async (req: any, res) => {
     res.json({ ...req.user, password: undefined });
   });
 
