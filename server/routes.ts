@@ -467,7 +467,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/orders", authenticateToken, async (req: any, res) => {
     try {
-      const orderData = insertOrderSchema.parse(req.body);
+      let orderData = insertOrderSchema.parse(req.body);
       
       // If customer is creating order, use their customer ID
       if (req.user.role === 'customer' && !orderData.customerId) {
@@ -475,7 +475,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!customer) {
           return res.status(404).json({ message: "Customer profile not found" });
         }
-        orderData.customerId = customer.id;
+        orderData = { ...orderData, customerId: customer.id };
       }
 
       const order = await storage.createOrder(orderData);
@@ -661,22 +661,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const transaction = await storage.createInventoryTransaction(req.body);
       
       // Update inventory item stock based on transaction
-      const item = await storage.getInventoryItem(transaction.inventoryItemId);
-      if (item) {
-        const quantity = parseFloat(transaction.quantity);
-        let newStock = parseFloat(item.currentStock.toString());
-        
-        if (transaction.transactionType === 'in') {
-          newStock += quantity;
-        } else if (transaction.transactionType === 'out') {
-          newStock -= quantity;
-        } else if (transaction.transactionType === 'adjustment') {
-          newStock = quantity; // Direct adjustment
+      if (transaction.inventoryItemId) {
+        const item = await storage.getInventoryItem(transaction.inventoryItemId);
+        if (item && item.currentStock !== null) {
+          const quantity = parseFloat(transaction.quantity);
+          let newStock = parseFloat(item.currentStock.toString());
+          
+          if (transaction.transactionType === 'in') {
+            newStock += quantity;
+          } else if (transaction.transactionType === 'out') {
+            newStock -= quantity;
+          } else if (transaction.transactionType === 'adjustment') {
+            newStock = quantity; // Direct adjustment
+          }
+          
+          await storage.updateInventoryItem(transaction.inventoryItemId, {
+            currentStock: newStock.toString(),
+          });
         }
-        
-        await storage.updateInventoryItem(transaction.inventoryItemId, {
-          currentStock: newStock.toString(),
-        });
       }
       
       res.status(201).json(transaction);

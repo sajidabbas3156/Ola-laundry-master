@@ -289,7 +289,6 @@ export class DatabaseStorage implements IStorage {
             user: true,
           },
         },
-        driver: true,
         items: {
           with: {
             service: true,
@@ -310,7 +309,6 @@ export class DatabaseStorage implements IStorage {
             user: true,
           },
         },
-        driver: true,
         items: {
           with: {
             service: true,
@@ -330,7 +328,6 @@ export class DatabaseStorage implements IStorage {
             user: true,
           },
         },
-        driver: true,
         items: {
           with: {
             service: true,
@@ -351,7 +348,6 @@ export class DatabaseStorage implements IStorage {
             user: true,
           },
         },
-        driver: true,
         items: {
           with: {
             service: true,
@@ -371,18 +367,16 @@ export class DatabaseStorage implements IStorage {
     
     const [result] = await db
       .select({ count: count() })
-      .from(orders)
-      .where(like(orders.orderNumber, `LP${year}${month}${day}%`));
+      .from(orders);
     
     const orderCount = result.count + 1;
     return `LP${year}${month}${day}-${String(orderCount).padStart(3, '0')}`;
   }
 
   async createOrder(order: InsertOrder): Promise<Order> {
-    const orderNumber = await this.generateOrderNumber();
     const [newOrder] = await db
       .insert(orders)
-      .values({ ...order, orderNumber })
+      .values(order)
       .returning();
     return newOrder;
   }

@@ -418,7 +418,6 @@ export const insertServiceSchema = createInsertSchema(services).omit({
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
   id: true,
-  orderNumber: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -463,7 +462,6 @@ export const insertSupplierSchema = createInsertSchema(suppliers).omit({
 
 export const insertPurchaseOrderSchema = createInsertSchema(purchaseOrders).omit({
   id: true,
-  orderNumber: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -570,7 +568,6 @@ export type InsertBusinessSetting = z.infer<typeof insertBusinessSettingSchema>;
 // Extended types for API responses
 export type OrderWithDetails = Order & {
   customer: Customer & { user: User };
-  driver?: User;
   items: (OrderItem & { service: Service })[];
   deliveryStops?: DeliveryStop[];
 };
