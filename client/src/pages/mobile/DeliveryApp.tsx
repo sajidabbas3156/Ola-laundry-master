@@ -20,6 +20,7 @@ import {
   Zap
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
+import { LaundrySpinner, InlineLoader } from "@/components/ui/laundry-spinner";
 
 export default function DeliveryApp() {
   const { drivers, updateDriverStatus } = useDrivers();

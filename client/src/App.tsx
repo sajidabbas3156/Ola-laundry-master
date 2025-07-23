@@ -31,6 +31,7 @@ import CustomerQRApp from "@/pages/mobile/CustomerQRApp";
 
 // Error Pages
 import NotFound from "@/pages/NotFound";
+import SpinnerDemo from "@/pages/SpinnerDemo";
 
 // Components
 import InstallPrompt from "@/components/InstallPrompt";
@@ -70,6 +71,7 @@ function App() {
                           <Route path="/delivery-app" component={DeliveryApp} />
                           <Route path="/vendor-pos" component={VendorPosApp} />
                           <Route path="/quick-order" component={CustomerQRApp} />
+                          <Route path="/spinner-demo" component={SpinnerDemo} />
 
                           {/* Tenant Dashboard */}
                           <Route path="/tenant/:tenantSlug/dashboard" component={Dashboard} />

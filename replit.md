@@ -12,6 +12,11 @@ OLA LAUNDRY MASTER is a comprehensive laundry management system designed to stre
 - **Multi-Variant Install Components**: Button, banner, and floating variants for different UI contexts
 - **Cross-Platform Compatibility**: iOS Safari manual instructions and Android Chrome native prompts
 - **Smart Banner System**: Auto-displaying install banners with session memory and dismissal handling
+- **Animated Loading Spinners**: Comprehensive laundry-themed loading animations with 6 variants (washing, drying, folding, delivery, bubbles, clothes)
+- **Interactive Spinner Demo**: Full demonstration page with customizable spinners and live preview
+- **Multi-Size Support**: Four size options (sm, md, lg, xl) with variable speed controls (slow, normal, fast)
+- **Custom CSS Animations**: Hand-crafted CSS keyframes for smooth, themed animations (swing, float, wash-cycle, bubble-rise)
+- **Loading State Components**: Full-screen loaders, inline loaders, and loading screens with progress bars
 - **Capacitor Integration**: Native mobile app framework configured for Android APK generation
 - **Mobile Install Prompt**: Enhanced install prompts integrated across all mobile applications
 - **Service Worker**: Offline caching and background sync for mobile performance

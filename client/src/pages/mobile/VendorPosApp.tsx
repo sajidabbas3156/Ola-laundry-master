@@ -27,6 +27,7 @@ import {
   Edit
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
+import { LaundrySpinner, InlineLoader } from "@/components/ui/laundry-spinner";
 
 interface CartItem {
   id: string;

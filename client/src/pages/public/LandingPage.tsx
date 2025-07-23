@@ -73,6 +73,9 @@ export default function LandingPage() {
               <Link to="/tenant/ola-laundry/dashboard">
                 <Button>Get Started</Button>
               </Link>
+              <Link to="/spinner-demo">
+                <Button variant="outline">View Animations</Button>
+              </Link>
             </div>
           </div>
         </div>

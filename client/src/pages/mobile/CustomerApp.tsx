@@ -17,6 +17,7 @@ import {
   Star
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
+import { LaundrySpinner, InlineLoader } from "@/components/ui/laundry-spinner";
 
 export default function CustomerApp() {
   const { orders } = useData();
@@ -65,7 +66,7 @@ export default function CustomerApp() {
               <h2 className="text-xl font-bold mb-2">Welcome to Our Store</h2>
               <p className="text-gray-600 mb-6">Place your laundry order with just a few taps</p>
               <Button className="w-full max-w-sm">
-                <Package className="mr-2 h-4 w-4" />
+                <LaundrySpinner variant="clothes" size="sm" className="mr-2" />
                 Start New Order
               </Button>
             </div>
