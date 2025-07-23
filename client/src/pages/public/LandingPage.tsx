@@ -12,6 +12,8 @@ import {
   Shield,
   Globe
 } from "lucide-react";
+import PWABanner from "@/components/PWABanner";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 export default function LandingPage() {
   const features = [
@@ -51,6 +53,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <PWABanner />
+      
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,6 +66,7 @@ export default function LandingPage() {
               <span className="text-2xl font-bold text-gray-900">LAUNDRY MASTER</span>
             </div>
             <div className="flex space-x-4">
+              <PWAInstallButton variant="button" size="sm" />
               <Link to="/login">
                 <Button variant="outline">Login</Button>
               </Link>

@@ -19,6 +19,7 @@ import {
   Signal,
   Zap
 } from "lucide-react";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 export default function DeliveryApp() {
   const { drivers, updateDriverStatus } = useDrivers();
@@ -83,6 +84,7 @@ export default function DeliveryApp() {
           
           {/* Status indicators */}
           <div className="flex items-center space-x-3">
+            <PWAInstallButton variant="button" size="sm" />
             <div className="flex items-center space-x-1">
               <Battery className="h-4 w-4 text-green-600" />
               <span className="text-xs text-gray-600">87%</span>

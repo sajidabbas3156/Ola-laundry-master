@@ -16,6 +16,7 @@ import {
   Clock,
   Star
 } from "lucide-react";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 export default function CustomerApp() {
   const { orders } = useData();
@@ -47,6 +48,7 @@ export default function CustomerApp() {
             <span className="font-semibold text-gray-900">Laundry Master</span>
           </div>
           <div className="flex items-center space-x-2">
+            <PWAInstallButton variant="button" size="sm" />
             <span className="text-sm text-gray-600">
               Hi, {customer.user?.firstName}!
             </span>

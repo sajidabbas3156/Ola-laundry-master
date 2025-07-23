@@ -94,7 +94,7 @@ function App() {
             </LocalizationProvider>
           </TenantProvider>
         </AuthProvider>
-        <InstallPrompt />
+
       </ThemeProvider>
     </QueryClientProvider>
   );

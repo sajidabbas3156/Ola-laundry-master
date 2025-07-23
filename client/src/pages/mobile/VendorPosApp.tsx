@@ -26,6 +26,7 @@ import {
   UserPlus,
   Edit
 } from "lucide-react";
+import PWAInstallButton from "@/components/PWAInstallButton";
 
 interface CartItem {
   id: string;
@@ -141,6 +142,7 @@ export default function VendorPosApp() {
             <span className="font-semibold text-gray-900">OLA POS</span>
           </div>
           <div className="flex items-center space-x-2">
+            <PWAInstallButton variant="button" size="sm" />
             <Badge variant="outline">Staff Mode</Badge>
           </div>
         </div>
