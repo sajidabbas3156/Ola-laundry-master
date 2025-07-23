@@ -83,11 +83,17 @@ export default function LandingPage() {
             Streamline your laundry business with our comprehensive multi-platform solution including 
             web admin panel, customer mobile app, vendor POS system, and delivery driver interface.
           </p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center space-x-4 flex-wrap gap-4">
             <Link to="/customer-app">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
                 <Smartphone className="mr-2 h-5 w-5" />
                 Try Customer App
+              </Button>
+            </Link>
+            <Link to="/quick-order">
+              <Button size="lg" className="bg-green-600 hover:bg-green-700">
+                <Smartphone className="mr-2 h-5 w-5" />
+                QR Quick Order
               </Button>
             </Link>
             <Link to="/delivery-app">

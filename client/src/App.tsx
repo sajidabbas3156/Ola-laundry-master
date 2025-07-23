@@ -19,6 +19,7 @@ import Dashboard from "@/pages/tenant/Dashboard";
 import CustomerApp from "@/pages/mobile/CustomerApp";
 import DeliveryApp from "@/pages/mobile/DeliveryApp";
 import VendorPosApp from "@/pages/mobile/VendorPosApp";
+import CustomerQRApp from "@/pages/mobile/CustomerQRApp";
 
 // Error Pages
 import NotFound from "@/pages/NotFound";
@@ -57,6 +58,7 @@ function App() {
                           <Route path="/customer-app" component={CustomerApp} />
                           <Route path="/delivery-app" component={DeliveryApp} />
                           <Route path="/vendor-pos" component={VendorPosApp} />
+                          <Route path="/quick-order" component={CustomerQRApp} />
 
                           {/* Tenant Dashboard (Simple for now) */}
                           <Route path="/tenant/:tenantSlug/dashboard" component={Dashboard} />
