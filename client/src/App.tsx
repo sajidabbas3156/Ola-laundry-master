@@ -14,6 +14,14 @@ import LandingPage from "@/pages/public/LandingPage";
 
 // Tenant Pages (Web Admin Panel)  
 import Dashboard from "@/pages/tenant/Dashboard";
+import Employees from "@/pages/tenant/Employees";
+import Payroll from "@/pages/tenant/Payroll";
+import FinancialReports from "@/pages/tenant/FinancialReports";
+import InventoryManagement from "@/pages/tenant/InventoryManagement";
+
+// Super Admin Pages
+import SuperAdminDashboard from "@/pages/superadmin/SuperAdminDashboard";
+import SubscriptionPlansManagement from "@/pages/superadmin/SubscriptionPlansManagement";
 
 // Mobile Apps
 import CustomerApp from "@/pages/mobile/CustomerApp";
@@ -60,8 +68,16 @@ function App() {
                           <Route path="/vendor-pos" component={VendorPosApp} />
                           <Route path="/quick-order" component={CustomerQRApp} />
 
-                          {/* Tenant Dashboard (Simple for now) */}
+                          {/* Tenant Dashboard */}
                           <Route path="/tenant/:tenantSlug/dashboard" component={Dashboard} />
+                          <Route path="/tenant/:tenantSlug/employees" component={Employees} />
+                          <Route path="/tenant/:tenantSlug/payroll" component={Payroll} />
+                          <Route path="/tenant/:tenantSlug/financial-reports" component={FinancialReports} />
+                          <Route path="/tenant/:tenantSlug/inventory" component={InventoryManagement} />
+
+                          {/* Super Admin Routes */}
+                          <Route path="/superadmin" component={SuperAdminDashboard} />
+                          <Route path="/superadmin/subscription-plans" component={SubscriptionPlansManagement} />
 
                           {/* Catch all route */}
                           <Route component={NotFound} />

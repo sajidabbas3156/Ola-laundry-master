@@ -870,5 +870,639 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Organization management routes
+  app.get("/api/organizations", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1; // Default to tenant 1 for demo
+      const organizations = await storage.getAllOrganizations(tenantId);
+      res.json(organizations);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/organizations/:id", authenticateToken, async (req, res) => {
+    try {
+      const organization = await storage.getOrganization(parseInt(req.params.id));
+      if (!organization) {
+        return res.status(404).json({ message: "Organization not found" });
+      }
+      res.json(organization);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/organizations", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const organization = await storage.createOrganization({
+        ...req.body,
+        tenantId
+      });
+      res.json(organization);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/organizations/:id", authenticateToken, async (req, res) => {
+    try {
+      const organization = await storage.updateOrganization(parseInt(req.params.id), req.body);
+      res.json(organization);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Employee management routes
+  app.get("/api/employees", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const organizationId = req.query.organizationId ? parseInt(req.query.organizationId) : undefined;
+      const employees = await storage.getAllEmployees(tenantId, organizationId);
+      res.json(employees);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/employees/:id", authenticateToken, async (req, res) => {
+    try {
+      const employee = await storage.getEmployee(parseInt(req.params.id));
+      if (!employee) {
+        return res.status(404).json({ message: "Employee not found" });
+      }
+      res.json(employee);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/employees", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const employee = await storage.createEmployee({
+        ...req.body,
+        tenantId
+      });
+      res.json(employee);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/employees/:id", authenticateToken, async (req, res) => {
+    try {
+      const employee = await storage.updateEmployee(parseInt(req.params.id), req.body);
+      res.json(employee);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/employees/:id/deactivate", authenticateToken, async (req, res) => {
+    try {
+      const employee = await storage.deactivateEmployee(
+        parseInt(req.params.id), 
+        new Date(req.body.terminationDate)
+      );
+      res.json(employee);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Payroll management routes
+  app.get("/api/payroll", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const employeeId = req.query.employeeId ? parseInt(req.query.employeeId) : undefined;
+      const records = await storage.getAllPayrollRecords(tenantId, employeeId);
+      res.json(records);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/payroll/:id", authenticateToken, async (req, res) => {
+    try {
+      const record = await storage.getPayrollRecord(parseInt(req.params.id));
+      if (!record) {
+        return res.status(404).json({ message: "Payroll record not found" });
+      }
+      res.json(record);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/payroll/period", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const { startDate, endDate } = req.query;
+      const records = await storage.getPayrollByPeriod(
+        tenantId,
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+      res.json(records);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/payroll", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const record = await storage.createPayrollRecord({
+        ...req.body,
+        tenantId,
+        preparedBy: req.user.id
+      });
+      res.json(record);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/payroll/:id", authenticateToken, async (req, res) => {
+    try {
+      const record = await storage.updatePayrollRecord(parseInt(req.params.id), req.body);
+      res.json(record);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/payroll/:id/approve", authenticateToken, async (req: any, res) => {
+    try {
+      const record = await storage.approvePayroll(parseInt(req.params.id), req.user.id);
+      res.json(record);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/payroll/:id/pay", authenticateToken, async (req, res) => {
+    try {
+      const record = await storage.markPayrollAsPaid(
+        parseInt(req.params.id),
+        new Date(req.body.paymentDate),
+        req.body.paymentReference
+      );
+      res.json(record);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Expense management routes
+  app.get("/api/expense-categories", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const categories = await storage.getAllExpenseCategories(tenantId);
+      res.json(categories);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/expense-categories", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const category = await storage.createExpenseCategory({
+        ...req.body,
+        tenantId
+      });
+      res.json(category);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/expenses", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const organizationId = req.query.organizationId ? parseInt(req.query.organizationId) : undefined;
+      const expenses = await storage.getAllExpenses(tenantId, organizationId);
+      res.json(expenses);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/expenses/:id", authenticateToken, async (req, res) => {
+    try {
+      const expense = await storage.getExpense(parseInt(req.params.id));
+      if (!expense) {
+        return res.status(404).json({ message: "Expense not found" });
+      }
+      res.json(expense);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/expenses/date-range", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const { startDate, endDate } = req.query;
+      const expenses = await storage.getExpensesByDateRange(
+        tenantId,
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+      res.json(expenses);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/expenses", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const expense = await storage.createExpense({
+        ...req.body,
+        tenantId,
+        createdBy: req.user.id
+      });
+      res.json(expense);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/expenses/:id", authenticateToken, async (req, res) => {
+    try {
+      const expense = await storage.updateExpense(parseInt(req.params.id), req.body);
+      res.json(expense);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/expenses/:id", authenticateToken, async (req, res) => {
+    try {
+      await storage.deleteExpense(parseInt(req.params.id));
+      res.json({ message: "Expense deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Asset management routes
+  app.get("/api/assets", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const organizationId = req.query.organizationId ? parseInt(req.query.organizationId) : undefined;
+      const assets = await storage.getAllAssets(tenantId, organizationId);
+      res.json(assets);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/assets/:id", authenticateToken, async (req, res) => {
+    try {
+      const asset = await storage.getAsset(parseInt(req.params.id));
+      if (!asset) {
+        return res.status(404).json({ message: "Asset not found" });
+      }
+      res.json(asset);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/assets/maintenance-due", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const assets = await storage.getAssetsDueForMaintenance(tenantId);
+      res.json(assets);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/assets", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const asset = await storage.createAsset({
+        ...req.body,
+        tenantId
+      });
+      res.json(asset);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/assets/:id", authenticateToken, async (req, res) => {
+    try {
+      const asset = await storage.updateAsset(parseInt(req.params.id), req.body);
+      res.json(asset);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/assets/:id/maintenance", authenticateToken, async (req, res) => {
+    try {
+      const asset = await storage.updateAssetMaintenance(
+        parseInt(req.params.id),
+        new Date(req.body.maintenanceDate),
+        req.body.nextMaintenanceDate ? new Date(req.body.nextMaintenanceDate) : undefined
+      );
+      res.json(asset);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Revenue management routes
+  app.get("/api/revenues", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const organizationId = req.query.organizationId ? parseInt(req.query.organizationId) : undefined;
+      const revenues = await storage.getAllRevenues(tenantId, organizationId);
+      res.json(revenues);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/revenues/:id", authenticateToken, async (req, res) => {
+    try {
+      const revenue = await storage.getRevenue(parseInt(req.params.id));
+      if (!revenue) {
+        return res.status(404).json({ message: "Revenue not found" });
+      }
+      res.json(revenue);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/revenues/date-range", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const { startDate, endDate } = req.query;
+      const revenues = await storage.getRevenuesByDateRange(
+        tenantId,
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+      res.json(revenues);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/revenues", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const revenue = await storage.createRevenue({
+        ...req.body,
+        tenantId
+      });
+      res.json(revenue);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/revenues/:id", authenticateToken, async (req, res) => {
+    try {
+      const revenue = await storage.updateRevenue(parseInt(req.params.id), req.body);
+      res.json(revenue);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Financial period routes
+  app.get("/api/financial-periods", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const periods = await storage.getAllFinancialPeriods(tenantId);
+      res.json(periods);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/financial-periods/:id", authenticateToken, async (req, res) => {
+    try {
+      const period = await storage.getFinancialPeriod(parseInt(req.params.id));
+      if (!period) {
+        return res.status(404).json({ message: "Financial period not found" });
+      }
+      res.json(period);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/financial-periods/current", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const periodType = req.query.periodType as string || 'monthly';
+      const period = await storage.getCurrentFinancialPeriod(tenantId, periodType);
+      res.json(period);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/financial-periods", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const period = await storage.createFinancialPeriod({
+        ...req.body,
+        tenantId,
+        createdBy: req.user.id
+      });
+      res.json(period);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/financial-periods/:id/close", authenticateToken, async (req: any, res) => {
+    try {
+      const period = await storage.closeFinancialPeriod(parseInt(req.params.id), req.user.id);
+      res.json(period);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/financial-periods/totals", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const { startDate, endDate } = req.query;
+      const totals = await storage.calculatePeriodTotals(
+        tenantId,
+        new Date(startDate as string),
+        new Date(endDate as string)
+      );
+      res.json(totals);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Subscription management routes (Super Admin)
+  app.get("/api/subscription-plans", async (req, res) => {
+    try {
+      const plans = req.query.active === 'true' 
+        ? await storage.getActiveSubscriptionPlans()
+        : await storage.getAllSubscriptionPlans();
+      res.json(plans);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/subscription-plans/:id", async (req, res) => {
+    try {
+      const plan = await storage.getSubscriptionPlan(parseInt(req.params.id));
+      if (!plan) {
+        return res.status(404).json({ message: "Subscription plan not found" });
+      }
+      res.json(plan);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/subscription-plans", authenticateToken, async (req: any, res) => {
+    try {
+      // Only super admins can create plans
+      if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const plan = await storage.createSubscriptionPlan(req.body);
+      res.json(plan);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.patch("/api/subscription-plans/:id", authenticateToken, async (req: any, res) => {
+    try {
+      // Only super admins can update plans
+      if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const plan = await storage.updateSubscriptionPlan(parseInt(req.params.id), req.body);
+      res.json(plan);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/tenant-subscription", authenticateToken, async (req: any, res) => {
+    try {
+      const tenantId = req.user.tenantId || 1;
+      const subscription = await storage.getTenantSubscription(tenantId);
+      res.json(subscription);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/tenant-subscriptions", authenticateToken, async (req: any, res) => {
+    try {
+      // Only super admins can create subscriptions
+      if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const subscription = await storage.createTenantSubscription(req.body);
+      res.json(subscription);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Attendance management routes
+  app.get("/api/attendance/employee/:employeeId", authenticateToken, async (req, res) => {
+    try {
+      const employeeId = parseInt(req.params.employeeId);
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+      const records = await storage.getAllAttendanceRecords(employeeId, startDate, endDate);
+      res.json(records);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/attendance/:id", authenticateToken, async (req, res) => {
+    try {
+      const record = await storage.getAttendanceRecord(parseInt(req.params.id));
+      if (!record) {
+        return res.status(404).json({ message: "Attendance record not found" });
+      }
+      res.json(record);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/attendance/check-in", authenticateToken, async (req: any, res) => {
+    try {
+      const employee = await storage.getEmployeeByUserId(req.user.id);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee profile not found" });
+      }
+      const record = await storage.checkIn(employee.id);
+      res.json(record);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/attendance/check-out", authenticateToken, async (req: any, res) => {
+    try {
+      const employee = await storage.getEmployeeByUserId(req.user.id);
+      if (!employee) {
+        return res.status(404).json({ message: "Employee profile not found" });
+      }
+      const record = await storage.checkOut(employee.id);
+      res.json(record);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Super Admin routes
+  app.get("/api/superadmin/stats", authenticateToken, async (req: any, res) => {
+    try {
+      // Only super admins can access this
+      if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const stats = await storage.getSuperAdminStats();
+      res.json(stats);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/superadmin/tenants", authenticateToken, async (req: any, res) => {
+    try {
+      // Only super admins can access this
+      if (req.user.role !== 'superadmin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      const tenants = await storage.getAllTenantsWithSubscriptions();
+      res.json(tenants);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   return httpServer;
 }

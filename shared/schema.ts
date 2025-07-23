@@ -565,6 +565,309 @@ export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 export type BusinessSetting = typeof businessSettings.$inferSelect;
 export type InsertBusinessSetting = z.infer<typeof insertBusinessSettingSchema>;
 
+// Organizations table for branch management
+export const organizations = pgTable("organizations", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  code: varchar("code", { length: 50 }).unique(),
+  type: varchar("type", { length: 50 }).default("branch"), // headquarters, branch, franchise
+  parentId: integer("parent_id").references(() => organizations.id),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  country: varchar("country", { length: 100 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  phone: varchar("phone", { length: 50 }),
+  email: varchar("email", { length: 255 }),
+  managerId: integer("manager_id").references(() => users.id),
+  isActive: boolean("is_active").default(true),
+  settings: jsonb("settings"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Employees table for staff management
+export const employees = pgTable("employees", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id),
+  employeeCode: varchar("employee_code", { length: 50 }).unique(),
+  designation: varchar("designation", { length: 100 }),
+  department: varchar("department", { length: 100 }),
+  joiningDate: timestamp("joining_date").notNull(),
+  employmentType: varchar("employment_type", { length: 50 }).default("full-time"), // full-time, part-time, contract
+  salary: decimal("salary", { precision: 12, scale: 2 }),
+  payFrequency: varchar("pay_frequency", { length: 20 }).default("monthly"), // weekly, bi-weekly, monthly
+  bankName: varchar("bank_name", { length: 100 }),
+  bankAccountNumber: varchar("bank_account_number", { length: 50 }),
+  taxId: varchar("tax_id", { length: 50 }),
+  emergencyContact: jsonb("emergency_contact"),
+  documents: jsonb("documents"), // ID proof, contracts, etc
+  leaveBalance: jsonb("leave_balance"), // { sick: 10, vacation: 15, etc }
+  isActive: boolean("is_active").default(true),
+  terminationDate: timestamp("termination_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Payroll records
+export const payrollRecords = pgTable("payroll_records", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  employeeId: integer("employee_id").references(() => employees.id).notNull(),
+  payPeriodStart: timestamp("pay_period_start").notNull(),
+  payPeriodEnd: timestamp("pay_period_end").notNull(),
+  basicSalary: decimal("basic_salary", { precision: 12, scale: 2 }).notNull(),
+  allowances: jsonb("allowances"), // { housing: 500, transport: 200, etc }
+  deductions: jsonb("deductions"), // { tax: 300, insurance: 150, etc }
+  overtime: decimal("overtime", { precision: 10, scale: 2 }).default("0"),
+  netPay: decimal("net_pay", { precision: 12, scale: 2 }).notNull(),
+  paymentStatus: varchar("payment_status", { length: 20 }).default("pending"), // pending, paid, cancelled
+  paymentDate: timestamp("payment_date"),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  paymentReference: varchar("payment_reference", { length: 100 }),
+  approvedBy: integer("approved_by").references(() => users.id),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Expense categories
+export const expenseCategories = pgTable("expense_categories", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  parentId: integer("parent_id").references(() => expenseCategories.id),
+  code: varchar("code", { length: 50 }),
+  description: text("description"),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Expenses table
+export const expenses = pgTable("expenses", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id),
+  categoryId: integer("category_id").references(() => expenseCategories.id).notNull(),
+  expenseDate: timestamp("expense_date").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  description: text("description"),
+  vendor: varchar("vendor", { length: 255 }),
+  invoiceNumber: varchar("invoice_number", { length: 100 }),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  paymentStatus: varchar("payment_status", { length: 20 }).default("paid"),
+  receiptUrl: text("receipt_url"),
+  isRecurring: boolean("is_recurring").default(false),
+  recurringFrequency: varchar("recurring_frequency", { length: 20 }), // monthly, quarterly, yearly
+  approvedBy: integer("approved_by").references(() => users.id),
+  createdBy: integer("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Assets table
+export const assets = pgTable("assets", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  assetType: varchar("asset_type", { length: 100 }).notNull(), // equipment, vehicle, property, etc
+  assetCode: varchar("asset_code", { length: 100 }).unique(),
+  purchaseDate: timestamp("purchase_date"),
+  purchaseValue: decimal("purchase_value", { precision: 12, scale: 2 }),
+  currentValue: decimal("current_value", { precision: 12, scale: 2 }),
+  depreciationRate: decimal("depreciation_rate", { precision: 5, scale: 2 }), // percentage per year
+  location: varchar("location", { length: 255 }),
+  assignedTo: integer("assigned_to").references(() => users.id),
+  maintenanceSchedule: jsonb("maintenance_schedule"),
+  lastMaintenanceDate: timestamp("last_maintenance_date"),
+  nextMaintenanceDate: timestamp("next_maintenance_date"),
+  warrantyExpiry: timestamp("warranty_expiry"),
+  status: varchar("status", { length: 50 }).default("active"), // active, maintenance, retired
+  documents: jsonb("documents"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Revenue/Income tracking
+export const revenues = pgTable("revenues", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  organizationId: integer("organization_id").references(() => organizations.id),
+  revenueDate: timestamp("revenue_date").notNull(),
+  category: varchar("category", { length: 100 }).notNull(), // orders, subscriptions, other
+  source: varchar("source", { length: 255 }), // pos, online, mobile-app
+  referenceId: varchar("reference_id", { length: 100 }), // order_id, subscription_id, etc
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  paymentMethod: varchar("payment_method", { length: 50 }),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Financial periods for reporting
+export const financialPeriods = pgTable("financial_periods", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  periodType: varchar("period_type", { length: 20 }).notNull(), // daily, weekly, monthly, quarterly, yearly
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  totalRevenue: decimal("total_revenue", { precision: 12, scale: 2 }).default("0"),
+  totalExpenses: decimal("total_expenses", { precision: 12, scale: 2 }).default("0"),
+  grossProfit: decimal("gross_profit", { precision: 12, scale: 2 }).default("0"),
+  netProfit: decimal("net_profit", { precision: 12, scale: 2 }).default("0"),
+  isClosed: boolean("is_closed").default(false),
+  closedBy: integer("closed_by").references(() => users.id),
+  closedAt: timestamp("closed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Subscription plans
+export const subscriptionPlans = pgTable("subscription_plans", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  code: varchar("code", { length: 50 }).unique().notNull(),
+  description: text("description"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency", { length: 3 }).default("USD"),
+  billingPeriod: varchar("billing_period", { length: 20 }).notNull(), // monthly, quarterly, yearly
+  features: jsonb("features").notNull(), // { maxUsers: 10, maxOrders: 1000, etc }
+  limits: jsonb("limits"), // API limits, storage limits, etc
+  isActive: boolean("is_active").default(true),
+  trialDays: integer("trial_days").default(14),
+  stripeProductId: varchar("stripe_product_id", { length: 255 }),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Tenant subscriptions
+export const tenantSubscriptions = pgTable("tenant_subscriptions", {
+  id: serial("id").primaryKey(),
+  tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
+  planId: integer("plan_id").references(() => subscriptionPlans.id).notNull(),
+  status: varchar("status", { length: 20 }).notNull(), // trial, active, past_due, cancelled, expired
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date"),
+  nextBillingDate: timestamp("next_billing_date"),
+  cancelledAt: timestamp("cancelled_at"),
+  cancellationReason: text("cancellation_reason"),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  metadata: jsonb("metadata"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Attendance records
+export const attendanceRecords = pgTable("attendance_records", {
+  id: serial("id").primaryKey(),
+  employeeId: integer("employee_id").references(() => employees.id).notNull(),
+  date: timestamp("date").notNull(),
+  checkInTime: timestamp("check_in_time"),
+  checkOutTime: timestamp("check_out_time"),
+  totalHours: decimal("total_hours", { precision: 5, scale: 2 }),
+  overtimeHours: decimal("overtime_hours", { precision: 5, scale: 2 }).default("0"),
+  status: varchar("status", { length: 20 }).notNull(), // present, absent, leave, holiday
+  leaveType: varchar("leave_type", { length: 50 }), // sick, vacation, personal, etc
+  notes: text("notes"),
+  approvedBy: integer("approved_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Insert schemas for new tables
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEmployeeSchema = createInsertSchema(employees).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPayrollRecordSchema = createInsertSchema(payrollRecords).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertExpenseCategorySchema = createInsertSchema(expenseCategories).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertExpenseSchema = createInsertSchema(expenses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssetSchema = createInsertSchema(assets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertRevenueSchema = createInsertSchema(revenues).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertFinancialPeriodSchema = createInsertSchema(financialPeriods).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertTenantSubscriptionSchema = createInsertSchema(tenantSubscriptions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAttendanceRecordSchema = createInsertSchema(attendanceRecords).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+// Types for new tables
+export type Organization = typeof organizations.$inferSelect;
+export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+export type Employee = typeof employees.$inferSelect;
+export type InsertEmployee = z.infer<typeof insertEmployeeSchema>;
+export type PayrollRecord = typeof payrollRecords.$inferSelect;
+export type InsertPayrollRecord = z.infer<typeof insertPayrollRecordSchema>;
+export type ExpenseCategory = typeof expenseCategories.$inferSelect;
+export type InsertExpenseCategory = z.infer<typeof insertExpenseCategorySchema>;
+export type Expense = typeof expenses.$inferSelect;
+export type InsertExpense = z.infer<typeof insertExpenseSchema>;
+export type Asset = typeof assets.$inferSelect;
+export type InsertAsset = z.infer<typeof insertAssetSchema>;
+export type Revenue = typeof revenues.$inferSelect;
+export type InsertRevenue = z.infer<typeof insertRevenueSchema>;
+export type FinancialPeriod = typeof financialPeriods.$inferSelect;
+export type InsertFinancialPeriod = z.infer<typeof insertFinancialPeriodSchema>;
+export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
+export type InsertSubscriptionPlan = z.infer<typeof insertSubscriptionPlanSchema>;
+export type TenantSubscription = typeof tenantSubscriptions.$inferSelect;
+export type InsertTenantSubscription = z.infer<typeof insertTenantSubscriptionSchema>;
+export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
+export type InsertAttendanceRecord = z.infer<typeof insertAttendanceRecordSchema>;
+
 // Extended types for API responses
 export type OrderWithDetails = Order & {
   customer: Customer & { user: User };
@@ -575,4 +878,16 @@ export type OrderWithDetails = Order & {
 export type RouteWithDetails = DeliveryRoute & {
   driver: User;
   stops: (DeliveryStop & { order: OrderWithDetails })[];
+};
+
+export type EmployeeWithDetails = Employee & {
+  user: User;
+  organization?: Organization;
+};
+
+export type TenantWithSubscription = Tenant & {
+  subscription?: TenantSubscription & {
+    plan: SubscriptionPlan;
+  };
+  organizations?: Organization[];
 };

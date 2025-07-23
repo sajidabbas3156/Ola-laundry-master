@@ -14,6 +14,17 @@ import {
   notifications,
   analyticsEvents,
   businessSettings,
+  organizations,
+  employees,
+  payrollRecords,
+  expenseCategories,
+  expenses,
+  assets,
+  revenues,
+  financialPeriods,
+  subscriptionPlans,
+  tenantSubscriptions,
+  attendanceRecords,
   type User,
   type InsertUser,
   type Customer,
@@ -46,6 +57,30 @@ import {
   type InsertBusinessSetting,
   type OrderWithDetails,
   type RouteWithDetails,
+  type Organization,
+  type InsertOrganization,
+  type Employee,
+  type InsertEmployee,
+  type PayrollRecord,
+  type InsertPayrollRecord,
+  type ExpenseCategory,
+  type InsertExpenseCategory,
+  type Expense,
+  type InsertExpense,
+  type Asset,
+  type InsertAsset,
+  type Revenue,
+  type InsertRevenue,
+  type FinancialPeriod,
+  type InsertFinancialPeriod,
+  type SubscriptionPlan,
+  type InsertSubscriptionPlan,
+  type TenantSubscription,
+  type InsertTenantSubscription,
+  type AttendanceRecord,
+  type InsertAttendanceRecord,
+  type EmployeeWithDetails,
+  type TenantWithSubscription,
   workflows,
   type Workflow,
   type InsertWorkflow,
@@ -195,6 +230,110 @@ export interface IStorage {
   checkAndCreateReorders(tenantId?: number): Promise<PurchaseOrder[]>;
   getItemsBelowReorderPoint(tenantId?: number): Promise<InventoryItem[]>;
   updateUsageRates(tenantId?: number): Promise<void>;
+
+  // Organization operations
+  getAllOrganizations(tenantId: number): Promise<Organization[]>;
+  getOrganization(id: number): Promise<Organization | undefined>;
+  getOrganizationsByParent(parentId: number): Promise<Organization[]>;
+  createOrganization(organization: InsertOrganization): Promise<Organization>;
+  updateOrganization(id: number, updates: Partial<InsertOrganization>): Promise<Organization>;
+  deleteOrganization(id: number): Promise<void>;
+
+  // Employee operations  
+  getAllEmployees(tenantId: number, organizationId?: number): Promise<EmployeeWithDetails[]>;
+  getEmployee(id: number): Promise<EmployeeWithDetails | undefined>;
+  getEmployeeByUserId(userId: number): Promise<Employee | undefined>;
+  createEmployee(employee: InsertEmployee): Promise<Employee>;
+  updateEmployee(id: number, updates: Partial<InsertEmployee>): Promise<Employee>;
+  deactivateEmployee(id: number, terminationDate: Date): Promise<Employee>;
+
+  // Payroll operations
+  getAllPayrollRecords(tenantId: number, employeeId?: number): Promise<PayrollRecord[]>;
+  getPayrollRecord(id: number): Promise<PayrollRecord | undefined>;
+  getPayrollByPeriod(tenantId: number, startDate: Date, endDate: Date): Promise<PayrollRecord[]>;
+  createPayrollRecord(payroll: InsertPayrollRecord): Promise<PayrollRecord>;
+  updatePayrollRecord(id: number, updates: Partial<InsertPayrollRecord>): Promise<PayrollRecord>;
+  approvePayroll(id: number, approvedBy: number): Promise<PayrollRecord>;
+  markPayrollAsPaid(id: number, paymentDate: Date, paymentReference: string): Promise<PayrollRecord>;
+
+  // Expense operations
+  getAllExpenseCategories(tenantId: number): Promise<ExpenseCategory[]>;
+  getExpenseCategory(id: number): Promise<ExpenseCategory | undefined>;
+  createExpenseCategory(category: InsertExpenseCategory): Promise<ExpenseCategory>;
+  updateExpenseCategory(id: number, updates: Partial<InsertExpenseCategory>): Promise<ExpenseCategory>;
+  
+  getAllExpenses(tenantId: number, organizationId?: number): Promise<Expense[]>;
+  getExpense(id: number): Promise<Expense | undefined>;
+  getExpensesByCategory(categoryId: number): Promise<Expense[]>;
+  getExpensesByDateRange(tenantId: number, startDate: Date, endDate: Date): Promise<Expense[]>;
+  createExpense(expense: InsertExpense): Promise<Expense>;
+  updateExpense(id: number, updates: Partial<InsertExpense>): Promise<Expense>;
+  deleteExpense(id: number): Promise<void>;
+
+  // Asset operations
+  getAllAssets(tenantId: number, organizationId?: number): Promise<Asset[]>;
+  getAsset(id: number): Promise<Asset | undefined>;
+  getAssetsByType(tenantId: number, assetType: string): Promise<Asset[]>;
+  getAssetsDueForMaintenance(tenantId: number): Promise<Asset[]>;
+  createAsset(asset: InsertAsset): Promise<Asset>;
+  updateAsset(id: number, updates: Partial<InsertAsset>): Promise<Asset>;
+  updateAssetMaintenance(id: number, maintenanceDate: Date, nextMaintenanceDate?: Date): Promise<Asset>;
+
+  // Revenue operations
+  getAllRevenues(tenantId: number, organizationId?: number): Promise<Revenue[]>;
+  getRevenue(id: number): Promise<Revenue | undefined>;
+  getRevenuesByDateRange(tenantId: number, startDate: Date, endDate: Date): Promise<Revenue[]>;
+  getRevenuesByCategory(tenantId: number, category: string): Promise<Revenue[]>;
+  createRevenue(revenue: InsertRevenue): Promise<Revenue>;
+  updateRevenue(id: number, updates: Partial<InsertRevenue>): Promise<Revenue>;
+
+  // Financial period operations
+  getAllFinancialPeriods(tenantId: number): Promise<FinancialPeriod[]>;
+  getFinancialPeriod(id: number): Promise<FinancialPeriod | undefined>;
+  getCurrentFinancialPeriod(tenantId: number, periodType: string): Promise<FinancialPeriod | undefined>;
+  createFinancialPeriod(period: InsertFinancialPeriod): Promise<FinancialPeriod>;
+  updateFinancialPeriod(id: number, updates: Partial<InsertFinancialPeriod>): Promise<FinancialPeriod>;
+  closeFinancialPeriod(id: number, closedBy: number): Promise<FinancialPeriod>;
+  calculatePeriodTotals(tenantId: number, startDate: Date, endDate: Date): Promise<{
+    totalRevenue: number;
+    totalExpenses: number;
+    grossProfit: number;
+    netProfit: number;
+  }>;
+
+  // Subscription management
+  getAllSubscriptionPlans(): Promise<SubscriptionPlan[]>;
+  getActiveSubscriptionPlans(): Promise<SubscriptionPlan[]>;
+  getSubscriptionPlan(id: number): Promise<SubscriptionPlan | undefined>;
+  getSubscriptionPlanByCode(code: string): Promise<SubscriptionPlan | undefined>;
+  createSubscriptionPlan(plan: InsertSubscriptionPlan): Promise<SubscriptionPlan>;
+  updateSubscriptionPlan(id: number, updates: Partial<InsertSubscriptionPlan>): Promise<SubscriptionPlan>;
+
+  getTenantSubscription(tenantId: number): Promise<TenantSubscription | undefined>;
+  getTenantWithSubscription(tenantId: number): Promise<TenantWithSubscription | undefined>;
+  createTenantSubscription(subscription: InsertTenantSubscription): Promise<TenantSubscription>;
+  updateTenantSubscription(id: number, updates: Partial<InsertTenantSubscription>): Promise<TenantSubscription>;
+  cancelSubscription(id: number, reason: string): Promise<TenantSubscription>;
+
+  // Attendance operations
+  getAllAttendanceRecords(employeeId: number, startDate?: Date, endDate?: Date): Promise<AttendanceRecord[]>;
+  getAttendanceRecord(id: number): Promise<AttendanceRecord | undefined>;
+  getTodayAttendance(employeeId: number): Promise<AttendanceRecord | undefined>;
+  createAttendanceRecord(attendance: InsertAttendanceRecord): Promise<AttendanceRecord>;
+  updateAttendanceRecord(id: number, updates: Partial<InsertAttendanceRecord>): Promise<AttendanceRecord>;
+  checkIn(employeeId: number): Promise<AttendanceRecord>;
+  checkOut(employeeId: number): Promise<AttendanceRecord>;
+  calculateWorkHours(checkIn: Date, checkOut: Date): Promise<{ totalHours: number; overtimeHours: number }>;
+
+  // Super Admin operations
+  getSuperAdminStats(): Promise<{
+    totalTenants: number;
+    activeTenants: number;
+    totalRevenue: number;
+    totalUsers: number;
+    subscriptionsByPlan: Record<string, number>;
+  }>;
+  getAllTenantsWithSubscriptions(): Promise<TenantWithSubscription[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1054,6 +1193,823 @@ export class DatabaseStorage implements IStorage {
         .where(eq(inventoryItems.id, transaction.inventoryItemId));
     }
   }
+
+  // Organization operations
+  async getAllOrganizations(tenantId: number): Promise<Organization[]> {
+    return await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.tenantId, tenantId))
+      .orderBy(organizations.name);
+  }
+
+  async getOrganization(id: number): Promise<Organization | undefined> {
+    const [organization] = await db.select().from(organizations).where(eq(organizations.id, id));
+    return organization;
+  }
+
+  async getOrganizationsByParent(parentId: number): Promise<Organization[]> {
+    return await db
+      .select()
+      .from(organizations)
+      .where(eq(organizations.parentId, parentId))
+      .orderBy(organizations.name);
+  }
+
+  async createOrganization(organization: InsertOrganization): Promise<Organization> {
+    const [newOrganization] = await db.insert(organizations).values(organization).returning();
+    return newOrganization;
+  }
+
+  async updateOrganization(id: number, updates: Partial<InsertOrganization>): Promise<Organization> {
+    const [updatedOrganization] = await db
+      .update(organizations)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(organizations.id, id))
+      .returning();
+    return updatedOrganization;
+  }
+
+  async deleteOrganization(id: number): Promise<void> {
+    await db.delete(organizations).where(eq(organizations.id, id));
+  }
+
+  // Employee operations
+  async getAllEmployees(tenantId: number, organizationId?: number): Promise<EmployeeWithDetails[]> {
+    const conditions: any[] = [eq(employees.tenantId, tenantId)];
+    
+    if (organizationId) {
+      conditions.push(eq(employees.organizationId, organizationId));
+    }
+
+    const results = await db
+      .select({
+        employee: employees,
+        user: users,
+        organization: organizations,
+      })
+      .from(employees)
+      .innerJoin(users, eq(employees.userId, users.id))
+      .leftJoin(organizations, eq(employees.organizationId, organizations.id))
+      .where(and(...conditions))
+      .orderBy(users.firstName);
+
+    return results.map(r => ({
+      ...r.employee,
+      user: r.user,
+      organization: r.organization || undefined,
+    }));
+  }
+
+  async getEmployee(id: number): Promise<EmployeeWithDetails | undefined> {
+    const [result] = await db
+      .select({
+        employee: employees,
+        user: users,
+        organization: organizations,
+      })
+      .from(employees)
+      .innerJoin(users, eq(employees.userId, users.id))
+      .leftJoin(organizations, eq(employees.organizationId, organizations.id))
+      .where(eq(employees.id, id));
+
+    if (!result) return undefined;
+
+    return {
+      ...result.employee,
+      user: result.user,
+      organization: result.organization || undefined,
+    };
+  }
+
+  async getEmployeeByUserId(userId: number): Promise<Employee | undefined> {
+    const [employee] = await db.select().from(employees).where(eq(employees.userId, userId));
+    return employee;
+  }
+
+  async createEmployee(employee: InsertEmployee): Promise<Employee> {
+    const [newEmployee] = await db.insert(employees).values(employee).returning();
+    return newEmployee;
+  }
+
+  async updateEmployee(id: number, updates: Partial<InsertEmployee>): Promise<Employee> {
+    const [updatedEmployee] = await db
+      .update(employees)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(employees.id, id))
+      .returning();
+    return updatedEmployee;
+  }
+
+  async deactivateEmployee(id: number, terminationDate: Date): Promise<Employee> {
+    const [deactivatedEmployee] = await db
+      .update(employees)
+      .set({ 
+        isActive: false, 
+        terminationDate, 
+        updatedAt: new Date() 
+      })
+      .where(eq(employees.id, id))
+      .returning();
+    return deactivatedEmployee;
+  }
+
+  // Payroll operations
+  async getAllPayrollRecords(tenantId: number, employeeId?: number): Promise<PayrollRecord[]> {
+    const conditions: any[] = [eq(payrollRecords.tenantId, tenantId)];
+    
+    if (employeeId) {
+      conditions.push(eq(payrollRecords.employeeId, employeeId));
+    }
+
+    return await db
+      .select()
+      .from(payrollRecords)
+      .where(and(...conditions))
+      .orderBy(desc(payrollRecords.payPeriodEnd));
+  }
+
+  async getPayrollRecord(id: number): Promise<PayrollRecord | undefined> {
+    const [record] = await db.select().from(payrollRecords).where(eq(payrollRecords.id, id));
+    return record;
+  }
+
+  async getPayrollByPeriod(tenantId: number, startDate: Date, endDate: Date): Promise<PayrollRecord[]> {
+    return await db
+      .select()
+      .from(payrollRecords)
+      .where(
+        and(
+          eq(payrollRecords.tenantId, tenantId),
+          sql`${payrollRecords.payPeriodStart} >= ${startDate}`,
+          sql`${payrollRecords.payPeriodEnd} <= ${endDate}`
+        )
+      );
+  }
+
+  async createPayrollRecord(payroll: InsertPayrollRecord): Promise<PayrollRecord> {
+    const [newPayroll] = await db.insert(payrollRecords).values(payroll).returning();
+    return newPayroll;
+  }
+
+  async updatePayrollRecord(id: number, updates: Partial<InsertPayrollRecord>): Promise<PayrollRecord> {
+    const [updatedPayroll] = await db
+      .update(payrollRecords)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(payrollRecords.id, id))
+      .returning();
+    return updatedPayroll;
+  }
+
+  async approvePayroll(id: number, approvedBy: number): Promise<PayrollRecord> {
+    const [approvedPayroll] = await db
+      .update(payrollRecords)
+      .set({ approvedBy, updatedAt: new Date() })
+      .where(eq(payrollRecords.id, id))
+      .returning();
+    return approvedPayroll;
+  }
+
+  async markPayrollAsPaid(id: number, paymentDate: Date, paymentReference: string): Promise<PayrollRecord> {
+    const [paidPayroll] = await db
+      .update(payrollRecords)
+      .set({ 
+        paymentStatus: 'paid',
+        paymentDate,
+        paymentReference,
+        updatedAt: new Date() 
+      })
+      .where(eq(payrollRecords.id, id))
+      .returning();
+    return paidPayroll;
+  }
+
+  // Expense operations
+  async getAllExpenseCategories(tenantId: number): Promise<ExpenseCategory[]> {
+    return await db
+      .select()
+      .from(expenseCategories)
+      .where(eq(expenseCategories.tenantId, tenantId))
+      .orderBy(expenseCategories.name);
+  }
+
+  async getExpenseCategory(id: number): Promise<ExpenseCategory | undefined> {
+    const [category] = await db.select().from(expenseCategories).where(eq(expenseCategories.id, id));
+    return category;
+  }
+
+  async createExpenseCategory(category: InsertExpenseCategory): Promise<ExpenseCategory> {
+    const [newCategory] = await db.insert(expenseCategories).values(category).returning();
+    return newCategory;
+  }
+
+  async updateExpenseCategory(id: number, updates: Partial<InsertExpenseCategory>): Promise<ExpenseCategory> {
+    const [updatedCategory] = await db
+      .update(expenseCategories)
+      .set(updates)
+      .where(eq(expenseCategories.id, id))
+      .returning();
+    return updatedCategory;
+  }
+
+  async getAllExpenses(tenantId: number, organizationId?: number): Promise<Expense[]> {
+    const conditions: any[] = [eq(expenses.tenantId, tenantId)];
+    
+    if (organizationId) {
+      conditions.push(eq(expenses.organizationId, organizationId));
+    }
+
+    return await db
+      .select()
+      .from(expenses)
+      .where(and(...conditions))
+      .orderBy(desc(expenses.expenseDate));
+  }
+
+  async getExpense(id: number): Promise<Expense | undefined> {
+    const [expense] = await db.select().from(expenses).where(eq(expenses.id, id));
+    return expense;
+  }
+
+  async getExpensesByCategory(categoryId: number): Promise<Expense[]> {
+    return await db
+      .select()
+      .from(expenses)
+      .where(eq(expenses.categoryId, categoryId))
+      .orderBy(desc(expenses.expenseDate));
+  }
+
+  async getExpensesByDateRange(tenantId: number, startDate: Date, endDate: Date): Promise<Expense[]> {
+    return await db
+      .select()
+      .from(expenses)
+      .where(
+        and(
+          eq(expenses.tenantId, tenantId),
+          sql`${expenses.expenseDate} >= ${startDate}`,
+          sql`${expenses.expenseDate} <= ${endDate}`
+        )
+      );
+  }
+
+  async createExpense(expense: InsertExpense): Promise<Expense> {
+    const [newExpense] = await db.insert(expenses).values(expense).returning();
+    return newExpense;
+  }
+
+  async updateExpense(id: number, updates: Partial<InsertExpense>): Promise<Expense> {
+    const [updatedExpense] = await db
+      .update(expenses)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(expenses.id, id))
+      .returning();
+    return updatedExpense;
+  }
+
+  async deleteExpense(id: number): Promise<void> {
+    await db.delete(expenses).where(eq(expenses.id, id));
+  }
+
+  // Asset operations
+  async getAllAssets(tenantId: number, organizationId?: number): Promise<Asset[]> {
+    const conditions: any[] = [eq(assets.tenantId, tenantId)];
+    
+    if (organizationId) {
+      conditions.push(eq(assets.organizationId, organizationId));
+    }
+
+    return await db
+      .select()
+      .from(assets)
+      .where(and(...conditions))
+      .orderBy(assets.name);
+  }
+
+  async getAsset(id: number): Promise<Asset | undefined> {
+    const [asset] = await db.select().from(assets).where(eq(assets.id, id));
+    return asset;
+  }
+
+  async getAssetsByType(tenantId: number, assetType: string): Promise<Asset[]> {
+    return await db
+      .select()
+      .from(assets)
+      .where(
+        and(
+          eq(assets.tenantId, tenantId),
+          eq(assets.assetType, assetType)
+        )
+      );
+  }
+
+  async getAssetsDueForMaintenance(tenantId: number): Promise<Asset[]> {
+    const today = new Date();
+    return await db
+      .select()
+      .from(assets)
+      .where(
+        and(
+          eq(assets.tenantId, tenantId),
+          or(
+            sql`${assets.nextMaintenanceDate} <= ${today}`,
+            sql`${assets.nextMaintenanceDate} IS NULL`
+          )
+        )
+      );
+  }
+
+  async createAsset(asset: InsertAsset): Promise<Asset> {
+    const [newAsset] = await db.insert(assets).values(asset).returning();
+    return newAsset;
+  }
+
+  async updateAsset(id: number, updates: Partial<InsertAsset>): Promise<Asset> {
+    const [updatedAsset] = await db
+      .update(assets)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(assets.id, id))
+      .returning();
+    return updatedAsset;
+  }
+
+  async updateAssetMaintenance(id: number, maintenanceDate: Date, nextMaintenanceDate?: Date): Promise<Asset> {
+    const [updatedAsset] = await db
+      .update(assets)
+      .set({ 
+        lastMaintenanceDate: maintenanceDate,
+        nextMaintenanceDate,
+        updatedAt: new Date() 
+      })
+      .where(eq(assets.id, id))
+      .returning();
+    return updatedAsset;
+  }
+
+  // Revenue operations
+  async getAllRevenues(tenantId: number, organizationId?: number): Promise<Revenue[]> {
+    const conditions: any[] = [eq(revenues.tenantId, tenantId)];
+    
+    if (organizationId) {
+      conditions.push(eq(revenues.organizationId, organizationId));
+    }
+
+    return await db
+      .select()
+      .from(revenues)
+      .where(and(...conditions))
+      .orderBy(desc(revenues.revenueDate));
+  }
+
+  async getRevenue(id: number): Promise<Revenue | undefined> {
+    const [revenue] = await db.select().from(revenues).where(eq(revenues.id, id));
+    return revenue;
+  }
+
+  async getRevenuesByDateRange(tenantId: number, startDate: Date, endDate: Date): Promise<Revenue[]> {
+    return await db
+      .select()
+      .from(revenues)
+      .where(
+        and(
+          eq(revenues.tenantId, tenantId),
+          sql`${revenues.revenueDate} >= ${startDate}`,
+          sql`${revenues.revenueDate} <= ${endDate}`
+        )
+      );
+  }
+
+  async getRevenuesByCategory(tenantId: number, category: string): Promise<Revenue[]> {
+    return await db
+      .select()
+      .from(revenues)
+      .where(
+        and(
+          eq(revenues.tenantId, tenantId),
+          eq(revenues.category, category)
+        )
+      );
+  }
+
+  async createRevenue(revenue: InsertRevenue): Promise<Revenue> {
+    const [newRevenue] = await db.insert(revenues).values(revenue).returning();
+    return newRevenue;
+  }
+
+  async updateRevenue(id: number, updates: Partial<InsertRevenue>): Promise<Revenue> {
+    const [updatedRevenue] = await db
+      .update(revenues)
+      .set(updates)
+      .where(eq(revenues.id, id))
+      .returning();
+    return updatedRevenue;
+  }
+
+  // Financial period operations
+  async getAllFinancialPeriods(tenantId: number): Promise<FinancialPeriod[]> {
+    return await db
+      .select()
+      .from(financialPeriods)
+      .where(eq(financialPeriods.tenantId, tenantId))
+      .orderBy(desc(financialPeriods.endDate));
+  }
+
+  async getFinancialPeriod(id: number): Promise<FinancialPeriod | undefined> {
+    const [period] = await db.select().from(financialPeriods).where(eq(financialPeriods.id, id));
+    return period;
+  }
+
+  async getCurrentFinancialPeriod(tenantId: number, periodType: string): Promise<FinancialPeriod | undefined> {
+    const today = new Date();
+    const [period] = await db
+      .select()
+      .from(financialPeriods)
+      .where(
+        and(
+          eq(financialPeriods.tenantId, tenantId),
+          eq(financialPeriods.periodType, periodType),
+          sql`${financialPeriods.startDate} <= ${today}`,
+          sql`${financialPeriods.endDate} >= ${today}`
+        )
+      );
+    return period;
+  }
+
+  async createFinancialPeriod(period: InsertFinancialPeriod): Promise<FinancialPeriod> {
+    const [newPeriod] = await db.insert(financialPeriods).values(period).returning();
+    return newPeriod;
+  }
+
+  async updateFinancialPeriod(id: number, updates: Partial<InsertFinancialPeriod>): Promise<FinancialPeriod> {
+    const [updatedPeriod] = await db
+      .update(financialPeriods)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(financialPeriods.id, id))
+      .returning();
+    return updatedPeriod;
+  }
+
+  async closeFinancialPeriod(id: number, closedBy: number): Promise<FinancialPeriod> {
+    const [closedPeriod] = await db
+      .update(financialPeriods)
+      .set({ 
+        isClosed: true,
+        closedBy,
+        closedAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(financialPeriods.id, id))
+      .returning();
+    return closedPeriod;
+  }
+
+  async calculatePeriodTotals(tenantId: number, startDate: Date, endDate: Date): Promise<{
+    totalRevenue: number;
+    totalExpenses: number;
+    grossProfit: number;
+    netProfit: number;
+  }> {
+    // Calculate total revenue
+    const revenueResult = await db
+      .select({
+        total: sql`COALESCE(SUM(${revenues.amount}), 0)`,
+      })
+      .from(revenues)
+      .where(
+        and(
+          eq(revenues.tenantId, tenantId),
+          sql`${revenues.revenueDate} >= ${startDate}`,
+          sql`${revenues.revenueDate} <= ${endDate}`
+        )
+      );
+
+    // Calculate total expenses
+    const expenseResult = await db
+      .select({
+        total: sql`COALESCE(SUM(${expenses.amount}), 0)`,
+      })
+      .from(expenses)
+      .where(
+        and(
+          eq(expenses.tenantId, tenantId),
+          sql`${expenses.expenseDate} >= ${startDate}`,
+          sql`${expenses.expenseDate} <= ${endDate}`
+        )
+      );
+
+    // Calculate payroll expenses
+    const payrollResult = await db
+      .select({
+        total: sql`COALESCE(SUM(${payrollRecords.netPay}), 0)`,
+      })
+      .from(payrollRecords)
+      .where(
+        and(
+          eq(payrollRecords.tenantId, tenantId),
+          eq(payrollRecords.paymentStatus, 'paid'),
+          sql`${payrollRecords.payPeriodEnd} >= ${startDate}`,
+          sql`${payrollRecords.payPeriodEnd} <= ${endDate}`
+        )
+      );
+
+    const totalRevenue = parseFloat(revenueResult[0].total.toString());
+    const totalExpenses = parseFloat(expenseResult[0].total.toString()) + parseFloat(payrollResult[0].total.toString());
+    const grossProfit = totalRevenue - totalExpenses;
+    const netProfit = grossProfit; // Can be adjusted for taxes, etc.
+
+    return {
+      totalRevenue,
+      totalExpenses,
+      grossProfit,
+      netProfit,
+    };
+  }
+
+  // Subscription management
+  async getAllSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+    return await db
+      .select()
+      .from(subscriptionPlans)
+      .orderBy(subscriptionPlans.price);
+  }
+
+  async getActiveSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+    return await db
+      .select()
+      .from(subscriptionPlans)
+      .where(eq(subscriptionPlans.isActive, true))
+      .orderBy(subscriptionPlans.price);
+  }
+
+  async getSubscriptionPlan(id: number): Promise<SubscriptionPlan | undefined> {
+    const [plan] = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.id, id));
+    return plan;
+  }
+
+  async getSubscriptionPlanByCode(code: string): Promise<SubscriptionPlan | undefined> {
+    const [plan] = await db.select().from(subscriptionPlans).where(eq(subscriptionPlans.code, code));
+    return plan;
+  }
+
+  async createSubscriptionPlan(plan: InsertSubscriptionPlan): Promise<SubscriptionPlan> {
+    const [newPlan] = await db.insert(subscriptionPlans).values(plan).returning();
+    return newPlan;
+  }
+
+  async updateSubscriptionPlan(id: number, updates: Partial<InsertSubscriptionPlan>): Promise<SubscriptionPlan> {
+    const [updatedPlan] = await db
+      .update(subscriptionPlans)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(subscriptionPlans.id, id))
+      .returning();
+    return updatedPlan;
+  }
+
+  async getTenantSubscription(tenantId: number): Promise<TenantSubscription | undefined> {
+    const [subscription] = await db
+      .select()
+      .from(tenantSubscriptions)
+      .where(
+        and(
+          eq(tenantSubscriptions.tenantId, tenantId),
+          eq(tenantSubscriptions.status, 'active')
+        )
+      );
+    return subscription;
+  }
+
+  async getTenantWithSubscription(tenantId: number): Promise<TenantWithSubscription | undefined> {
+    const [tenant] = await db.select().from(tenants).where(eq(tenants.id, tenantId));
+    if (!tenant) return undefined;
+
+    const subscription = await this.getTenantSubscription(tenantId);
+    let subscriptionWithPlan;
+
+    if (subscription) {
+      const plan = await this.getSubscriptionPlan(subscription.planId);
+      subscriptionWithPlan = plan ? { ...subscription, plan } : undefined;
+    }
+
+    const orgs = await this.getAllOrganizations(tenantId);
+
+    return {
+      ...tenant,
+      subscription: subscriptionWithPlan,
+      organizations: orgs,
+    };
+  }
+
+  async createTenantSubscription(subscription: InsertTenantSubscription): Promise<TenantSubscription> {
+    const [newSubscription] = await db.insert(tenantSubscriptions).values(subscription).returning();
+    return newSubscription;
+  }
+
+  async updateTenantSubscription(id: number, updates: Partial<InsertTenantSubscription>): Promise<TenantSubscription> {
+    const [updatedSubscription] = await db
+      .update(tenantSubscriptions)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(tenantSubscriptions.id, id))
+      .returning();
+    return updatedSubscription;
+  }
+
+  async cancelSubscription(id: number, reason: string): Promise<TenantSubscription> {
+    const [cancelledSubscription] = await db
+      .update(tenantSubscriptions)
+      .set({ 
+        status: 'cancelled',
+        cancelledAt: new Date(),
+        cancellationReason: reason,
+        updatedAt: new Date() 
+      })
+      .where(eq(tenantSubscriptions.id, id))
+      .returning();
+    return cancelledSubscription;
+  }
+
+  // Attendance operations
+  async getAllAttendanceRecords(employeeId: number, startDate?: Date, endDate?: Date): Promise<AttendanceRecord[]> {
+    const conditions: any[] = [eq(attendanceRecords.employeeId, employeeId)];
+    
+    if (startDate) {
+      conditions.push(sql`${attendanceRecords.date} >= ${startDate}`);
+    }
+    
+    if (endDate) {
+      conditions.push(sql`${attendanceRecords.date} <= ${endDate}`);
+    }
+
+    return await db
+      .select()
+      .from(attendanceRecords)
+      .where(and(...conditions))
+      .orderBy(desc(attendanceRecords.date));
+  }
+
+  async getAttendanceRecord(id: number): Promise<AttendanceRecord | undefined> {
+    const [record] = await db.select().from(attendanceRecords).where(eq(attendanceRecords.id, id));
+    return record;
+  }
+
+  async getTodayAttendance(employeeId: number): Promise<AttendanceRecord | undefined> {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [record] = await db
+      .select()
+      .from(attendanceRecords)
+      .where(
+        and(
+          eq(attendanceRecords.employeeId, employeeId),
+          sql`${attendanceRecords.date} >= ${today}`,
+          sql`${attendanceRecords.date} < ${tomorrow}`
+        )
+      );
+    return record;
+  }
+
+  async createAttendanceRecord(attendance: InsertAttendanceRecord): Promise<AttendanceRecord> {
+    const [newRecord] = await db.insert(attendanceRecords).values(attendance).returning();
+    return newRecord;
+  }
+
+  async updateAttendanceRecord(id: number, updates: Partial<InsertAttendanceRecord>): Promise<AttendanceRecord> {
+    const [updatedRecord] = await db
+      .update(attendanceRecords)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(attendanceRecords.id, id))
+      .returning();
+    return updatedRecord;
+  }
+
+  async checkIn(employeeId: number): Promise<AttendanceRecord> {
+    const today = await this.getTodayAttendance(employeeId);
+    
+    if (today) {
+      throw new Error('Already checked in today');
+    }
+
+    const newRecord = await this.createAttendanceRecord({
+      employeeId,
+      date: new Date(),
+      checkInTime: new Date(),
+      status: 'present',
+    });
+
+    return newRecord;
+  }
+
+  async checkOut(employeeId: number): Promise<AttendanceRecord> {
+    const today = await this.getTodayAttendance(employeeId);
+    
+    if (!today) {
+      throw new Error('No check-in record found for today');
+    }
+    
+    if (today.checkOutTime) {
+      throw new Error('Already checked out today');
+    }
+
+    const checkOutTime = new Date();
+    const { totalHours, overtimeHours } = await this.calculateWorkHours(
+      today.checkInTime!,
+      checkOutTime
+    );
+
+    const updatedRecord = await this.updateAttendanceRecord(today.id, {
+      checkOutTime,
+      totalHours: totalHours.toString(),
+      overtimeHours: overtimeHours.toString(),
+    });
+
+    return updatedRecord;
+  }
+
+  async calculateWorkHours(checkIn: Date, checkOut: Date): Promise<{ totalHours: number; overtimeHours: number }> {
+    const diffMs = checkOut.getTime() - checkIn.getTime();
+    const totalHours = diffMs / (1000 * 60 * 60);
+    const standardHours = 8;
+    const overtimeHours = Math.max(0, totalHours - standardHours);
+
+    return {
+      totalHours: Math.round(totalHours * 100) / 100,
+      overtimeHours: Math.round(overtimeHours * 100) / 100,
+    };
+  }
+
+  // Super Admin operations
+  async getSuperAdminStats(): Promise<{
+    totalTenants: number;
+    activeTenants: number;
+    totalRevenue: number;
+    totalUsers: number;
+    subscriptionsByPlan: Record<string, number>;
+  }> {
+    // Get total tenants
+    const totalTenantsResult = await db
+      .select({ count: count() })
+      .from(tenants);
+    
+    // Get active tenants
+    const activeTenantsResult = await db
+      .select({ count: count() })
+      .from(tenants)
+      .where(eq(tenants.isActive, true));
+    
+    // Get total users
+    const totalUsersResult = await db
+      .select({ count: count() })
+      .from(users);
+    
+    // Get total revenue from all tenant subscriptions
+    const totalRevenueResult = await db
+      .select({
+        total: sql`COALESCE(SUM(${subscriptionPlans.price}), 0)`,
+      })
+      .from(tenantSubscriptions)
+      .innerJoin(subscriptionPlans, eq(tenantSubscriptions.planId, subscriptionPlans.id))
+      .where(eq(tenantSubscriptions.status, 'active'));
+    
+    // Get subscriptions by plan
+    const subscriptionsByPlanResult = await db
+      .select({
+        planCode: subscriptionPlans.code,
+        count: count(),
+      })
+      .from(tenantSubscriptions)
+      .innerJoin(subscriptionPlans, eq(tenantSubscriptions.planId, subscriptionPlans.id))
+      .where(eq(tenantSubscriptions.status, 'active'))
+      .groupBy(subscriptionPlans.code);
+
+    const subscriptionsByPlan: Record<string, number> = {};
+    subscriptionsByPlanResult.forEach(row => {
+      subscriptionsByPlan[row.planCode] = row.count;
+    });
+
+    return {
+      totalTenants: totalTenantsResult[0].count,
+      activeTenants: activeTenantsResult[0].count,
+      totalRevenue: parseFloat(totalRevenueResult[0].total.toString()),
+      totalUsers: totalUsersResult[0].count,
+      subscriptionsByPlan,
+    };
+  }
+
+  async getAllTenantsWithSubscriptions(): Promise<TenantWithSubscription[]> {
+    const allTenants = await this.getAllTenants();
+    const tenantsWithSubscriptions: TenantWithSubscription[] = [];
+
+    for (const tenant of allTenants) {
+      const tenantWithSub = await this.getTenantWithSubscription(tenant.id);
+      if (tenantWithSub) {
+        tenantsWithSubscriptions.push(tenantWithSub);
+      }
+    }
+
+    return tenantsWithSubscriptions;
+  }
 }
 
 export const storage = new DatabaseStorage();
+
