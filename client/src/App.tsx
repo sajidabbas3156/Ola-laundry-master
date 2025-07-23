@@ -32,6 +32,9 @@ import CustomerQRApp from "@/pages/mobile/CustomerQRApp";
 // Error Pages
 import NotFound from "@/pages/NotFound";
 
+// Components
+import InstallPrompt from "@/components/InstallPrompt";
+
 import "./index.css";
 
 const queryClient = new QueryClient({
@@ -91,6 +94,7 @@ function App() {
             </LocalizationProvider>
           </TenantProvider>
         </AuthProvider>
+        <InstallPrompt />
       </ThemeProvider>
     </QueryClientProvider>
   );

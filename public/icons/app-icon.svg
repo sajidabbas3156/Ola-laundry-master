@@ -1,0 +1,7 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="32" fill="#2563eb"/>
+  <path d="M48 64C48 55.1634 55.1634 48 64 48H128C136.837 48 144 55.1634 144 64V96C144 104.837 136.837 112 128 112H64C55.1634 112 48 104.837 48 96V64Z" fill="white"/>
+  <path d="M64 128H128V144H64V128Z" fill="white"/>
+  <circle cx="96" cy="80" r="8" fill="#2563eb"/>
+  <text x="96" y="170" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">OLA</text>
+</svg>

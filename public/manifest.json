@@ -1,0 +1,55 @@
+{
+  "name": "OLA Laundry Master",
+  "short_name": "OLA Laundry",
+  "description": "Complete laundry management platform with customer, driver, and POS applications",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/app-icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/app-icon.svg", 
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Customer App",
+      "short_name": "Customer",
+      "description": "Place orders and track laundry",
+      "url": "/customer-app",
+      "icons": [{ "src": "/icons/customer-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Delivery App",
+      "short_name": "Delivery",
+      "description": "Manage deliveries and routes",
+      "url": "/delivery-app",
+      "icons": [{ "src": "/icons/delivery-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "POS System",
+      "short_name": "POS",
+      "description": "Point of sale for staff",
+      "url": "/vendor-pos",
+      "icons": [{ "src": "/icons/pos-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Admin Panel",
+      "short_name": "Admin",
+      "description": "Business management dashboard",
+      "url": "/tenant/demo/dashboard",
+      "icons": [{ "src": "/icons/admin-icon.png", "sizes": "96x96" }]
+    }
+  ]
+}
