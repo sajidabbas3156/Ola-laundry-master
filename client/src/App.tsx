@@ -36,23 +36,25 @@ function Router() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/80 via-slate-50 to-blue-100/60">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="bg-white/95 backdrop-blur-md border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">LP</span>
-                </div>
+              <div className="flex items-center gap-4">
+                <img 
+                  src="@assets/1750529717604(1)_1753277923428.png" 
+                  alt="OLA LAUNDRY" 
+                  className="h-12 w-auto"
+                />
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">LaundryPro</h1>
-                  <p className="text-xs text-gray-500">Smart Laundry Management</p>
+                  <h1 className="text-2xl font-bold text-gray-900">OLA LAUNDRY MASTER</h1>
+                  <p className="text-sm text-gray-600">Premium Laundry Management</p>
                 </div>
               </div>
               <a 
                 href="/api/login"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all duration-200 font-medium"
+                className="bg-primary text-primary-foreground px-8 py-3 rounded-xl hover:bg-primary/90 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl"
               >
                 Sign In
               </a>
@@ -62,117 +64,132 @@ function Router() {
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Welcome to <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">LaundryPro</span>
+          <div className="text-center mb-20">
+            <div className="flex justify-center mb-8">
+              <img 
+                src="@assets/1750529717604(1)_1753277923428.png" 
+                alt="OLA LAUNDRY" 
+                className="h-32 w-auto"
+              />
+            </div>
+            <h2 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+              Welcome to <span className="text-primary">OLA LAUNDRY MASTER</span>
             </h2>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Your complete laundry business management solution. From customer orders to delivery tracking, we've got everything you need to run your laundry service smoothly.
+            <p className="text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+              Premium laundry management solution designed for modern businesses. 
+              Complete control over operations, customer experience, and growth.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <a 
                 href="/api/login"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-lg hover:shadow-xl transition-all duration-200 font-semibold text-lg"
+                className="bg-primary text-primary-foreground px-12 py-5 rounded-2xl hover:bg-primary/90 transition-all duration-300 font-bold text-xl shadow-2xl hover:shadow-3xl hover:scale-105"
               >
-                Get Started Today
+                Start Managing Today
               </a>
-              <button className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg hover:border-gray-400 transition-all duration-200 font-semibold text-lg">
-                Watch Demo
+              <button className="border-2 border-primary/20 text-primary px-12 py-5 rounded-2xl hover:border-primary/40 hover:bg-primary/5 transition-all duration-300 font-bold text-xl">
+                Explore Features
               </button>
             </div>
           </div>
 
           {/* Features Grid */}
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="grid lg:grid-cols-3 gap-12 mb-24">
+            <div className="bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 border border-gray-100 hover:border-primary/20 group">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
+                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Easy Order Management</h3>
-              <p className="text-gray-600">Track orders from pickup to delivery with our intuitive dashboard. Real-time updates keep everyone informed.</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Premium Order Management</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">Complete order lifecycle management with intelligent tracking, automated workflows, and real-time customer notifications.</p>
             </div>
 
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 border border-gray-100 hover:border-primary/20 group">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
+                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Smart Inventory</h3>
-              <p className="text-gray-600">Automatic reordering and real-time stock tracking. Never run out of supplies again with intelligent alerts.</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Intelligent Inventory</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">AI-powered inventory management with predictive analytics, automated reordering, and comprehensive supplier integration.</p>
             </div>
 
-            <div className="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white/80 backdrop-blur-sm p-10 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 border border-gray-100 hover:border-primary/20 group">
+              <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-all duration-300">
+                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">Lightning Fast</h3>
-              <p className="text-gray-600">Built for speed and efficiency. Process orders, manage customers, and track deliveries in seconds, not minutes.</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Enterprise Performance</h3>
+              <p className="text-gray-600 text-lg leading-relaxed">Built for scale with enterprise-grade performance, advanced analytics, and seamless multi-location management.</p>
             </div>
           </div>
 
           {/* Demo Accounts */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Try It Out - Demo Accounts</h3>
-              <p className="text-gray-600">Experience LaundryPro with different user roles. Each account shows different features and permissions.</p>
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-12 border border-gray-100">
+            <div className="text-center mb-12">
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">Experience OLA LAUNDRY MASTER</h3>
+              <p className="text-gray-600 text-lg">Test drive our premium platform with different user roles. Each account demonstrates unique features and capabilities.</p>
             </div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="text-center p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-red-600 font-bold text-sm">SA</span>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="text-center p-8 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                  <span className="text-primary font-bold text-lg">SA</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Super Admin</h4>
-                <p className="text-sm text-gray-600 mb-3">Full system access</p>
-                <p className="text-xs font-mono bg-gray-100 p-2 rounded">superadmin@laundrypro.com</p>
+                <h4 className="font-bold text-gray-900 mb-2 text-lg">Super Admin</h4>
+                <p className="text-gray-600 mb-4">Complete system control</p>
+                <p className="text-sm font-mono bg-white/80 p-3 rounded-xl border">superadmin@ola.bh</p>
               </div>
 
-              <div className="text-center p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-blue-600 font-bold text-sm">OW</span>
+              <div className="text-center p-8 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                  <span className="text-primary font-bold text-lg">OW</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Business Owner</h4>
-                <p className="text-sm text-gray-600 mb-3">Business management</p>
-                <p className="text-xs font-mono bg-gray-100 p-2 rounded">owner@laundrypro.bh</p>
+                <h4 className="font-bold text-gray-900 mb-2 text-lg">Business Owner</h4>
+                <p className="text-gray-600 mb-4">Business oversight</p>
+                <p className="text-sm font-mono bg-white/80 p-3 rounded-xl border">owner@ola.bh</p>
               </div>
 
-              <div className="text-center p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-green-600 font-bold text-sm">MG</span>
+              <div className="text-center p-8 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                  <span className="text-primary font-bold text-lg">MG</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Manager</h4>
-                <p className="text-sm text-gray-600 mb-3">Daily operations</p>
-                <p className="text-xs font-mono bg-gray-100 p-2 rounded">manager@laundrypro.bh</p>
+                <h4 className="font-bold text-gray-900 mb-2 text-lg">Manager</h4>
+                <p className="text-gray-600 mb-4">Operations management</p>
+                <p className="text-sm font-mono bg-white/80 p-3 rounded-xl border">manager@ola.bh</p>
               </div>
 
-              <div className="text-center p-6 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all duration-200">
-                <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                  <span className="text-yellow-600 font-bold text-sm">CS</span>
+              <div className="text-center p-8 bg-white/50 backdrop-blur-sm rounded-2xl border border-gray-100 hover:border-primary/30 hover:shadow-lg transition-all duration-300 group">
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-all duration-300">
+                  <span className="text-primary font-bold text-lg">CS</span>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Cashier</h4>
-                <p className="text-sm text-gray-600 mb-3">Point of sale</p>
-                <p className="text-xs font-mono bg-gray-100 p-2 rounded">cashier@laundrypro.bh</p>
+                <h4 className="font-bold text-gray-900 mb-2 text-lg">Cashier</h4>
+                <p className="text-gray-600 mb-4">Point of sale operations</p>
+                <p className="text-sm font-mono bg-white/80 p-3 rounded-xl border">cashier@ola.bh</p>
               </div>
             </div>
 
-            <div className="text-center mt-6 p-4 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">
-                <span className="font-semibold">Password for all demo accounts:</span> 
-                <span className="font-mono bg-white px-2 py-1 rounded border ml-2">demo123</span>
+            <div className="text-center mt-10 p-6 bg-primary/5 rounded-2xl border border-primary/20">
+              <p className="text-gray-700 text-lg">
+                <span className="font-bold">Universal Password:</span> 
+                <span className="font-mono bg-white px-4 py-2 rounded-xl border border-primary/20 ml-3 text-primary font-semibold">demo123</span>
               </p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="bg-white border-t border-gray-200 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500">
-            <p>&copy; 2024 LaundryPro SaaS. Built for the modern laundry business.</p>
+        <div className="bg-white/95 backdrop-blur-md border-t border-gray-100 py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col items-center text-center">
+              <img 
+                src="@assets/1750529717604(1)_1753277923428.png" 
+                alt="OLA LAUNDRY" 
+                className="h-16 w-auto mb-4"
+              />
+              <p className="text-gray-600 text-lg font-medium">&copy; 2024 OLA LAUNDRY MASTER. Premium laundry management for modern businesses.</p>
+            </div>
           </div>
         </div>
       </div>

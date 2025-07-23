@@ -41,17 +41,19 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-gray-200 sticky top-0 z-50">
+    <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">LP</span>
-              </div>
+              <img 
+                src="@assets/1750529717604(1)_1753277923428.png" 
+                alt="OLA LAUNDRY" 
+                className="h-10 w-auto"
+              />
               <div>
-                <span className="text-xl font-bold text-gray-900">LaundryPro</span>
-                <p className="text-xs text-gray-500 -mt-1">Smart Management</p>
+                <span className="text-xl font-bold text-gray-900">OLA LAUNDRY MASTER</span>
+                <p className="text-xs text-gray-500 -mt-1">Premium Management</p>
               </div>
             </Link>
           </div>
@@ -70,8 +72,8 @@ export default function Navigation() {
                   className={cn(
                     "group flex items-center px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 relative",
                     isActive
-                      ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-blue-50 hover:shadow-md"
+                      ? "bg-primary text-primary-foreground shadow-lg"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-primary/5 hover:shadow-md"
                   )}
                 >
                   <Icon className="w-4 h-4 mr-2" />

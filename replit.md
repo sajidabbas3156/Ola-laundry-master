@@ -1,8 +1,17 @@
-# LaundryPro - Complete Management Suite
+# OLA LAUNDRY MASTER - Premium Management Suite
 
 ## Overview
 
-LaundryPro is a comprehensive laundry management system built with a modern full-stack architecture. The application consists of multiple client interfaces (web admin dashboard, mobile POS, customer app, and delivery app) backed by a unified Express.js API server. The system is designed to handle all aspects of laundry business operations including order management, customer relations, delivery routing, and payment processing.
+OLA LAUNDRY MASTER is a premium laundry management system built with a modern full-stack architecture. The application consists of multiple client interfaces (web admin dashboard, mobile POS, customer app, and delivery app) backed by a unified Express.js API server. The system is designed to handle all aspects of laundry business operations including order management, customer relations, delivery routing, and payment processing.
+
+## Recent Changes
+
+### Rebranding to OLA LAUNDRY MASTER (December 2024)
+- **Complete visual rebrand**: Updated from "LaundryPro" to "OLA LAUNDRY MASTER" 
+- **Logo integration**: Incorporated custom OLA LAUNDRY logo throughout the application
+- **Premium design system**: Applied minimal, premium styling with enhanced blue color palette
+- **Consistent branding**: Updated all UI components, navigation, headers, and footers
+- **Enhanced user experience**: Improved spacing, typography, and visual hierarchy for premium feel
 
 ## User Preferences
 
