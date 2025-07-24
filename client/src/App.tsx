@@ -18,6 +18,12 @@ import Employees from "@/pages/tenant/Employees";
 import Payroll from "@/pages/tenant/Payroll";
 import FinancialReports from "@/pages/tenant/FinancialReports";
 import InventoryManagement from "@/pages/tenant/InventoryManagement";
+import NotificationsManagement from "@/pages/tenant/NotificationsManagement";
+import PromotionsManagement from "@/pages/tenant/PromotionsManagement";
+import ReviewsManagement from "@/pages/tenant/ReviewsManagement";
+import BusinessSettings from "@/pages/tenant/BusinessSettings";
+import WorkflowAutomation from "@/pages/tenant/WorkflowAutomation";
+import AdvancedAnalytics from "@/pages/tenant/AdvancedAnalytics";
 
 // Super Admin Pages
 import SuperAdminDashboard from "@/pages/superadmin/SuperAdminDashboard";
@@ -79,6 +85,12 @@ function App() {
                           <Route path="/tenant/:tenantSlug/payroll" component={Payroll} />
                           <Route path="/tenant/:tenantSlug/financial-reports" component={FinancialReports} />
                           <Route path="/tenant/:tenantSlug/inventory" component={InventoryManagement} />
+                          <Route path="/tenant/:tenantSlug/notifications" component={NotificationsManagement} />
+                          <Route path="/tenant/:tenantSlug/promotions" component={PromotionsManagement} />
+                          <Route path="/tenant/:tenantSlug/reviews" component={ReviewsManagement} />
+                          <Route path="/tenant/:tenantSlug/settings" component={BusinessSettings} />
+                          <Route path="/tenant/:tenantSlug/workflows" component={WorkflowAutomation} />
+                          <Route path="/tenant/:tenantSlug/analytics" component={AdvancedAnalytics} />
 
                           {/* Super Admin Routes */}
                           <Route path="/superadmin" component={SuperAdminDashboard} />
