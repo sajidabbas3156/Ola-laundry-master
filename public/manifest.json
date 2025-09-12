@@ -1,11 +1,11 @@
 {
-  "name": "OLA Laundry Master",
+  "name": "OLA LAUNDRY MASTER - Clean Green Crisp",
   "short_name": "OLA Laundry",
-  "description": "Complete laundry management platform with customer, driver, and POS applications",
+  "description": "OLA ORDERS LAUNDRY W.L.L - 100% Eco-friendly laundry management platform serving Bahrain with advanced technology and sustainable operations",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#2563eb",
+  "theme_color": "#2C1A5B",
   "orientation": "portrait-primary",
   "categories": ["business", "productivity", "utilities"],
   "icons": [

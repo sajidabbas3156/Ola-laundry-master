@@ -21,25 +21,25 @@ export default function LandingPage() {
       icon: Store,
       title: "Web Admin Panel",
       description: "Complete business management dashboard with analytics, orders, and customer management",
-      color: "text-blue-600"
+      color: "text-primary"
     },
     {
       icon: Smartphone,
       title: "Customer Mobile App",
       description: "User-friendly mobile app for customers to place orders, track deliveries, and manage accounts",
-      color: "text-green-600"
+      color: "text-secondary"
     },
     {
       icon: CreditCard,
       title: "Vendor POS System",
       description: "Point-of-sale interface for staff to process orders, manage inventory, and track sales",
-      color: "text-purple-600"
+      color: "text-primary"
     },
     {
       icon: Truck,
       title: "Delivery Driver App",
       description: "Dedicated driver interface with route optimization, GPS tracking, and delivery management",
-      color: "text-orange-600"
+      color: "text-secondary"
     }
   ];
 
@@ -52,18 +52,18 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-accent to-background">
       <PWABanner />
       
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-background shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">OLA</span>
+              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-lg">OLA</span>
               </div>
-              <span className="text-2xl font-bold text-gray-900">LAUNDRY MASTER</span>
+              <span className="text-2xl font-bold text-foreground">LAUNDRY MASTER</span>
             </div>
             <div className="flex space-x-4">
               <PWAInstallButton variant="button" size="sm" />
@@ -84,22 +84,23 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            Complete Laundry Management Solution
+          <h1 className="text-5xl font-bold text-foreground mb-6">
+            OLA LAUNDRY MASTER - Clean Green Crisp
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Streamline your laundry business with our comprehensive multi-platform solution including 
-            web admin panel, customer mobile app, vendor POS system, and delivery driver interface.
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            Bahrain's first 100% eco-friendly laundry management platform. Serving Hoora, Manama with premium quality, 
+            sustainable operations, and innovative technology. Complete suite for laundry businesses with web admin, 
+            customer mobile app, vendor POS system, and delivery driver interface.
           </p>
           <div className="flex justify-center space-x-4 flex-wrap gap-4">
             <Link to="/customer-app">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90">
                 <Smartphone className="mr-2 h-5 w-5" />
                 Try Customer App
               </Button>
             </Link>
             <Link to="/quick-order">
-              <Button size="lg" className="bg-green-600 hover:bg-green-700">
+              <Button size="lg" variant="secondary" className="bg-secondary text-secondary-foreground hover:bg-secondary/90">
                 <Smartphone className="mr-2 h-5 w-5" />
                 QR Quick Order
               </Button>
@@ -123,8 +124,8 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Four Powerful Applications</h2>
-          <p className="text-lg text-gray-600">Everything you need to run a modern laundry business</p>
+          <h2 className="text-3xl font-bold text-foreground mb-4">Four Powerful Applications</h2>
+          <p className="text-lg text-muted-foreground">Everything you need to run a modern laundry business</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -135,7 +136,7 @@ export default function LandingPage() {
                 <CardTitle className="text-lg">{feature.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600">
+                <CardDescription className="text-muted-foreground">
                   {feature.description}
                 </CardDescription>
               </CardContent>
@@ -145,22 +146,22 @@ export default function LandingPage() {
       </section>
 
       {/* Benefits Section */}
-      <section className="bg-gray-50 py-20">
+      <section className="bg-muted py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose OLA LAUNDRY MASTER?</h2>
-            <p className="text-lg text-gray-600">Built for efficiency, scalability, and user experience</p>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Why Choose OLA LAUNDRY MASTER?</h2>
+            <p className="text-lg text-muted-foreground">100% Eco-friendly operations, sustainable technology, and premium service quality</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
-                  <benefit.icon className="h-8 w-8 text-blue-600" />
+                  <benefit.icon className="h-8 w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{benefit.title}</h3>
-                  <p className="text-gray-600">{benefit.description}</p>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">{benefit.title}</h3>
+                  <p className="text-muted-foreground">{benefit.description}</p>
                 </div>
               </div>
             ))}
@@ -170,10 +171,10 @@ export default function LandingPage() {
 
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="bg-blue-600 rounded-2xl px-8 py-16 text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Laundry Business?</h2>
+        <div className="bg-primary rounded-2xl px-8 py-16 text-center text-primary-foreground">
+          <h2 className="text-3xl font-bold mb-4">Ready to Go Green with Premium Laundry Service?</h2>
           <p className="text-xl mb-8 opacity-90">
-            Join the future of laundry management with our comprehensive solution
+            Experience Bahrain's first 100% eco-friendly laundry management platform. Call +973 37960004 or visit www.Olalaundry.com
           </p>
           <div className="flex justify-center space-x-4">
             <Link to="/tenant/ola-laundry/dashboard">
@@ -182,7 +183,7 @@ export default function LandingPage() {
               </Button>
             </Link>
             <Link to="/contact">
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-blue-600">
+              <Button size="lg" variant="outline" className="text-primary-foreground border-primary-foreground hover:bg-primary-foreground hover:text-primary">
                 Contact Sales
               </Button>
             </Link>
@@ -191,17 +192,41 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">OLA</span>
+      <footer className="bg-foreground text-background py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            <div className="text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <span className="text-primary-foreground font-bold text-sm">OLA</span>
+                </div>
+                <span className="text-xl font-bold">LAUNDRY MASTER</span>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Clean - Green - Crisp<br/>
+                100% Eco-friendly Laundry Services
+              </p>
             </div>
-            <span className="text-xl font-bold">LAUNDRY MASTER</span>
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-4">Contact Information</h3>
+              <p className="text-muted-foreground text-sm mb-2">📞 +973 37960004</p>
+              <p className="text-muted-foreground text-sm mb-2">🌐 www.Olalaundry.com</p>
+              <p className="text-muted-foreground text-sm">
+                📍 Shop 1309A, Road 1819, Block 318<br/>
+                Hoora, Manama, Kingdom of Bahrain
+              </p>
+            </div>
+            <div className="text-center md:text-right">
+              <h3 className="text-lg font-semibold mb-4">OLA ORDERS LAUNDRY W.L.L</h3>
+              <p className="text-muted-foreground text-sm mb-2">First of a kind in Bahrain</p>
+              <p className="text-muted-foreground text-sm">Hygienic - Affordable - Sustainable</p>
+            </div>
           </div>
-          <p className="text-gray-400">
-            © 2024 OLA LAUNDRY MASTER. All rights reserved. Built for modern laundry businesses.
-          </p>
+          <div className="border-t border-border pt-8 text-center">
+            <p className="text-muted-foreground text-sm">
+              © 2024 OLA ORDERS LAUNDRY W.L.L. All rights reserved. Bahrain's premier eco-friendly laundry management platform.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
