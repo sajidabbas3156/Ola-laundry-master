@@ -20,7 +20,7 @@ import {
   Zap
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
-import { LaundrySpinner, InlineLoader } from "@/components/ui/laundry-spinner";
+import { LaundrySpinner } from "@/components/ui/laundry-spinner";
 
 export default function DeliveryApp() {
   const { drivers, updateDriverStatus } = useDrivers();
@@ -69,17 +69,17 @@ export default function DeliveryApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b px-4 py-3 sticky top-0 z-10">
+      <header className="bg-card border-b border-border px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <Truck className="h-4 w-4 text-white" />
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <Truck className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <span className="font-semibold text-gray-900">Driver App</span>
-              <p className="text-xs text-gray-600">Hi, {currentDriver.name}!</p>
+              <span className="font-semibold text-foreground">Driver App</span>
+              <p className="text-xs text-muted-foreground">Hi, {currentDriver.name}!</p>
             </div>
           </div>
           
@@ -87,12 +87,12 @@ export default function DeliveryApp() {
           <div className="flex items-center space-x-3">
             <PWAInstallButton variant="button" size="sm" />
             <div className="flex items-center space-x-1">
-              <Battery className="h-4 w-4 text-green-600" />
-              <span className="text-xs text-gray-600">87%</span>
+              <Battery className="h-4 w-4 text-accent-foreground" />
+              <span className="text-xs text-muted-foreground">87%</span>
             </div>
             <div className="flex items-center space-x-1">
-              <Signal className="h-4 w-4 text-green-600" />
-              <span className="text-xs text-gray-600">4G</span>
+              <Signal className="h-4 w-4 text-accent-foreground" />
+              <span className="text-xs text-muted-foreground">4G</span>
             </div>
             <Badge variant={isOnline ? "default" : "secondary"}>
               {isOnline ? "Online" : "Offline"}
@@ -111,7 +111,7 @@ export default function DeliveryApp() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">Driver Status</h3>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">
                       {isOnline ? "Available for deliveries" : "Not accepting orders"}
                     </p>
                   </div>
@@ -124,15 +124,15 @@ export default function DeliveryApp() {
             <div className="grid grid-cols-2 gap-4">
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600">8</div>
-                  <p className="text-sm text-gray-600">Today's Deliveries</p>
+                  <div className="text-2xl font-bold text-primary">8</div>
+                  <p className="text-sm text-muted-foreground">Today's Deliveries</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">127.50</div>
-                  <p className="text-sm text-gray-600">Today's Earnings (BHD)</p>
+                  <div className="text-2xl font-bold text-accent-foreground">127.50</div>
+                  <p className="text-sm text-muted-foreground">Today's Earnings (BHD)</p>
                 </CardContent>
               </Card>
             </div>
@@ -149,7 +149,7 @@ export default function DeliveryApp() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium">Manama City Center</p>
-                    <p className="text-xs text-gray-600">Speed: 0 km/h • GPS: Strong</p>
+                    <p className="text-xs text-muted-foreground">Speed: 0 km/h • GPS: Strong</p>
                   </div>
                   <Button variant="outline" size="sm">
                     <Navigation className="mr-2 h-4 w-4" />
@@ -180,8 +180,8 @@ export default function DeliveryApp() {
                         </Badge>
                       </div>
                       <h3 className="font-medium">{order.customerName}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{order.address}</p>
-                      <div className="flex items-center space-x-4 text-xs text-gray-500">
+                      <p className="text-sm text-muted-foreground mb-2">{order.address}</p>
+                      <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                         <span className="flex items-center">
                           <Package className="mr-1 h-3 w-3" />
                           {order.items} items
@@ -193,7 +193,7 @@ export default function DeliveryApp() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-lg">{order.amount}</p>
+                      <p className="font-bold text-lg text-foreground">{order.amount}</p>
                     </div>
                   </div>
                   
@@ -229,13 +229,13 @@ export default function DeliveryApp() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-accent rounded-lg">
                     <div>
                       <p className="font-medium">Total Route Distance</p>
-                      <p className="text-sm text-gray-600">Estimated time: 2h 15min</p>
+                      <p className="text-sm text-muted-foreground">Estimated time: 2h 15min</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-2xl font-bold text-blue-600">15.7 km</p>
+                      <p className="text-2xl font-bold text-primary">15.7 km</p>
                     </div>
                   </div>
                   
@@ -258,24 +258,24 @@ export default function DeliveryApp() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-6 w-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+                    <User className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <p className="font-medium">{currentDriver.name}</p>
-                    <p className="text-sm text-gray-600">Driver ID: #D{currentDriver.id.toString().padStart(3, '0')}</p>
+                    <p className="text-sm text-muted-foreground">Driver ID: #D{currentDriver.id.toString().padStart(3, '0')}</p>
                   </div>
                 </div>
                 
                 {/* Performance Stats */}
                 <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-xl font-bold text-green-600">4.9</div>
-                    <p className="text-xs text-gray-600">Rating</p>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-xl font-bold text-accent-foreground">4.9</div>
+                    <p className="text-xs text-muted-foreground">Rating</p>
                   </div>
-                  <div className="text-center p-3 bg-gray-50 rounded-lg">
-                    <div className="text-xl font-bold text-blue-600">156</div>
-                    <p className="text-xs text-gray-600">Total Deliveries</p>
+                  <div className="text-center p-3 bg-muted rounded-lg">
+                    <div className="text-xl font-bold text-primary">156</div>
+                    <p className="text-xs text-muted-foreground">Total Deliveries</p>
                   </div>
                 </div>
 
@@ -289,7 +289,7 @@ export default function DeliveryApp() {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
         <div className="flex justify-around items-center py-2">
           {[
             { key: "dashboard", icon: Zap, label: "Dashboard" },
@@ -302,8 +302,8 @@ export default function DeliveryApp() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
                 activeTab === tab.key
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-600"
+                  ? "text-primary bg-accent"
+                  : "text-muted-foreground"
               }`}
             >
               <tab.icon className="h-5 w-5 mb-1" />

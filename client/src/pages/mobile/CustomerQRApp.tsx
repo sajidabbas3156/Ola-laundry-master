@@ -122,17 +122,17 @@ export default function CustomerQRApp() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-6">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
-              <QrCode className="h-6 w-6 text-white" />
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
+              <QrCode className="h-6 w-6 text-primary-foreground" />
             </div>
             <h1 className="text-2xl font-bold">OLA Quick Order</h1>
           </div>
-          <p className="text-gray-600">Fast & easy laundry service booking</p>
+          <p className="text-muted-foreground">Fast & easy laundry service booking</p>
         </div>
 
         {/* Progress Steps */}
@@ -142,8 +142,8 @@ export default function CustomerQRApp() {
               <div className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
                 index <= ['auth', 'info', 'service', 'items', 'schedule', 'payment', 'confirm'].indexOf(step)
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground"
               )}>
                 {index + 1}
               </div>
@@ -184,7 +184,7 @@ export default function CustomerQRApp() {
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
                 
-                <p className="text-center text-sm text-gray-600">
+                <p className="text-center text-sm text-muted-foreground">
                   No app download required! Book your laundry service in minutes.
                 </p>
               </CardContent>
@@ -325,19 +325,19 @@ export default function CustomerQRApp() {
                         key={item.id}
                         className={cn(
                           "p-3 border rounded-lg text-center cursor-pointer transition-colors",
-                          isSelected ? "border-blue-600 bg-blue-50" : "hover:bg-gray-50"
+                          isSelected ? "border-primary bg-primary/10" : "hover:bg-muted"
                         )}
                         onClick={() => handleItemToggle(item.id)}
                       >
                         <div className="text-2xl mb-1">{item.icon}</div>
                         <p className="text-sm font-medium">{item.name}</p>
-                        <p className="text-xs text-gray-600">
+                        <p className="text-xs text-muted-foreground">
                           {(item.basePrice * laundryServices.find(s => s.id === selectedService)!.priceMultiplier).toFixed(2)} BHD
                         </p>
                         {isSelected && (
                           <div className="flex items-center justify-center mt-2 space-x-2">
                             <button
-                              className="w-6 h-6 bg-blue-600 text-white rounded flex items-center justify-center"
+                              className="w-6 h-6 bg-primary text-primary-foreground rounded flex items-center justify-center"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateItemQuantity(item.id, orderItem.quantity - 1);
@@ -347,7 +347,7 @@ export default function CustomerQRApp() {
                             </button>
                             <span className="text-sm font-medium">{orderItem.quantity}</span>
                             <button
-                              className="w-6 h-6 bg-blue-600 text-white rounded flex items-center justify-center"
+                              className="w-6 h-6 bg-primary text-primary-foreground rounded flex items-center justify-center"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateItemQuantity(item.id, orderItem.quantity + 1);
@@ -362,14 +362,14 @@ export default function CustomerQRApp() {
                   })}
                 </div>
                 
-                <div className="p-3 bg-gray-50 rounded-lg">
+                <div className="p-3 bg-muted rounded-lg">
                   <div className="flex justify-between">
                     <span>Total Items:</span>
                     <span className="font-medium">{selectedItems.reduce((sum, item) => sum + item.quantity, 0)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Estimated Total:</span>
-                    <span className="font-bold text-blue-600">{calculateTotal().toFixed(2)} BHD</span>
+                    <span className="font-bold text-primary">{calculateTotal().toFixed(2)} BHD</span>
                   </div>
                 </div>
                 
@@ -459,8 +459,8 @@ export default function CustomerQRApp() {
                   </div>
                 </div>
                 
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-700">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <p className="text-sm text-primary">
                     <Clock className="inline h-4 w-4 mr-1" />
                     Express service available for same-day delivery!
                   </p>
@@ -524,7 +524,7 @@ export default function CustomerQRApp() {
                   </div>
                 </div>
                 
-                <div className="p-4 bg-gray-50 rounded-lg space-y-2">
+                <div className="p-4 bg-muted rounded-lg space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
                     <span>{calculateTotal().toFixed(2)} BHD</span>
@@ -533,14 +533,14 @@ export default function CustomerQRApp() {
                     <span>Delivery:</span>
                     <span>2.00 BHD</span>
                   </div>
-                  <div className="flex justify-between text-red-600">
+                  <div className="flex justify-between text-destructive">
                     <span>Discount:</span>
                     <span>-0.00 BHD</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total:</span>
-                    <span className="text-blue-600">{(calculateTotal() + 2).toFixed(2)} BHD</span>
+                    <span className="text-primary">{(calculateTotal() + 2).toFixed(2)} BHD</span>
                   </div>
                 </div>
                 
@@ -562,17 +562,17 @@ export default function CustomerQRApp() {
               <CardContent className="space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
-                    <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="font-medium">{customerData.name || 'Customer'}</p>
-                      <p className="text-sm text-gray-600">{customerData.phone}</p>
+                      <p className="text-sm text-muted-foreground">{customerData.phone}</p>
                     </div>
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         Flat {customerData.flatNo}, Building {customerData.buildingNo}, 
                         Road {customerData.roadNo}, {customerData.city}
                       </p>
@@ -580,7 +580,7 @@ export default function CustomerQRApp() {
                   </div>
                   
                   <div className="flex items-start space-x-3">
-                    <Clock className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                     <div>
                       <p className="text-sm">
                         Pickup: {pickupDate && format(pickupDate, "PPP")} at {pickupTime}
@@ -592,10 +592,10 @@ export default function CustomerQRApp() {
                   </div>
                 </div>
                 
-                <div className="p-4 bg-green-50 rounded-lg text-center">
-                  <Check className="h-12 w-12 text-green-600 mx-auto mb-2" />
-                  <p className="font-medium text-green-900">Order Total: {(calculateTotal() + 2).toFixed(2)} BHD</p>
-                  <p className="text-sm text-green-700 mt-1">Payment: {paymentMethod === 'cash' ? 'Cash on Delivery' : 'Card Payment'}</p>
+                <div className="p-4 bg-secondary/10 rounded-lg text-center">
+                  <Check className="h-12 w-12 text-secondary mx-auto mb-2" />
+                  <p className="font-medium text-foreground">Order Total: {(calculateTotal() + 2).toFixed(2)} BHD</p>
+                  <p className="text-sm text-secondary mt-1">Payment: {paymentMethod === 'cash' ? 'Cash on Delivery' : 'Card Payment'}</p>
                 </div>
                 
                 <div className="flex gap-2">

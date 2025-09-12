@@ -27,7 +27,7 @@ import {
   Edit
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
-import { LaundrySpinner, InlineLoader } from "@/components/ui/laundry-spinner";
+import { LaundrySpinner } from "@/components/ui/laundry-spinner";
 
 interface CartItem {
   id: string;
@@ -132,15 +132,15 @@ export default function VendorPosApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b px-4 py-3 sticky top-0 z-10">
+      <header className="bg-card border-b border-border px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <CreditCard className="h-4 w-4 text-white" />
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <CreditCard className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-semibold text-gray-900">OLA POS</span>
+            <span className="font-semibold text-foreground">OLA POS</span>
           </div>
           <div className="flex items-center space-x-2">
             <PWAInstallButton variant="button" size="sm" />
@@ -242,7 +242,7 @@ export default function VendorPosApp() {
                         <div className="text-center">
                           <div className="text-3xl mb-2">{item.icon}</div>
                           <h3 className="font-medium text-sm">{item.name}</h3>
-                          <p className="text-lg font-bold text-blue-600 mt-1">
+                          <p className="text-lg font-bold text-secondary mt-1">
                             {(item.basePrice * getServiceMultiplier(selectedService)).toFixed(2)} BHD
                           </p>
                         </div>
@@ -265,14 +265,14 @@ export default function VendorPosApp() {
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-medium">{selectedCustomer.user?.firstName} {selectedCustomer.user?.lastName}</p>
-                            <p className="text-sm text-gray-600">{selectedCustomer.user?.phone}</p>
+                            <p className="text-sm text-muted-foreground">{selectedCustomer.user?.phone}</p>
                           </div>
                           <Button variant="outline" size="sm" onClick={() => setSelectedCustomer(null)}>
                             Change
                           </Button>
                         </div>
                         {selectedCustomer.address && (
-                          <p className="text-xs text-gray-600">
+                          <p className="text-xs text-muted-foreground">
                             📍 {selectedCustomer.address}, {selectedCustomer.city}
                           </p>
                         )}
@@ -301,7 +301,7 @@ export default function VendorPosApp() {
                     <RadioGroup value={selectedDelivery} onValueChange={setSelectedDelivery}>
                       <div className="space-y-2">
                         {deliveryOptions.map((option) => (
-                          <div key={option.id} className="flex items-center justify-between p-2 border rounded">
+                          <div key={option.id} className="flex items-center justify-between p-2 border border-border rounded">
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value={option.id} id={`delivery-${option.id}`} />
                               <Label htmlFor={`delivery-${option.id}`} className="flex items-center cursor-pointer">
@@ -329,7 +329,7 @@ export default function VendorPosApp() {
                   </CardHeader>
                   <CardContent>
                     {cart.length === 0 ? (
-                      <p className="text-center text-gray-500 py-8">Cart is empty</p>
+                      <p className="text-center text-muted-foreground py-8">Cart is empty</p>
                     ) : (
                       <div className="space-y-3">
                         {cart.map((item) => (
@@ -337,7 +337,7 @@ export default function VendorPosApp() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <p className="font-medium text-sm">{item.itemName}</p>
-                                <div className="flex gap-2 text-xs text-gray-600 mt-1">
+                                <div className="flex gap-2 text-xs text-muted-foreground mt-1">
                                   <Badge variant="outline" className="text-xs">
                                     {laundryServices.find(s => s.id === item.service)?.name}
                                   </Badge>
@@ -346,9 +346,9 @@ export default function VendorPosApp() {
                                   </Badge>
                                 </div>
                                 {item.notes && (
-                                  <p className="text-xs text-gray-500 mt-1">📝 {item.notes}</p>
+                                  <p className="text-xs text-muted-foreground mt-1">📝 {item.notes}</p>
                                 )}
-                                <p className="text-xs text-gray-600 mt-1">{item.price.toFixed(2)} BHD each</p>
+                                <p className="text-xs text-muted-foreground mt-1">{item.price.toFixed(2)} BHD each</p>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <Button 
@@ -388,7 +388,7 @@ export default function VendorPosApp() {
                           )}
                           <div className="flex justify-between items-center font-bold text-base pt-2">
                             <span>Total:</span>
-                            <span className="text-lg text-blue-600">
+                            <span className="text-lg text-secondary">
                               {getTotalAmount().toFixed(2)} BHD
                             </span>
                           </div>
@@ -421,7 +421,7 @@ export default function VendorPosApp() {
                     <div className="flex justify-between items-start mb-2">
                       <div>
                         <p className="font-medium">Order #00{orderNum}</p>
-                        <p className="text-sm text-gray-600">2 minutes ago</p>
+                        <p className="text-sm text-muted-foreground">2 minutes ago</p>
                       </div>
                       <Badge variant="secondary">Processing</Badge>
                     </div>
@@ -439,7 +439,7 @@ export default function VendorPosApp() {
             <h2 className="text-xl font-bold">Customer Search</h2>
             
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Search by name or phone..." className="pl-10" />
             </div>
 
@@ -453,7 +453,7 @@ export default function VendorPosApp() {
                         <p className="font-medium">
                           {customer.user?.firstName} {customer.user?.lastName}
                         </p>
-                        <p className="text-sm text-gray-600">{customer.user?.phone}</p>
+                        <p className="text-sm text-muted-foreground">{customer.user?.phone}</p>
                       </div>
                       <div className="text-right">
                         <Badge variant="outline">{customer.loyaltyPoints} pts</Badge>
@@ -471,33 +471,33 @@ export default function VendorPosApp() {
             <div className="grid grid-cols-2 gap-4">
               <Card>
                 <CardContent className="p-4 text-center">
-                  <DollarSign className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-green-600">487.50</div>
-                  <p className="text-sm text-gray-600">Sales (BHD)</p>
+                  <DollarSign className="h-8 w-8 text-accent-foreground mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-accent-foreground">487.50</div>
+                  <p className="text-sm text-muted-foreground">Sales (BHD)</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Package className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-blue-600">23</div>
-                  <p className="text-sm text-gray-600">Orders</p>
+                  <Package className="h-8 w-8 text-secondary mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-secondary">23</div>
+                  <p className="text-sm text-muted-foreground">Orders</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Users className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-purple-600">18</div>
-                  <p className="text-sm text-gray-600">Customers</p>
+                  <Users className="h-8 w-8 text-accent-foreground mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-accent-foreground">18</div>
+                  <p className="text-sm text-muted-foreground">Customers</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardContent className="p-4 text-center">
-                  <Clock className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                  <div className="text-2xl font-bold text-orange-600">21.30</div>
-                  <p className="text-sm text-gray-600">Avg Order (BHD)</p>
+                  <Clock className="h-8 w-8 text-accent-foreground mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-accent-foreground">21.30</div>
+                  <p className="text-sm text-muted-foreground">Avg Order (BHD)</p>
                 </CardContent>
               </Card>
             </div>
@@ -506,7 +506,7 @@ export default function VendorPosApp() {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
         <div className="flex justify-around items-center py-2">
           {[
             { key: "pos", icon: CreditCard, label: "POS" },
@@ -519,8 +519,8 @@ export default function VendorPosApp() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
                 activeTab === tab.key
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-600"
+                  ? "text-primary bg-accent"
+                  : "text-muted-foreground"
               }`}
             >
               <tab.icon className="h-5 w-5 mb-1" />

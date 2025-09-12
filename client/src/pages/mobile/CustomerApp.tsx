@@ -17,7 +17,7 @@ import {
   Star
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
-import { LaundrySpinner, InlineLoader } from "@/components/ui/laundry-spinner";
+import { LaundrySpinner } from "@/components/ui/laundry-spinner";
 
 export default function CustomerApp() {
   const { orders } = useData();
@@ -28,7 +28,6 @@ export default function CustomerApp() {
   const customer = selectedCustomer || {
     id: 1,
     loyaltyPoints: 250,
-    walletBalance: 15.50,
     user: {
       firstName: "Sara",
       lastName: "Ahmed",
@@ -37,20 +36,23 @@ export default function CustomerApp() {
     }
   };
 
+  // Mock wallet balance for demo
+  const mockWalletBalance = 15.50;
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b px-4 py-3 sticky top-0 z-10">
+      <header className="bg-card border-b border-border px-4 py-3 sticky top-0 z-10">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">OLA</span>
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">OLA</span>
             </div>
-            <span className="font-semibold text-gray-900">Laundry Master</span>
+            <span className="font-semibold text-foreground">Laundry Master</span>
           </div>
           <div className="flex items-center space-x-2">
             <PWAInstallButton variant="button" size="sm" />
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-muted-foreground">
               Hi, {customer.user?.firstName}!
             </span>
           </div>
@@ -62,9 +64,9 @@ export default function CustomerApp() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsContent value="store" className="mt-0 p-4 space-y-4">
             <div className="text-center py-8">
-              <Store className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+              <Store className="h-16 w-16 text-primary mx-auto mb-4" />
               <h2 className="text-xl font-bold mb-2">Welcome to Our Store</h2>
-              <p className="text-gray-600 mb-6">Place your laundry order with just a few taps</p>
+              <p className="text-muted-foreground mb-6">Place your laundry order with just a few taps</p>
               <Button className="w-full max-w-sm">
                 <LaundrySpinner variant="clothes" size="sm" className="mr-2" />
                 Start New Order
@@ -75,21 +77,21 @@ export default function CustomerApp() {
             <div className="grid grid-cols-2 gap-4">
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Package className="h-6 w-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Package className="h-6 w-6 text-primary" />
                   </div>
                   <h3 className="font-medium">Wash & Fold</h3>
-                  <p className="text-sm text-gray-600">From 2.5 BHD/kg</p>
+                  <p className="text-sm text-muted-foreground">From 2.5 BHD/kg</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardContent className="p-4 text-center">
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Star className="h-6 w-6 text-green-600" />
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Star className="h-6 w-6 text-accent-foreground" />
                   </div>
                   <h3 className="font-medium">Dry Cleaning</h3>
-                  <p className="text-sm text-gray-600">From 6 BHD/item</p>
+                  <p className="text-sm text-muted-foreground">From 6 BHD/item</p>
                 </CardContent>
               </Card>
             </div>
@@ -104,7 +106,7 @@ export default function CustomerApp() {
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <p className="font-medium">Order #{order.id}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-muted-foreground">
                         {new Date(order.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -114,7 +116,7 @@ export default function CustomerApp() {
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold">{order.totalAmount} BHD</span>
+                    <span className="text-lg font-bold text-foreground">{order.totalAmount} BHD</span>
                     <Button variant="outline" size="sm">
                       <Phone className="mr-2 h-4 w-4" />
                       Contact Driver
@@ -138,10 +140,10 @@ export default function CustomerApp() {
               </CardHeader>
               <CardContent>
                 <div className="text-center py-6">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">
+                  <div className="text-4xl font-bold text-primary mb-2">
                     {customer.loyaltyPoints}
                   </div>
-                  <p className="text-gray-600">Available Points</p>
+                  <p className="text-muted-foreground">Available Points</p>
                   <Button className="mt-4">Redeem Rewards</Button>
                 </div>
               </CardContent>
@@ -161,10 +163,10 @@ export default function CustomerApp() {
               </CardHeader>
               <CardContent>
                 <div className="text-center py-6">
-                  <div className="text-3xl font-bold text-green-600 mb-2">
-                    {customer.walletBalance?.toFixed(2)} BHD
+                  <div className="text-3xl font-bold text-accent-foreground mb-2">
+                    {mockWalletBalance.toFixed(2)} BHD
                   </div>
-                  <p className="text-gray-600">Current Balance</p>
+                  <p className="text-muted-foreground">Current Balance</p>
                   <div className="flex gap-2 mt-4">
                     <Button variant="outline" className="flex-1">Add Funds</Button>
                     <Button variant="outline" className="flex-1">Payment History</Button>
@@ -184,24 +186,24 @@ export default function CustomerApp() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-6 w-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+                    <User className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <p className="font-medium">
                       {customer.user?.firstName} {customer.user?.lastName}
                     </p>
-                    <p className="text-sm text-gray-600">{customer.user?.email}</p>
+                    <p className="text-sm text-muted-foreground">{customer.user?.email}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2">
-                    <Phone className="h-4 w-4 text-gray-400" />
+                    <Phone className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{customer.user?.phone}</span>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Manama, Bahrain</span>
                   </div>
                 </div>
@@ -216,7 +218,7 @@ export default function CustomerApp() {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border">
         <div className="flex justify-around items-center py-2">
           {[
             { key: "store", icon: Store, label: "Store" },
@@ -230,8 +232,8 @@ export default function CustomerApp() {
               onClick={() => setActiveTab(tab.key)}
               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
                 activeTab === tab.key
-                  ? "text-blue-600 bg-blue-50"
-                  : "text-gray-600"
+                  ? "text-primary bg-accent"
+                  : "text-muted-foreground"
               }`}
             >
               <tab.icon className="h-5 w-5 mb-1" />
