@@ -12,9 +12,9 @@ export default function AdminHeader() {
   const { user, logout } = useAuth();
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b">
+    <header className="bg-background border-b border-border">
       <div className="flex items-center justify-between px-6 py-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-foreground">
           Super Admin Dashboard
         </h1>
 

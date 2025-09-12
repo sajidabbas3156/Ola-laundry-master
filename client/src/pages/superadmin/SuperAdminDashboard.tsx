@@ -172,7 +172,7 @@ export default function SuperAdminDashboard() {
                         </TableCell>
                         <TableCell>
                           {tenant.isActive ? (
-                            <Badge className="bg-green-500">
+                            <Badge className="bg-success text-success-foreground">
                               <CheckCircle className="h-3 w-3 mr-1" />
                               Active
                             </Badge>
@@ -272,11 +272,11 @@ export default function SuperAdminDashboard() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">API Response Time</span>
-                  <Badge className="bg-green-500">45ms avg</Badge>
+                  <Badge className="bg-success text-success-foreground">45ms avg</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Database Connections</span>
-                  <Badge className="bg-green-500">Healthy</Badge>
+                  <Badge className="bg-success text-success-foreground">Healthy</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Storage Usage</span>
@@ -288,7 +288,7 @@ export default function SuperAdminDashboard() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Queue Status</span>
-                  <Badge className="bg-green-500">0 pending</Badge>
+                  <Badge className="bg-success text-success-foreground">0 pending</Badge>
                 </div>
               </div>
             </CardContent>

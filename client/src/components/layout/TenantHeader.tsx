@@ -15,12 +15,12 @@ export default function TenantHeader() {
   const { t } = useLocalization();
 
   return (
-    <header className="bg-white dark:bg-gray-800 border-b">
+    <header className="bg-background border-b border-border">
       <div className="flex items-center justify-between px-6 py-4">
         {/* Search */}
         <div className="flex items-center space-x-4 flex-1 max-w-md">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Search orders, customers..."

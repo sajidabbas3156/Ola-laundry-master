@@ -44,12 +44,12 @@ export default function AdminDashboard() {
       <div className="mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">LaundryPro Dashboard</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-3xl font-bold text-foreground">LaundryPro Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               Welcome back, Admin. Here's what's happening with your business today.
               {isConnected && (
-                <span className="ml-2 inline-flex items-center text-green-600">
-                  <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                <span className="ml-2 inline-flex items-center text-success">
+                  <span className="w-2 h-2 bg-success rounded-full mr-1"></span>
                   Live updates active
                 </span>
               )}
@@ -75,28 +75,28 @@ export default function AdminDashboard() {
           value={stats?.totalOrders || 0}
           change={{ value: "12% from last month", type: "increase" }}
           icon={ShoppingBag}
-          iconColor="bg-blue-100 text-blue-600"
+          iconColor="bg-primary/10 text-primary"
         />
         <StatsCard
           title="Revenue"
           value={`$${(stats?.revenue || 0).toLocaleString()}`}
           change={{ value: "8% from last month", type: "increase" }}
           icon={DollarSign}
-          iconColor="bg-green-100 text-green-600"
+          iconColor="bg-success/10 text-success"
         />
         <StatsCard
           title="Pending Orders"
           value={stats?.pendingOrders || 0}
           change={{ value: "3% from yesterday", type: "decrease" }}
           icon={Clock}
-          iconColor="bg-yellow-100 text-yellow-600"
+          iconColor="bg-warning/10 text-warning"
         />
         <StatsCard
           title="Active Customers"
           value={stats?.activeCustomers || 0}
           change={{ value: "5% from last month", type: "increase" }}
           icon={Users}
-          iconColor="bg-cyan-100 text-cyan-600"
+          iconColor="bg-info/10 text-info"
         />
       </div>
 
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="animate-pulse space-y-4">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-12 bg-gray-200 rounded"></div>
+                    <div key={i} className="h-12 bg-muted rounded"></div>
                   ))}
                 </div>
               </CardContent>
@@ -131,19 +131,19 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100">
+                <Button variant="outline" className="w-full justify-start bg-primary/10 border-primary/20 text-primary hover:bg-primary/15">
                   <PlusCircle className="w-4 h-4 mr-3" />
                   Create New Order
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-cyan-50 border-cyan-200 text-cyan-700 hover:bg-cyan-100">
+                <Button variant="outline" className="w-full justify-start bg-info/10 border-info/20 text-info hover:bg-info/15">
                   <Barcode className="w-4 h-4 mr-3" />
                   Scan Item
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-green-50 border-green-200 text-green-700 hover:bg-green-100">
+                <Button variant="outline" className="w-full justify-start bg-success/10 border-success/20 text-success hover:bg-success/15">
                   <UserPlus className="w-4 h-4 mr-3" />
                   Add Customer
                 </Button>
-                <Button variant="outline" className="w-full justify-start bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100">
+                <Button variant="outline" className="w-full justify-start bg-warning/10 border-warning/20 text-warning hover:bg-warning/15">
                   <BarChart3 className="w-4 h-4 mr-3" />
                   View Reports
                 </Button>

@@ -34,14 +34,14 @@ export default function TenantSidebar() {
   const { t } = useLocalization();
 
   return (
-    <div className="flex flex-col w-64 bg-white dark:bg-gray-800 border-r">
+    <div className="flex flex-col w-64 bg-background border-r border-border">
       {/* Logo */}
       <div className="flex items-center justify-center h-16 px-4 border-b">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">OLA</span>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">OLA</span>
           </div>
-          <span className="text-lg font-bold text-gray-900 dark:text-white">
+          <span className="text-lg font-bold text-foreground">
             {tenant?.name || "LAUNDRY MASTER"}
           </span>
         </div>
@@ -58,8 +58,8 @@ export default function TenantSidebar() {
               className={cn(
                 'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
                 isActive
-                  ? 'bg-blue-100 text-blue-900 dark:bg-blue-900 dark:text-blue-100'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
+                  ? 'bg-primary/10 text-primary'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
               <item.icon className="mr-3 h-5 w-5" />

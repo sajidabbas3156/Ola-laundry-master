@@ -117,6 +117,14 @@
   --ring: hsl(260, 56%, 23%);
   --radius: 0.75rem;
   
+  /* Status Colors */
+  --success: hsl(120, 60%, 50%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(45, 93%, 58%);
+  --warning-foreground: hsl(240, 50%, 15%);
+  --info: hsl(200, 100%, 50%);
+  --info-foreground: hsl(0, 0%, 100%);
+  
   /* OLA Brand Colors */
   --ola-navy: hsl(260, 56%, 23%); /* Exact #2C1A5B */
   --ola-blue: hsl(217, 91%, 60%); /* Exact #3B82F6 */
@@ -145,6 +153,14 @@
   --destructive-foreground: hsl(0, 0%, 98%);
   --ring: hsl(217, 91%, 60%);
   --radius: 0.75rem;
+  
+  /* Status Colors for Dark Mode */
+  --success: hsl(120, 60%, 40%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(45, 93%, 48%);
+  --warning-foreground: hsl(240, 50%, 15%);
+  --info: hsl(200, 100%, 40%);
+  --info-foreground: hsl(0, 0%, 100%);
 }
 
 @layer base {
