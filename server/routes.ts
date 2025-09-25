@@ -15,6 +15,19 @@ import {
 } from "@shared/schema";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { registerRoutes as registerAuthRoutes } from "./routes/auth";
+import { registerRoutes as registerOrderRoutes } from "./routes/orders";
+import { registerRoutes as registerCustomerRoutes } from "./routes/customers";
+import { registerRoutes as registerInventoryRoutes } from "./routes/inventory";
+import { registerRoutes as registerDriverRoutes } from "./routes/drivers";
+import { registerRoutes as registerAnalyticsRoutes } from "./routes/analytics";
+import { registerRoutes as registerWorkflowRoutes } from "./routes/workflows";
+import { registerRoutes as registerNotificationRoutes } from "./routes/notifications";
+import { registerRoutes as registerTenantRoutes } from "./routes/tenants";
+import { registerRoutes as registerSuperAdminRoutes } from "./routes/superadmin";
+import { registerRoutes as registerWebSocketRoutes } from "./websocket";
+import aiOperationsRouter from "./routes/ai-operations";
+import productionConfigRouter from "./routes/production-config";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -61,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   wss.on('connection', (ws) => {
     clients.add(ws);
-    
+
     ws.on('close', () => {
       clients.delete(ws);
     });
@@ -82,7 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userData = insertUserSchema.parse(req.body);
       const hashedPassword = await bcrypt.hash(userData.password, 10);
-      
+
       const user = await storage.createUser({
         ...userData,
         password: hashedPassword,
@@ -109,7 +122,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { email, password } = req.body;
       const user = await storage.getUserByEmail(email);
-      
+
       if (!user || !await bcrypt.compare(password, user.password)) {
         return res.status(401).json({ message: "Invalid credentials" });
       }
@@ -226,7 +239,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
       const activeOnly = req.query.activeOnly === 'true';
-      
+
       const promotions = activeOnly 
         ? await storage.getActivePromotions(tenantId)
         : await storage.getAllPromotions(tenantId);
@@ -271,7 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
       const customerId = req.query.customerId ? parseInt(req.query.customerId as string) : undefined;
-      
+
       let reviews;
       if (customerId) {
         reviews = await storage.getReviewsByCustomer(customerId);
@@ -307,7 +320,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const userId = req.query.userId ? parseInt(req.query.userId as string) : req.user.id;
       const unreadOnly = req.query.unreadOnly === 'true';
-      
+
       const notifications = unreadOnly 
         ? await storage.getUnreadNotifications(userId)
         : await storage.getAllNotifications(userId);
@@ -340,7 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const tenantId = req.query.tenantId ? parseInt(req.query.tenantId as string) : undefined;
       const eventType = req.query.eventType as string;
-      
+
       const events = await storage.getAnalyticsEvents(tenantId, eventType);
       res.json(events);
     } catch (error: any) {
@@ -468,7 +481,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/orders", authenticateToken, async (req: any, res) => {
     try {
       let orderData = insertOrderSchema.parse(req.body);
-      
+
       // If customer is creating order, use their customer ID
       if (req.user.role === 'customer' && !orderData.customerId) {
         const customer = await storage.getCustomerByUserId(req.user.id);
@@ -479,7 +492,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const order = await storage.createOrder(orderData);
-      
+
       // Add order items if provided
       if (req.body.items && Array.isArray(req.body.items)) {
         for (const item of req.body.items) {
@@ -492,7 +505,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get full order details
       const fullOrder = await storage.getOrder(order.id);
-      
+
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
@@ -512,10 +525,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updates = req.body;
       const order = await storage.updateOrder(parseInt(req.params.id), updates);
-      
+
       // Get full order details
       const fullOrder = await storage.getOrder(order.id);
-      
+
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
@@ -659,14 +672,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/inventory/transactions", authenticateToken, async (req, res) => {
     try {
       const transaction = await storage.createInventoryTransaction(req.body);
-      
+
       // Update inventory item stock based on transaction
       if (transaction.inventoryItemId) {
         const item = await storage.getInventoryItem(transaction.inventoryItemId);
         if (item && item.currentStock !== null) {
           const quantity = parseFloat(transaction.quantity);
           let newStock = parseFloat(item.currentStock.toString());
-          
+
           if (transaction.transactionType === 'in') {
             newStock += quantity;
           } else if (transaction.transactionType === 'out') {
@@ -674,13 +687,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } else if (transaction.transactionType === 'adjustment') {
             newStock = quantity; // Direct adjustment
           }
-          
+
           await storage.updateInventoryItem(transaction.inventoryItemId, {
             currentStock: newStock.toString(),
           });
         }
       }
-      
+
       res.status(201).json(transaction);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
@@ -770,7 +783,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updates = req.body;
       const machine = await storage.updateMachine(parseInt(req.params.id), updates);
-      
+
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
@@ -801,7 +814,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const routeData = insertDeliveryRouteSchema.parse(req.body);
       const route = await storage.createDeliveryRoute(routeData);
-      
+
       // Add stops if provided
       if (req.body.stops && Array.isArray(req.body.stops)) {
         for (const stop of req.body.stops) {
@@ -814,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const routes = await storage.getDeliveryRoutes();
       const newRoute = routes.find(r => r.id === route.id);
-      
+
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
@@ -834,7 +847,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updates = req.body;
       const route = await storage.updateDeliveryRoute(parseInt(req.params.id), updates);
-      
+
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
@@ -854,7 +867,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updates = req.body;
       const stop = await storage.updateDeliveryStop(parseInt(req.params.id), updates);
-      
+
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
@@ -1503,6 +1516,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: error.message });
     }
   });
+
+  // Register all routes
+  registerAuthRoutes(app);
+  registerOrderRoutes(app);
+  registerCustomerRoutes(app);
+  registerInventoryRoutes(app);
+  registerDriverRoutes(app);
+  registerAnalyticsRoutes(app);
+  registerWorkflowRoutes(app);
+  registerNotificationRoutes(app);
+  registerTenantRoutes(app);
+  registerSuperAdminRoutes(app);
+
+  // AI Operations and Production Config
+  app.use(aiOperationsRouter);
+  app.use(productionConfigRouter);
+
+  const server = registerWebSocketRoutes(app);
 
   return httpServer;
 }
