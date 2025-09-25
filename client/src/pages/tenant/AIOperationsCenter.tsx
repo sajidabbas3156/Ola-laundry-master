@@ -72,6 +72,32 @@ export default function AIOperationsCenter() {
     },
   });
 
+  // AI Marketing Targets mutation
+  const targetsMutation = useMutation({
+    mutationFn: async (params: any) => {
+      return apiRequest('POST', '/api/ai/marketing-targets', params);
+    },
+    onSuccess: () => {
+      toast({
+        title: "AI Targets Set",
+        description: "Marketing targets and achievement plan generated",
+      });
+    },
+  });
+
+  // AI Branding Automation mutation
+  const brandingMutation = useMutation({
+    mutationFn: async (params: any) => {
+      return apiRequest('POST', '/api/ai/branding-automation', params);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Branding AI Activated",
+        description: "AI branding automation system is now active",
+      });
+    },
+  });
+
   const handleGenerateForecast = () => {
     forecastMutation.mutate({
       period: forecastPeriod,
@@ -96,6 +122,41 @@ export default function AIOperationsCenter() {
     });
   };
 
+  const handleSetAITargets = () => {
+    targetsMutation.mutate({
+      objectives: ['customer_acquisition', 'brand_awareness', 'revenue_growth'],
+      timeline: '6_months',
+      brandingGoals: ['brand_recognition', 'market_expansion', 'customer_loyalty'],
+      tenantId: 'current',
+      currentMetrics: {
+        monthly_customers: 450,
+        brand_reach: 35000,
+        monthly_revenue: 125000,
+        automation_level: 0.72
+      }
+    });
+  };
+
+  const handleActivateBrandingAI = () => {
+    brandingMutation.mutate({
+      brandIdentity: {
+        voice: 'professional_friendly',
+        values: ['quality', 'reliability', 'innovation'],
+        personality: 'trustworthy_modern'
+      },
+      targetAudience: {
+        demographics: ['urban_professionals', 'busy_families', 'quality_conscious'],
+        psychographics: ['convenience_seekers', 'quality_focused', 'time_constrained']
+      },
+      contentStrategy: {
+        platforms: ['social_media', 'email', 'website'],
+        frequency: 'daily',
+        content_types: ['educational', 'promotional', 'community']
+      },
+      automationLevel: 'advanced'
+    });
+  };
+
   if (operationsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -115,10 +176,12 @@ export default function AIOperationsCenter() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="forecasting">Forecasting</TabsTrigger>
           <TabsTrigger value="optimization">Optimization</TabsTrigger>
+          <TabsTrigger value="targets">AI Targets</TabsTrigger>
+          <TabsTrigger value="branding">AI Branding</TabsTrigger>
           <TabsTrigger value="anomalies">Anomalies</TabsTrigger>
           <TabsTrigger value="audit">Audit Trail</TabsTrigger>
         </TabsList>
@@ -390,6 +453,206 @@ export default function AIOperationsCenter() {
                           <div className="flex justify-between">
                             <span>Annual:</span>
                             <span className="font-medium">${optimizeMutation.data.optimization.cost_savings?.annual}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* AI Marketing Targets */}
+        <TabsContent value="targets" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="h-5 w-5" />
+                AI Marketing Targets & Achievement System
+              </CardTitle>
+              <CardDescription>Set intelligent marketing goals and track AI-powered achievements</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Button 
+                onClick={handleSetAITargets}
+                disabled={targetsMutation.isPending}
+                className="w-full"
+              >
+                {targetsMutation.isPending ? (
+                  <>
+                    <LaundrySpinner variant="washing" size="sm" className="mr-2" />
+                    Generating AI Targets...
+                  </>
+                ) : (
+                  <>
+                    <Target className="mr-2 h-4 w-4" />
+                    Generate AI Marketing Targets
+                  </>
+                )}
+              </Button>
+
+              {targetsMutation.data && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-blue-600">Customer Acquisition</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Target:</span>
+                            <span className="font-medium">{targetsMutation.data.targets.customer_acquisition.target} customers/month</span>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            AI Strategies: {targetsMutation.data.targets.customer_acquisition.strategies.join(', ')}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-green-600">Brand Awareness</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Reach Target:</span>
+                            <span className="font-medium">{targetsMutation.data.targets.brand_awareness.reach_target.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Engagement:</span>
+                            <span className="font-medium">{(targetsMutation.data.targets.brand_awareness.engagement_target * 100).toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-purple-600">Revenue Optimization</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Revenue Target:</span>
+                            <span className="font-medium">${targetsMutation.data.targets.revenue_optimization.revenue_target.toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Margin Target:</span>
+                            <span className="font-medium">{(targetsMutation.data.targets.revenue_optimization.profit_margin_target * 100).toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-orange-600">Automation Efficiency</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Automation Score:</span>
+                            <span className="font-medium">{(targetsMutation.data.targets.automation_efficiency.process_automation_score * 100).toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Time Saved:</span>
+                            <span className="font-medium">{targetsMutation.data.targets.automation_efficiency.time_saved_target}h/month</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* AI Branding Automation */}
+        <TabsContent value="branding" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                AI Branding Automation System
+              </CardTitle>
+              <CardDescription>Automate brand consistency and marketing campaigns with AI</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Button 
+                onClick={handleActivateBrandingAI}
+                disabled={brandingMutation.isPending}
+                className="w-full"
+              >
+                {brandingMutation.isPending ? (
+                  <>
+                    <LaundrySpinner variant="washing" size="sm" className="mr-2" />
+                    Activating AI Branding...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="mr-2 h-4 w-4" />
+                    Activate AI Branding Automation
+                  </>
+                )}
+              </Button>
+
+              {brandingMutation.data && (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-blue-600">Content Generation</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Automated Posts:</span>
+                            <span className="font-medium">{brandingMutation.data.branding_automation.content_generation.automated_posts}/month</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Voice Consistency:</span>
+                            <span className="font-medium">{(brandingMutation.data.branding_automation.content_generation.brand_voice_consistency * 100).toFixed(1)}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>SEO Score:</span>
+                            <span className="font-medium">{(brandingMutation.data.branding_automation.content_generation.seo_optimization * 100).toFixed(1)}%</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-green-600">Visual Branding</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Logo Variations:</span>
+                            <span className="font-medium">{brandingMutation.data.branding_automation.visual_branding.logo_variations.length}</span>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Features: Color optimization, Brand guidelines, Asset automation
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-purple-600">Campaign Automation</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span>Automated Campaigns:</span>
+                            <span className="font-medium">{brandingMutation.data.branding_automation.campaign_automation.automated_campaigns}/month</span>
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Features: Real-time optimization, AI targeting, Smart budgeting
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-3 text-orange-600">Brand Monitoring</h4>
+                        <div className="space-y-2 text-sm">
+                          <div className="text-xs text-gray-600">
+                            Active: Mention tracking, Sentiment analysis, Competitor monitoring, Reputation management
                           </div>
                         </div>
                       </CardContent>

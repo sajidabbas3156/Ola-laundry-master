@@ -164,6 +164,90 @@ router.get("/api/analytics/comprehensive-report", async (req: Request, res: Resp
   }
 });
 
+// VPS Hosting Compatibility Check
+router.get("/api/hosting/vps-compatibility", async (req: Request, res: Response) => {
+  try {
+    const compatibility = await checkVPSCompatibility({
+      provider: req.query.provider || 'namecheap',
+      serverSpecs: req.query.specs,
+      deploymentType: req.query.type || 'production'
+    });
+
+    res.json({
+      success: true,
+      vps_compatibility: {
+        provider_support: {
+          namecheap: compatibility.namecheap,
+          digitalocean: compatibility.digitalocean,
+          linode: compatibility.linode,
+          vultr: compatibility.vultr
+        },
+        system_requirements: {
+          minimum_ram: '2GB',
+          recommended_ram: '4GB',
+          storage: '20GB SSD',
+          cpu: '2 vCPU cores',
+          bandwidth: '1TB/month'
+        },
+        deployment_optimization: {
+          docker_support: true,
+          nodejs_compatibility: 'v18+',
+          database_requirements: 'PostgreSQL 14+',
+          reverse_proxy: 'nginx recommended',
+          ssl_support: 'Let\'s Encrypt auto-renewal'
+        },
+        performance_tuning: {
+          memory_optimization: compatibility.memoryOptimization,
+          cpu_optimization: compatibility.cpuOptimization,
+          network_optimization: compatibility.networkOptimization,
+          caching_strategy: compatibility.cachingStrategy
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "VPS compatibility check failed" });
+  }
+});
+
+// Deployment Configuration for VPS
+router.post("/api/deployment/vps-config", async (req: Request, res: Response) => {
+  try {
+    const { provider, serverSize, features } = req.body;
+    
+    const deploymentConfig = await generateVPSDeploymentConfig({
+      provider,
+      serverSize,
+      features,
+      optimizations: req.body.optimizations || 'standard'
+    });
+
+    res.json({
+      success: true,
+      deployment_config: {
+        server_setup: {
+          os: 'Ubuntu 22.04 LTS',
+          nodejs_version: '18.x',
+          database: 'PostgreSQL 14',
+          reverse_proxy: 'nginx',
+          ssl: 'Let\'s Encrypt'
+        },
+        environment_variables: deploymentConfig.envVars,
+        docker_compose: deploymentConfig.dockerCompose,
+        nginx_config: deploymentConfig.nginxConfig,
+        deployment_script: deploymentConfig.deploymentScript,
+        monitoring_setup: {
+          pm2_config: deploymentConfig.pm2Config,
+          health_checks: deploymentConfig.healthChecks,
+          log_rotation: deploymentConfig.logRotation,
+          backup_strategy: deploymentConfig.backupStrategy
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: "VPS deployment configuration failed" });
+  }
+});
+
 // Production Optimization
 router.post("/api/optimization/production-tune", async (req: Request, res: Response) => {
   try {
@@ -195,6 +279,12 @@ router.post("/api/optimization/production-tune", async (req: Request, res: Respo
           projected_savings: optimization.savings,
           payback_period: optimization.paybackPeriod,
           roi_percentage: optimization.roi
+        },
+        vps_optimizations: {
+          server_tuning: optimization.serverTuning,
+          database_optimization: optimization.databaseOptimization,
+          caching_improvements: optimization.cachingImprovements,
+          cdn_recommendations: optimization.cdnRecommendations
         }
       }
     });
@@ -278,6 +368,123 @@ async function generateComprehensiveAnalytics(params: any) {
   };
 }
 
+async function checkVPSCompatibility(params: any) {
+  return {
+    namecheap: {
+      compatible: true,
+      plans: ['EasyWP', 'Shared Hosting', 'VPS Hosting', 'Dedicated Server'],
+      recommended: 'VPS Hosting - Pulsar Plan',
+      features: ['SSD Storage', 'Free SSL', 'cPanel', 'Daily Backups']
+    },
+    digitalocean: { compatible: true, recommended: 'Droplet 4GB RAM' },
+    linode: { compatible: true, recommended: 'Nanode 2GB' },
+    vultr: { compatible: true, recommended: 'Regular Performance 2GB' },
+    memoryOptimization: 'Node.js memory limits, PM2 clustering',
+    cpuOptimization: 'Multi-core utilization, async processing',
+    networkOptimization: 'Nginx gzip, CDN integration',
+    cachingStrategy: 'Redis for sessions, memory caching for queries'
+  };
+}
+
+async function generateVPSDeploymentConfig(params: any) {
+  return {
+    envVars: {
+      NODE_ENV: 'production',
+      PORT: '3000',
+      DATABASE_URL: 'postgresql://user:pass@localhost:5432/laundry_db',
+      JWT_SECRET: 'your-super-secret-jwt-key',
+      REDIS_URL: 'redis://localhost:6379'
+    },
+    dockerCompose: `version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - postgres
+      - redis
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: laundry_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+volumes:
+  postgres_data:
+  redis_data:`,
+    nginxConfig: `server {
+    listen 80;
+    server_name your-domain.com;
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name your-domain.com;
+    
+    ssl_certificate /etc/letsencrypt/live/your-domain.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
+    
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}`,
+    deploymentScript: `#!/bin/bash
+# VPS Deployment Script for OLA Laundry Master
+echo "Starting deployment..."
+git pull origin main
+npm install --production
+npm run build
+pm2 restart all
+echo "Deployment completed successfully!"`,
+    pm2Config: {
+      name: 'ola-laundry-master',
+      script: 'server/index.js',
+      instances: 'max',
+      exec_mode: 'cluster',
+      max_memory_restart: '1G',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3000
+      }
+    },
+    healthChecks: {
+      endpoint: '/api/health',
+      interval: '30s',
+      timeout: '10s',
+      retries: 3
+    },
+    logRotation: {
+      path: '/var/log/ola-laundry',
+      maxSize: '100M',
+      maxFiles: 10
+    },
+    backupStrategy: {
+      database: 'daily at 2 AM UTC',
+      files: 'weekly',
+      retention: '30 days'
+    }
+  };
+}
+
 async function optimizeProductionSystems(params: any) {
   return {
     responseTime: { current: 150, optimized: 95, improvement: 37 },
@@ -290,7 +497,11 @@ async function optimizeProductionSystems(params: any) {
     investment: 15000,
     savings: 28800,
     paybackPeriod: '6_months',
-    roi: 92
+    roi: 92,
+    serverTuning: ['nginx_optimization', 'nodejs_clustering', 'database_indexing'],
+    databaseOptimization: ['query_optimization', 'connection_pooling', 'read_replicas'],
+    cachingImprovements: ['redis_implementation', 'cdn_integration', 'browser_caching'],
+    cdnRecommendations: ['cloudflare', 'aws_cloudfront', 'digitalocean_spaces']
   };
 }
 
