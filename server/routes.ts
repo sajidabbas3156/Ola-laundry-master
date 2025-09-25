@@ -28,6 +28,7 @@ import { registerRoutes as registerSuperAdminRoutes } from "./routes/superadmin"
 import { registerRoutes as registerWebSocketRoutes } from "./websocket";
 import aiOperationsRouter from "./routes/ai-operations";
 import productionConfigRouter from "./routes/production-config";
+import laundryFinancialAIRouter from "./routes/laundry-financial-ai";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
@@ -1532,6 +1533,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AI Operations and Production Config
   app.use(aiOperationsRouter);
   app.use(productionConfigRouter);
+  app.use(laundryFinancialAIRouter);
 
   const server = registerWebSocketRoutes(app);
 
