@@ -5,7 +5,8 @@ const config: CapacitorConfig = {
   appName: 'OLA Laundry Master',
   webDir: 'dist/public',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    url: 'https://www.olalaundry.com'
   },
   plugins: {
     SplashScreen: {

@@ -1,10 +1,43 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+    },
+  },
+}));
+
+// CORS configuration
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN || "http://localhost:5000",
+  credentials: true,
+  optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
+
+// Compression middleware
+app.use(compression());
+
+// Trust proxy if behind reverse proxy (Nginx)
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1);
+}
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -66,16 +99,19 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Production server configuration
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  const host = process.env.HOST || '0.0.0.0';
+  
+  server.listen(port, host, () => {
+    log(`🚀 OLA Laundry Master server running on ${host}:${port}`);
+    log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
+    log(`🔗 Domain: ${process.env.DOMAIN || 'localhost'}`);
+    
+    if (process.env.NODE_ENV === 'production') {
+      log(`✅ Production server ready at https://${process.env.DOMAIN}`);
+    } else {
+      log(`🔧 Development server ready at http://localhost:${port}`);
+    }
   });
 })();

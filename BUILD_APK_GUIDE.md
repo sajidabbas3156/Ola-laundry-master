@@ -5,10 +5,10 @@
 **Good news**: Your mobile applications are already deployed and working as Progressive Web Apps (PWAs). They can be installed on mobile devices like native apps immediately!
 
 ### Direct PWA Installation URLs:
-- **Customer Mobile App**: `https://your-domain.replit.app/customer-app`
-- **Delivery Driver App**: `https://your-domain.replit.app/delivery-app` 
-- **Vendor POS System**: `https://your-domain.replit.app/vendor-pos`
-- **Admin Dashboard**: `https://your-domain.replit.app/tenant/demo/dashboard`
+- **Customer Mobile App**: `https://www.olalaundry.com/customer-app`
+- **Delivery Driver App**: `https://www.olalaundry.com/delivery-app` 
+- **Vendor POS System**: `https://www.olalaundry.com/vendor-pos`
+- **Admin Dashboard**: `https://www.olalaundry.com/tenant/demo/dashboard`
 
 ### How to Install PWAs on Mobile:
 
@@ -120,7 +120,7 @@ const config: CapacitorConfig = {
   appName: 'OLA Customer',
   webDir: 'dist/public',
   server: {
-    url: 'https://your-domain.replit.app/customer-app',
+    url: 'https://www.olalaundry.com/customer-app',
     androidScheme: 'https'
   }
 };
@@ -137,7 +137,7 @@ const config: CapacitorConfig = {
   appName: 'OLA Driver',
   webDir: 'dist/public',
   server: {
-    url: 'https://your-domain.replit.app/delivery-app',
+    url: 'https://www.olalaundry.com/delivery-app',
     androidScheme: 'https'
   }
 };
@@ -154,7 +154,7 @@ const config: CapacitorConfig = {
   appName: 'OLA POS',
   webDir: 'dist/public', 
   server: {
-    url: 'https://your-domain.replit.app/vendor-pos',
+    url: 'https://www.olalaundry.com/vendor-pos',
     androidScheme: 'https'
   }
 };
