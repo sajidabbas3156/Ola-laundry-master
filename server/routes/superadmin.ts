@@ -1,4 +1,3 @@
-
 import type { Express } from "express";
 import { storage } from "../storage";
 
@@ -17,7 +16,7 @@ const authenticateToken = async (req: any, res: any, next: any) => {
       email: 'admin@laundrypro.bh',
       firstName: 'Admin',
       lastName: 'User',
-      role: 'superadmin'
+      role: 'org_owner'
     };
     return next();
   }
@@ -38,19 +37,6 @@ const authenticateToken = async (req: any, res: any, next: any) => {
 };
 
 export function registerRoutes(app: Express): void {
-  // Get super admin stats
-  app.get("/api/superadmin/stats", authenticateToken, async (req: any, res) => {
-    try {
-      if (req.user.role !== 'superadmin') {
-        return res.status(403).json({ message: "Access denied" });
-      }
-      const stats = await storage.getSuperAdminStats();
-      res.json(stats);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  });
-
   // Get all tenants with subscriptions
   app.get("/api/superadmin/tenants", authenticateToken, async (req: any, res) => {
     try {
@@ -63,10 +49,4 @@ export function registerRoutes(app: Express): void {
       res.status(500).json({ message: error.message });
     }
   });
-}
-import type { Express } from "express";
-
-export function registerRoutes(app: Express) {
-  // Super admin routes are already handled in main routes.ts
-  // This file exists to prevent import errors
 }

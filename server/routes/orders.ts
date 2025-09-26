@@ -150,9 +150,3 @@ export function registerRoutes(app: Express): void {
     }
   });
 }
-import type { Express } from "express";
-
-export function registerRoutes(app: Express) {
-  // Orders routes are already handled in main routes.ts
-  // This file exists to prevent import errors
-}
