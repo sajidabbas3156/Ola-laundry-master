@@ -1,0 +1,116 @@
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      rollback_type:
+        description: 'Type of rollback'
+        required: true
+        default: 'quick'
+        type: choice
+        options:
+        - quick
+        - full
+        - with-db
+      confirm:
+        description: 'Type "CONFIRM" to proceed with rollback'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'CONFIRM'
+    
+    steps:
+    - name: Validate rollback request
+      run: |
+        if [ "${{ github.event.inputs.confirm }}" != "CONFIRM" ]; then
+          echo "❌ Rollback not confirmed. Exiting."
+          exit 1
+        fi
+        echo "✅ Rollback confirmed. Proceeding with ${{ github.event.inputs.rollback_type }} rollback."
+        
+    - name: Execute rollback
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.PORT || 22 }}
+        script: |
+          set -e
+          
+          echo "🚨 EMERGENCY ROLLBACK INITIATED"
+          echo "Type: ${{ github.event.inputs.rollback_type }}"
+          echo "Time: $(date)"
+          echo "Initiated by: ${{ github.actor }}"
+          
+          cd /var/www/olalaundry
+          
+          if [ -f "scripts/rollback.sh" ]; then
+            chmod +x scripts/rollback.sh
+            ./scripts/rollback.sh ${{ github.event.inputs.rollback_type }}
+          else
+            echo "⚠️ Rollback script not found. Performing manual rollback..."
+            
+            # Manual rollback procedure
+            APP_NAME="olalaundry"
+            
+            if [ "${{ github.event.inputs.rollback_type }}" = "quick" ]; then
+              echo "🔄 Quick rollback - restarting application..."
+              pm2 restart $APP_NAME
+            else
+              echo "🔄 Full rollback - reverting to previous version..."
+              
+              # Stop application
+              pm2 stop $APP_NAME
+              
+              # Revert to previous commit
+              git checkout HEAD~1
+              
+              # Rebuild
+              npm ci --production
+              npm run build
+              
+              # Restart
+              pm2 start $APP_NAME
+            fi
+          fi
+          
+          # Health check
+          echo "🏥 Performing post-rollback health check..."
+          sleep 10
+          
+          curl -f http://localhost:3000/health || {
+            echo "❌ Post-rollback health check failed"
+            pm2 logs $APP_NAME --lines 20
+            exit 1
+          }
+          
+          echo "✅ Rollback completed successfully"
+          pm2 status
+          
+    - name: Notify rollback completion
+      if: always()
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: ${{ secrets.PORT || 22 }}
+        script: |
+          echo "📊 Rollback Status Report"
+          echo "========================"
+          echo "Type: ${{ github.event.inputs.rollback_type }}"
+          echo "Time: $(date)"
+          echo "Initiated by: ${{ github.actor }}"
+          echo ""
+          echo "Current Status:"
+          pm2 status
+          echo ""
+          echo "Health Check:"
+          curl -s http://localhost:3000/health | jq . || echo "Health check failed"
+          echo ""
+          echo "Current Commit:"
+          cd /var/www/olalaundry && git rev-parse HEAD
