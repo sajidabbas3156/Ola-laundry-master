@@ -1,32 +1,29 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import helmet from "helmet";
 import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { securityMiddleware, corsOptions, generalRateLimit, requestId, disableDevRoutes } from "./security";
+import logger from "./logger";
 
 const app = express();
 
+// Request ID middleware
+app.use(requestId);
+
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-    },
-  },
-}));
+app.use(securityMiddleware);
 
 // CORS configuration
-const corsOptions = {
-  origin: process.env.CORS_ORIGIN || "http://localhost:5000",
-  credentials: true,
-  optionsSuccessStatus: 200
-};
 app.use(cors(corsOptions));
+
+// Rate limiting
+if (process.env.NODE_ENV === 'production') {
+  app.use(generalRateLimit);
+}
+
+// Disable dev routes in production
+app.use(disableDevRoutes);
 
 // Compression middleware
 app.use(compression());

@@ -77,6 +77,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   };
 
+  // Health check endpoint
+  app.get("/health", async (req, res) => {
+    try {
+      // Test database connection
+      await storage.db.raw('SELECT 1');
+      
+      res.status(200).json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        memory: process.memoryUsage(),
+        database: 'connected',
+        version: process.env.npm_package_version || '1.0.0'
+      });
+    } catch (error) {
+      res.status(503).json({
+        status: 'error',
+        timestamp: new Date().toISOString(),
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/register", async (req, res) => {
     try {
@@ -1499,6 +1523,430 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       const tenants = await storage.getAllTenantsWithSubscriptions();
       res.json(tenants);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // AI Operations routes
+  app.get("/api/ai/operations", authenticateToken, async (req: any, res) => {
+    try {
+      // Mock AI operations data - replace with actual AI service integration
+      const aiData = {
+        insights: [
+          {
+            id: '1',
+            type: 'opportunity',
+            title: 'Peak Hour Optimization',
+            description: 'Increase pricing by 15% during 6-8 PM peak hours to maximize revenue',
+            impact: 'high',
+            confidence: 87,
+            actionable: true,
+            estimatedValue: 2400
+          },
+          {
+            id: '2',
+            type: 'prediction',
+            title: 'Demand Surge Expected',
+            description: 'Weekend demand predicted to increase by 23% based on weather patterns',
+            impact: 'medium',
+            confidence: 92,
+            actionable: true,
+            estimatedValue: 1800
+          },
+          {
+            id: '3',
+            type: 'warning',
+            title: 'Inventory Alert',
+            description: 'Detergent stock will run low in 3 days based on current usage patterns',
+            impact: 'medium',
+            confidence: 95,
+            actionable: true
+          },
+          {
+            id: '4',
+            type: 'optimization',
+            title: 'Route Efficiency',
+            description: 'Optimizing delivery routes could reduce travel time by 18%',
+            impact: 'high',
+            confidence: 84,
+            actionable: true,
+            estimatedValue: 1200
+          }
+        ],
+        forecasts: [
+          {
+            metric: 'Daily Revenue',
+            current: 1250,
+            predicted: 1450,
+            confidence: 89,
+            timeframe: 'Next 7 days',
+            trend: 'up'
+          },
+          {
+            metric: 'Order Volume',
+            current: 45,
+            predicted: 52,
+            confidence: 91,
+            timeframe: 'Next 7 days',
+            trend: 'up'
+          },
+          {
+            metric: 'Customer Retention',
+            current: 78,
+            predicted: 82,
+            confidence: 85,
+            timeframe: 'Next 30 days',
+            trend: 'up'
+          },
+          {
+            metric: 'Operational Efficiency',
+            current: 87,
+            predicted: 91,
+            confidence: 88,
+            timeframe: 'Next 14 days',
+            trend: 'up'
+          }
+        ],
+        automationStatus: {
+          activeRules: 12,
+          processedToday: 156,
+          efficiency: 94,
+          savings: 3200
+        },
+        modelPerformance: {
+          accuracy: 89.5,
+          lastTrained: '2024-01-15',
+          dataPoints: 15420,
+          version: 'v2.1.3'
+        }
+      };
+      res.json(aiData);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/financial/ai-analysis", authenticateToken, async (req: any, res) => {
+    try {
+      // Mock OLAORDERS financial AI data
+      const financialData = {
+        predictions: [
+          {
+            metric: 'Monthly Revenue',
+            current: 28500,
+            predicted: 32400,
+            confidence: 89,
+            timeframe: 'Next 30 days',
+            trend: 'up',
+            impact: 'high'
+          },
+          {
+            metric: 'Operating Costs',
+            current: 18200,
+            predicted: 17800,
+            confidence: 85,
+            timeframe: 'Next 30 days',
+            trend: 'down',
+            impact: 'medium'
+          },
+          {
+            metric: 'Cash Flow',
+            current: 10300,
+            predicted: 14600,
+            confidence: 92,
+            timeframe: 'Next 30 days',
+            trend: 'up',
+            impact: 'high'
+          },
+          {
+            metric: 'Customer Acquisition Cost',
+            current: 45,
+            predicted: 38,
+            confidence: 78,
+            timeframe: 'Next 30 days',
+            trend: 'down',
+            impact: 'medium'
+          }
+        ],
+        cashFlowForecast: [
+          { period: 'Week 1', inflow: 8500, outflow: 6200, netFlow: 2300, cumulativeBalance: 12300 },
+          { period: 'Week 2', inflow: 9200, outflow: 6800, netFlow: 2400, cumulativeBalance: 14700 },
+          { period: 'Week 3', inflow: 8800, outflow: 6500, netFlow: 2300, cumulativeBalance: 17000 },
+          { period: 'Week 4', inflow: 9500, outflow: 7100, netFlow: 2400, cumulativeBalance: 19400 }
+        ],
+        alerts: [
+          {
+            id: '1',
+            type: 'warning',
+            title: 'Payment Delay Risk',
+            description: 'Customer ABC Corp has overdue payment of $1,250. Risk of bad debt increasing.',
+            amount: 1250,
+            dueDate: '2024-01-20',
+            actionRequired: true
+          },
+          {
+            id: '2',
+            type: 'opportunity',
+            title: 'Pricing Optimization',
+            description: 'Premium services showing 15% higher demand. Consider price increase.',
+            actionRequired: true
+          },
+          {
+            id: '3',
+            type: 'critical',
+            title: 'Cash Flow Alert',
+            description: 'Projected cash shortage in 2 weeks. Consider accelerating collections.',
+            amount: -3500,
+            actionRequired: true
+          }
+        ],
+        profitabilityAnalysis: [
+          {
+            service: 'Dry Cleaning',
+            revenue: 12500,
+            costs: 7800,
+            profit: 4700,
+            margin: 37.6,
+            trend: 'up',
+            recommendation: 'Expand capacity - highest margin service'
+          },
+          {
+            service: 'Wash & Fold',
+            revenue: 15000,
+            costs: 11200,
+            profit: 3800,
+            margin: 25.3,
+            trend: 'stable',
+            recommendation: 'Optimize operations to improve margins'
+          },
+          {
+            service: 'Ironing',
+            revenue: 6500,
+            costs: 4900,
+            profit: 1600,
+            margin: 24.6,
+            trend: 'down',
+            recommendation: 'Review pricing strategy'
+          },
+          {
+            service: 'Alterations',
+            revenue: 3200,
+            costs: 1800,
+            profit: 1400,
+            margin: 43.8,
+            trend: 'up',
+            recommendation: 'High margin - promote more actively'
+          }
+        ],
+        kpis: {
+          totalRevenue: 37200,
+          revenueGrowth: 12.8,
+          profitMargin: 31.2,
+          cashFlow: 11500,
+          outstandingReceivables: 8900,
+          paymentDelays: 5.2
+        },
+        aiInsights: {
+          revenueOptimization: [
+            'Implement dynamic pricing during peak hours (6-8 PM)',
+            'Introduce premium service tiers for 23% revenue increase',
+            'Cross-sell alterations with dry cleaning for $180/month boost'
+          ],
+          costReduction: [
+            'Optimize delivery routes to save $450/month in fuel costs',
+            'Negotiate bulk detergent purchase for 8% cost reduction',
+            'Implement energy-efficient machines to reduce utility costs by 12%'
+          ],
+          cashFlowImprovement: [
+            'Offer 2% early payment discount to accelerate collections',
+            'Implement automated payment reminders to reduce delays by 40%',
+            'Consider invoice factoring for immediate cash flow improvement'
+          ],
+          riskMitigation: [
+            'Diversify customer base - 60% revenue from top 5 customers',
+            'Implement credit checks for new commercial accounts',
+            'Maintain 3-month operating expense reserve fund'
+          ]
+        }
+      };
+      res.json(financialData);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/analytics", authenticateToken, async (req: any, res) => {
+    try {
+      // Mock analytics data with AI-enhanced insights
+      const analyticsData = {
+        revenue: {
+          total: 28500,
+          growth: 12.5,
+          trend: 'up',
+          byService: [
+            { name: 'Wash & Fold', value: 15000, change: 8.2 },
+            { name: 'Dry Cleaning', value: 8500, change: 15.3 },
+            { name: 'Ironing', value: 3500, change: 5.1 },
+            { name: 'Alterations', value: 1500, change: 22.7 }
+          ],
+          byMonth: [
+            { month: 'Jan', value: 24000 },
+            { month: 'Feb', value: 26500 },
+            { month: 'Mar', value: 28500 }
+          ]
+        },
+        customers: {
+          total: 1250,
+          new: 85,
+          returning: 1165,
+          retention: 78.5,
+          bySegment: [
+            { segment: 'Regular', count: 562, percentage: 45 },
+            { segment: 'Premium', count: 375, percentage: 30 },
+            { segment: 'VIP', count: 188, percentage: 15 },
+            { segment: 'New', count: 125, percentage: 10 }
+          ]
+        },
+        orders: {
+          total: 2450,
+          completed: 2280,
+          pending: 170,
+          averageValue: 45.50,
+          byStatus: [
+            { status: 'completed', count: 2280, percentage: 93.1 },
+            { status: 'in_progress', count: 120, percentage: 4.9 },
+            { status: 'pending', count: 50, percentage: 2.0 }
+          ]
+        },
+        performance: {
+          avgDeliveryTime: 42,
+          customerSatisfaction: 4.6,
+          orderFulfillment: 96.2,
+          driverEfficiency: 87.5
+        },
+        geographic: [
+          { area: 'Downtown', orders: 850, revenue: 12500, growthRate: 15.2 },
+          { area: 'Suburbs', orders: 720, revenue: 9800, growthRate: 8.7 },
+          { area: 'Industrial', orders: 480, revenue: 6200, growthRate: 22.1 }
+        ],
+        inventory: {
+          turnoverRate: 8.5,
+          stockouts: 3,
+          wastePercentage: 2.1,
+          topItems: [
+            { item: 'Detergent Premium', usage: 450, trend: 'up' },
+            { item: 'Fabric Softener', usage: 320, trend: 'stable' },
+            { item: 'Stain Remover', usage: 180, trend: 'up' }
+          ]
+        }
+      };
+      res.json(analyticsData);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/ai/validation", authenticateToken, async (req: any, res) => {
+    try {
+      // Mock AI validation data - replace with actual validation service
+      const validationData = {
+        tests: [
+          {
+            id: '1',
+            name: 'Revenue Prediction Test',
+            description: 'Weekly revenue forecasting accuracy',
+            metric: 'Revenue',
+            actualValue: 28500,
+            predictedValue: 27800,
+            confidence: 89,
+            accuracy: 97.5,
+            status: 'passed',
+            testDate: '2024-01-20',
+            timeframe: 'Weekly'
+          },
+          {
+            id: '2',
+            name: 'Order Volume Test',
+            description: 'Daily order volume prediction',
+            metric: 'Orders',
+            actualValue: 45,
+            predictedValue: 52,
+            confidence: 91,
+            accuracy: 84.6,
+            status: 'warning',
+            testDate: '2024-01-20',
+            timeframe: 'Daily'
+          },
+          {
+            id: '3',
+            name: 'Customer Retention Test',
+            description: 'Monthly customer retention forecast',
+            metric: 'Customers',
+            actualValue: 78,
+            predictedValue: 82,
+            confidence: 85,
+            accuracy: 94.9,
+            status: 'passed',
+            testDate: '2024-01-20',
+            timeframe: 'Monthly'
+          },
+          {
+            id: '4',
+            name: 'Operating Costs Test',
+            description: 'Weekly operating cost prediction',
+            metric: 'Costs',
+            actualValue: 18200,
+            predictedValue: 17800,
+            confidence: 85,
+            accuracy: 97.8,
+            status: 'passed',
+            testDate: '2024-01-20',
+            timeframe: 'Weekly'
+          },
+          {
+            id: '5',
+            name: 'Peak Hours Test',
+            description: 'Peak hour demand forecasting',
+            metric: 'Orders',
+            actualValue: 25,
+            predictedValue: 18,
+            confidence: 78,
+            accuracy: 72.0,
+            status: 'failed',
+            testDate: '2024-01-20',
+            timeframe: 'Hourly'
+          }
+        ],
+        accuracy: {
+          overall: 89.4,
+          byMetric: {
+            revenue: 97.5,
+            orders: 78.3,
+            customers: 94.9,
+            costs: 97.8
+          },
+          byTimeframe: {
+            daily: 84.6,
+            weekly: 97.7,
+            monthly: 94.9
+          },
+          trend: 'improving'
+        },
+        recommendations: [
+          'Improve hourly demand forecasting by incorporating weather data',
+          'Enhance order volume predictions with seasonal adjustment factors',
+          'Consider ensemble modeling for better accuracy across all metrics',
+          'Increase training data frequency for real-time model updates',
+          'Implement confidence interval reporting for better uncertainty quantification'
+        ],
+        modelHealth: {
+          score: 89.4,
+          status: 'good',
+          lastValidation: '2024-01-20T10:30:00Z'
+        }
+      };
+      res.json(validationData);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

@@ -12,7 +12,8 @@ import {
   Gift,
   Settings,
   Store,
-  CreditCard
+  CreditCard,
+  Brain
 } from "lucide-react";
 
 const navigation = [
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'customers', href: '/tenant/ola-laundry/customers', icon: Users },
   { name: 'inventory', href: '/tenant/ola-laundry/inventory', icon: Package },
   { name: 'reports', href: '/tenant/ola-laundry/reports', icon: FileText },
+  { name: 'ai_operations', href: '/tenant/ola-laundry/ai-operations', icon: Brain },
   { name: 'delivery', href: '/tenant/ola-laundry/delivery', icon: Truck },
   { name: 'promotions', href: '/tenant/ola-laundry/promotions', icon: Gift },
   { name: 'settings', href: '/tenant/ola-laundry/settings', icon: Settings },
