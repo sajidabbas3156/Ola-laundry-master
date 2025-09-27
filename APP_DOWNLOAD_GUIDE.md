@@ -9,7 +9,7 @@ All 4 applications are ready to install on your mobile device as Progressive Web
 ## 📱 App Download Links
 
 ### 1. 🛒 **Customer Mobile App**
-**Install URL**: `https://your-replit-url.replit.app/customer-app`
+**Install URL**: `https://www.olalaundry.com/customer-app`
 
 **Features:**
 - Place and track laundry orders
@@ -26,7 +26,7 @@ All 4 applications are ready to install on your mobile device as Progressive Web
 ---
 
 ### 2. 🚚 **Delivery Driver App**
-**Install URL**: `https://your-replit-url.replit.app/delivery-app`
+**Install URL**: `https://www.olalaundry.com/delivery-app`
 
 **Features:**
 - GPS route optimization
@@ -43,7 +43,7 @@ All 4 applications are ready to install on your mobile device as Progressive Web
 ---
 
 ### 3. 🏪 **Vendor POS System**
-**Install URL**: `https://your-replit-url.replit.app/vendor-pos`
+**Install URL**: `https://www.olalaundry.com/vendor-pos`
 
 **Features:**
 - Touch-optimized point of sale
@@ -60,7 +60,7 @@ All 4 applications are ready to install on your mobile device as Progressive Web
 ---
 
 ### 4. 💼 **Admin Dashboard**
-**Install URL**: `https://your-replit-url.replit.app/tenant/demo/dashboard`
+**Install URL**: `https://www.olalaundry.com/tenant/demo/dashboard`
 
 **Features:**
 - Complete business management
@@ -166,9 +166,9 @@ cd android
 
 Replace `your-replit-url` with your actual Replit domain:
 
-- **Customer App**: `https://your-replit-url.replit.app/customer-app`
-- **Driver App**: `https://your-replit-url.replit.app/delivery-app`  
-- **POS System**: `https://your-replit-url.replit.app/vendor-pos`
-- **Admin Panel**: `https://your-replit-url.replit.app/tenant/demo/dashboard`
+- **Customer App**: `https://www.olalaundry.com/customer-app`
+- **Driver App**: `https://www.olalaundry.com/delivery-app`  
+- **POS System**: `https://www.olalaundry.com/vendor-pos`
+- **Admin Panel**: `https://www.olalaundry.com/tenant/demo/dashboard`
 
 Your complete laundry management platform is ready to install and use! 🚀

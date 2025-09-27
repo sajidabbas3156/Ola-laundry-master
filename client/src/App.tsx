@@ -24,6 +24,7 @@ import ReviewsManagement from "@/pages/tenant/ReviewsManagement";
 import BusinessSettings from "@/pages/tenant/BusinessSettings";
 import WorkflowAutomation from "@/pages/tenant/WorkflowAutomation";
 import AdvancedAnalytics from "@/pages/tenant/AdvancedAnalytics";
+import AIOperationsCenter from "@/pages/tenant/AIOperationsCenter";
 
 // Super Admin Pages
 import SuperAdminDashboard from "@/pages/superadmin/SuperAdminDashboard";
@@ -91,6 +92,7 @@ function App() {
                           <Route path="/tenant/:tenantSlug/settings" component={BusinessSettings} />
                           <Route path="/tenant/:tenantSlug/workflows" component={WorkflowAutomation} />
                           <Route path="/tenant/:tenantSlug/analytics" component={AdvancedAnalytics} />
+                          <Route path="/tenant/:tenantSlug/ai-operations" component={AIOperationsCenter} />
 
                           {/* Super Admin Routes */}
                           <Route path="/superadmin" component={SuperAdminDashboard} />

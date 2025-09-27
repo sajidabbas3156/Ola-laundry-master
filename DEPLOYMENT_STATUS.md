@@ -13,7 +13,7 @@ Your comprehensive laundry management platform is **fully deployed and ready**!
 All four mobile applications are **already deployed** as PWAs with native app functionality:
 
 #### 🛒 Customer Mobile App  
-**URL**: `https://your-replit-domain.replit.app/customer-app`
+**URL**: `https://www.olalaundry.com/customer-app`
 - ✅ Order placement and tracking
 - ✅ Digital wallet integration  
 - ✅ Loyalty points system
@@ -22,7 +22,7 @@ All four mobile applications are **already deployed** as PWAs with native app fu
 - ✅ Install as native app
 
 #### 🚚 Delivery Driver App
-**URL**: `https://your-replit-domain.replit.app/delivery-app`  
+**URL**: `https://www.olalaundry.com/delivery-app`  
 - ✅ Route optimization
 - ✅ GPS tracking simulation
 - ✅ Delivery management
@@ -31,7 +31,7 @@ All four mobile applications are **already deployed** as PWAs with native app fu
 - ✅ Camera integration ready
 
 #### 🏪 Vendor POS System
-**URL**: `https://your-replit-domain.replit.app/vendor-pos`
+**URL**: `https://www.olalaundry.com/vendor-pos`
 - ✅ Touch-optimized interface
 - ✅ Service selection
 - ✅ Customer lookup
@@ -40,7 +40,7 @@ All four mobile applications are **already deployed** as PWAs with native app fu
 - ✅ Tablet-friendly design
 
 #### 💼 Web Admin Dashboard  
-**URL**: `https://your-replit-domain.replit.app/tenant/demo/dashboard`
+**URL**: `https://www.olalaundry.com/tenant/demo/dashboard`
 - ✅ Complete business management
 - ✅ Real-time analytics
 - ✅ Employee management
@@ -140,23 +140,23 @@ See `BUILD_APK_GUIDE.md` for detailed instructions to build APKs locally.
 ## 🚀 How to Use Your Apps Right Now
 
 ### For Customers:
-1. Visit: `https://your-domain.replit.app/customer-app`
+1. Visit: `https://www.olalaundry.com/customer-app`
 2. Tap "Install App" banner in browser
 3. App installs like native app on home screen
 4. Full functionality: orders, payments, tracking
 
 ### For Drivers:  
-1. Visit: `https://your-domain.replit.app/delivery-app`
+1. Visit: `https://www.olalaundry.com/delivery-app`
 2. Install as PWA from browser
 3. Access delivery routes, GPS tracking, earnings
 
 ### For Staff (POS):
-1. Visit: `https://your-domain.replit.app/vendor-pos`  
+1. Visit: `https://www.olalaundry.com/vendor-pos`  
 2. Install on tablet/phone
 3. Process orders, manage customers, track sales
 
 ### For Business Owners:
-1. Visit: `https://your-domain.replit.app/tenant/demo/dashboard`
+1. Visit: `https://www.olalaundry.com/tenant/demo/dashboard`
 2. Access complete business management suite
 3. Analytics, reports, employee management, settings
 
