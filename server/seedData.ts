@@ -104,6 +104,55 @@ export async function seedDatabase() {
       password: hashedPassword,
     });
 
+    // Create tenants
+    const mainTenant = await storage.createTenant({
+      name: "OLA Laundry Bahrain",
+      slug: "ola-laundry-bh",
+      subdomain: "ola-laundry-bh",
+      email: "info@olalaundry.com",
+      contactEmail: "support@olalaundry.com",
+      address: "Building 456, Road 789, Block 123, Hoora",
+      phone: "+973-37960004",
+      isActive: true,
+      customDomain: "ola-laundry-bh.replit.app",
+      defaultCurrency: "BHD",
+      defaultLanguage: "en",
+      whatsappNumber: "+973-37960004",
+      primaryColor: "#2C1A5B",
+      subscriptionStatus: "active",
+      subscriptionPlan: "premium",
+      locationData: {
+        country: "Bahrain",
+        city: "Manama",
+        latitude: 26.2285,
+        longitude: 50.5860
+      }
+    });
+
+    const demoTenant = await storage.createTenant({
+      name: "Demo Laundry Service",
+      slug: "demo-laundry",
+      subdomain: "demo-laundry",
+      email: "demo@demolaundry.com",
+      contactEmail: "contact@demolaundry.com",
+      address: "Demo Street 123, Riffa",
+      phone: "+973-1234-5678",
+      isActive: true,
+      customDomain: "demo-laundry.replit.app",
+      defaultCurrency: "BHD",
+      defaultLanguage: "en",
+      whatsappNumber: "+973-1234-5678",
+      primaryColor: "#FF6B35",
+      subscriptionStatus: "trial",
+      subscriptionPlan: "basic",
+      locationData: {
+        country: "Bahrain",
+        city: "Riffa",
+        latitude: 26.1296,
+        longitude: 50.5550
+      }
+    });
+
     // Create customers (simplified for working system)
     const customer1 = await storage.createCustomer({
       userId: customer1User.id,
