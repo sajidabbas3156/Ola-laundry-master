@@ -4,6 +4,10 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Backups created by pull-commit script
+backups/
+
 # Environment variables
 .env
 .env.local

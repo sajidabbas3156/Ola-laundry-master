@@ -325,6 +325,8 @@ To revolutionize the laundry industry through innovative technology, sustainable
 ### Documentation
 - [AI Features Guide](./docs/AI_FEATURES.md)
 - [Deployment Guide](./docs/AI_DEPLOYMENT_GUIDE.md)
+- [Pull Commit Guide](./PULL_COMMIT_GUIDE.md)
+- [Rollback Documentation](./ROLLBACK_DOCUMENTATION.md)
 - [API Documentation](./docs/API.md)
 
 ### Contact
