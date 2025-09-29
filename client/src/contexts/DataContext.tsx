@@ -38,7 +38,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const response = await fetch('/api/orders', {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || 'demo-token-123'}`
+          'Authorization': `Bearer demo-token-123`
         }
       });
       
