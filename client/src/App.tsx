@@ -11,6 +11,8 @@ import { DriversProvider } from "@/contexts/DriversContext";
 
 // Public Pages
 import LandingPage from "@/pages/public/LandingPage";
+import OlaLaundryLanding from "@/pages/public/OlaLaundryLanding";
+import LaundryMasterSoftware from "@/pages/public/LaundryMasterSoftware";
 
 // Tenant Pages (Web Admin Panel)  
 import Dashboard from "@/pages/tenant/Dashboard";
@@ -70,7 +72,11 @@ function App() {
                       <div className="min-h-screen bg-background">
                         <Switch>
                           {/* Public Routes */}
-                          <Route path="/" component={LandingPage} />
+                          <Route path="/" component={OlaLaundryLanding} />
+                          <Route path="/ola-laundry" component={OlaLaundryLanding} />
+                          <Route path="/software" component={LaundryMasterSoftware} />
+                          <Route path="/laundry-master" component={LaundryMasterSoftware} />
+                          <Route path="/platform" component={LandingPage} />
                           
                           {/* Mobile Applications */}
                           <Route path="/customer-app" component={CustomerApp} />
