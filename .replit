@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "bash", "bun-1.2", "bun-1.1", "bun-1.0", "gcloud", "java-graalvm22.3", "nodejs-24"]
+modules = ["nodejs-20", "bash", "bun-1.2", "bun-1.1", "bun-1.0", "gcloud", "java-graalvm22.3", "nodejs-24", "nodejs-23", "nodejs-22", "nodejs-19", "nodejs-18", "nodejs-16", "php-8.4", "postgresql-17", "python-3.9", "svelte-kit-node-20", "typescript-language-server", "vue-node-20", "web", "nodejs-with-prybar-18", "swift-5.8"]
 
 [[ports]]
 localPort = 5000
