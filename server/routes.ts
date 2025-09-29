@@ -67,24 +67,6 @@ const authenticateToken = async (req: any, res: any, next: any) => {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const httpServer = createServer(app);
-  
-  // Serve service worker file
-  app.get('/sw.js', (req, res) => {
-    const path = import.meta.resolve('../public/sw.js').replace('file://', '');
-    
-    res.setHeader('Content-Type', 'application/javascript');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(path);
-  });
-
-  // Serve manifest.json file
-  app.get('/manifest.json', (req, res) => {
-    const path = import.meta.resolve('../public/manifest.json').replace('file://', '');
-    
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(path);
-  });
 
   // WebSocket setup for real-time updates
   const wss = new WebSocketServer({ server: httpServer, path: '/ws' });
