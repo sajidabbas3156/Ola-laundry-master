@@ -42,9 +42,8 @@ app.use((req, res, next) => {
   // Initialize database with demo data for Bahrain market
   if (app.get("env") === "development") {
     try {
-      log("Skipping database seeding temporarily due to schema issues");
-      // const { seedDatabase } = await import("./seedData");
-      // await seedDatabase();
+      const { seedDatabase } = await import("./seedData");
+      await seedDatabase();
     } catch (error: any) {
       log("Demo data initialization:", error.message);
     }

@@ -572,7 +572,7 @@ export const organizations = pgTable("organizations", {
   name: varchar("name", { length: 255 }).notNull(),
   code: varchar("code", { length: 50 }).unique(),
   type: varchar("type", { length: 50 }).default("branch"), // headquarters, branch, franchise
-  parentId: integer("parent_id"), // Self-reference defined separately to avoid circular dependency
+  parentId: integer("parent_id").references(() => organizations.id),
   address: text("address"),
   city: varchar("city", { length: 100 }),
   state: varchar("state", { length: 100 }),
@@ -639,7 +639,7 @@ export const expenseCategories = pgTable("expense_categories", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
-  parentId: integer("parent_id"), // Self-reference defined separately to avoid circular dependency
+  parentId: integer("parent_id").references(() => expenseCategories.id),
   code: varchar("code", { length: 50 }),
   description: text("description"),
   isActive: boolean("is_active").default(true),
