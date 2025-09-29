@@ -1039,38 +1039,6 @@ export class DatabaseStorage implements IStorage {
     return newTransaction;
   }
 
-  // Simple inventory method to replace complex one
-  async getInventoryItems(): Promise<InventoryItem[]> {
-    const result = await db.select().from(inventoryItems);
-    return result;
-  }
-
-  async createInventoryItem(item: InsertInventoryItem): Promise<InventoryItem> {
-    const [newItem] = await db.insert(inventoryItems).values(item).returning();
-    return newItem;
-  }
-
-  // Simple supplier methods
-  async getSuppliers(): Promise<Supplier[]> {
-    const result = await db.select().from(suppliers);
-    return result;
-  }
-
-  async createSupplier(supplier: InsertSupplier): Promise<Supplier> {
-    const [newSupplier] = await db.insert(suppliers).values(supplier).returning();
-    return newSupplier;
-  }
-
-  // Purchase order methods
-  async getPurchaseOrders(): Promise<PurchaseOrder[]> {
-    const result = await db.select().from(purchaseOrders);
-    return result;
-  }
-
-  async createPurchaseOrder(order: InsertPurchaseOrder): Promise<PurchaseOrder> {
-    const [newOrder] = await db.insert(purchaseOrders).values(order).returning();
-    return newOrder;
-  }
 
   // Advanced inventory management with automatic reordering
   async getItemsBelowReorderPoint(tenantId?: number): Promise<InventoryItem[]> {
