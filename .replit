@@ -25,6 +25,7 @@ EXTERNAL_PORT = "80"
 
 [nix]
 channel = "stable-25_05"
+packages = ["python312Packages.cleanlab"]
 # Add additional environment variables as needed
 # Example:
 # ANOTHER_VARIABLE = "value"
