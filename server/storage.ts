@@ -1103,9 +1103,9 @@ export class DatabaseStorage implements IStorage {
 
       // Add items to purchase order
       for (const item of items) {
-        const quantity = item.reorderQuantity || (item.maximumStock && item.currentStock !== null ? parseFloat(item.maximumStock.toString()) - parseFloat(item.currentStock.toString()) : 50);
+        const quantity = item.reorderQuantity || (item.maximumStock && item.currentStock !== null ? parseFloat((item.maximumStock as any).toString()) - parseFloat((item.currentStock as any).toString()) : 50);
         const unitPrice = item.unitCost || 0;
-        const totalPrice = quantity * (typeof unitPrice === 'number' ? unitPrice : parseFloat(unitPrice.toString()));
+        const totalPrice = quantity * (typeof unitPrice === 'number' ? unitPrice : parseFloat((unitPrice as any).toString()));
         totalAmount += totalPrice;
 
         await this.createPurchaseOrderItem({
@@ -1690,8 +1690,8 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    const totalRevenue = parseFloat(revenueResult[0].total.toString());
-    const totalExpenses = parseFloat(expenseResult[0].total.toString()) + parseFloat(payrollResult[0].total.toString());
+    const totalRevenue = parseFloat((revenueResult[0].total as any).toString());
+    const totalExpenses = parseFloat((expenseResult[0].total as any).toString()) + parseFloat((payrollResult[0].total as any).toString());
     const grossProfit = totalRevenue - totalExpenses;
     const netProfit = grossProfit; // Can be adjusted for taxes, etc.
 
@@ -1969,7 +1969,7 @@ export class DatabaseStorage implements IStorage {
     return {
       totalTenants: totalTenantsResult[0].count,
       activeTenants: activeTenantsResult[0].count,
-      totalRevenue: parseFloat(totalRevenueResult[0].total.toString()),
+      totalRevenue: parseFloat((totalRevenueResult[0].total as any).toString()),
       totalUsers: totalUsersResult[0].count,
       subscriptionsByPlan,
     };
