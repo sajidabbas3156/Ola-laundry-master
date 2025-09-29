@@ -1103,7 +1103,7 @@ export class DatabaseStorage implements IStorage {
 
       // Add items to purchase order
       for (const item of items) {
-        const quantity = item.reorderQuantity || (item.maximumStock && item.currentStock !== null ? parseFloat((item.maximumStock as any).toString()) - parseFloat((item.currentStock as any).toString()) : 50);
+        const quantity: number = item.reorderQuantity || (item.maximumStock && item.currentStock !== null ? parseFloat((item.maximumStock as any).toString()) - parseFloat((item.currentStock as any).toString()) : 50);
         const unitPrice = item.unitCost || 0;
         const totalPrice = quantity * (typeof unitPrice === 'number' ? unitPrice : parseFloat((unitPrice as any).toString()));
         totalAmount += totalPrice;
