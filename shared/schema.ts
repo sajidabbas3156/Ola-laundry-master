@@ -201,7 +201,7 @@ export const deliveryStopsRelations = relations(deliveryStops, ({ one }) => ({
 export const tenants = pgTable("tenants", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  subdomain: varchar("subdomain", { length: 100 }).notNull().unique(),
+  subdomain: varchar("subdomain", { length: 100 }).notNull(),
   slug: varchar("slug", { length: 100 }).notNull().unique(),
   email: varchar("email", { length: 255 }).notNull(),
   contactEmail: varchar("contact_email", { length: 255 }),
