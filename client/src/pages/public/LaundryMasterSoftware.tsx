@@ -29,35 +29,35 @@ export default function LaundryMasterSoftware() {
   const applications = [
     {
       icon: Monitor,
-      title: "Smart POS for Laundries",
-      description: "Advanced point-of-sale system with AI-powered financial forecasting, real-time business analytics, and automated profit optimization with 94%+ accuracy",
-      features: ["AI Financial Forecasting", "Real-time Analytics", "Automated Pricing", "KPI Monitoring", "ROI Optimization"],
+      title: "Web Admin Dashboard",
+      description: "Complete business management interface with real-time analytics, order management, customer insights, and comprehensive reporting tools",
+      features: ["Real-time Analytics", "Order Management", "Customer Database", "Financial Reports", "Staff Management"],
       color: "text-blue-600",
-      demoLink: "/tenant/demo/ai-operations"
+      demoLink: "/tenant/demo/dashboard"
     },
     {
       icon: TabletSmartphone,
-      title: "Customer Order App",
-      description: "QR code-enabled ordering system with AI pricing calculator, eco-performance tracking, and real-time delivery notifications",
-      features: ["QR Code Ordering", "AI Pricing Engine", "Eco-Performance Tracking", "Payment Gateway", "Real-time Tracking"],
+      title: "Customer Mobile App",
+      description: "User-friendly Progressive Web App for customers to place orders, track deliveries, manage loyalty points, and access digital wallet",
+      features: ["Order Placement", "Real-time Tracking", "Loyalty Program", "Digital Wallet", "Push Notifications"],
       color: "text-green-600",
       demoLink: "/customer-app"
     },
     {
-      icon: BarChart3,
-      title: "Real-time Financial Dashboards",
-      description: "Comprehensive business intelligence with automated financial reporting, sustainability metrics, and strategic insights powered by AI",
-      features: ["Financial AI Analysis", "Sustainability Tracking", "Automated Reports", "KPI Dashboards", "Strategic Insights"],
+      icon: CreditCard,
+      title: "Vendor POS System",
+      description: "Point-of-sale interface optimized for laundry operations with inventory management, customer lookup, and payment processing",
+      features: ["POS Interface", "Inventory Tracking", "Customer Lookup", "Payment Processing", "Receipt Generation"],
       color: "text-purple-600",
-      demoLink: "/tenant/demo/ai-operations"
+      demoLink: "/vendor-pos"
     },
     {
-      icon: Users,
-      title: "Tenant/Vendor Management System",
-      description: "Multi-tenant platform for managing multiple laundry businesses with automated branding, marketing recommendations, and operations optimization",
-      features: ["Multi-Tenant Support", "Automated Branding", "Marketing AI", "Operations Optimization", "Vendor Management"],
+      icon: Truck,
+      title: "Delivery Driver App",
+      description: "Dedicated mobile application for delivery drivers with route optimization, GPS tracking, and delivery status management",
+      features: ["Route Optimization", "GPS Tracking", "Delivery Status", "Customer Communication", "Performance Analytics"],
       color: "text-orange-600",
-      demoLink: "/tenant-management"
+      demoLink: "/delivery-app"
     }
   ];
 
@@ -135,28 +135,27 @@ export default function LaundryMasterSoftware() {
             Complete Software Platform
           </Badge>
           
-          <h1 className="text-5xl font-bold mb-6 leading-tight" style={{color: '#1C1C4D'}}>
-            Ola Laundry Master
-            <span className="block" style={{color: '#27A844'}}>
-              Smart Software for Laundries
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
+            Laundry Master
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 block">
+              Software Suite
             </span>
           </h1>
           
           <p className="text-xl text-gray-600 mb-8 max-w-4xl mx-auto">
-            Complete B2B technology solution featuring Smart POS for laundries, Customer order app with AI pricing, 
-            Real-time financial dashboards with 94%+ accuracy, and Tenant/vendor management system. 
-            Built with enterprise-grade AI operations and advanced business analytics.
+            Comprehensive laundry management platform featuring web admin dashboard, customer mobile app, 
+            vendor POS system, and delivery driver interface. Built with modern technology for scalable business operations.
           </p>
           
           <div className="flex justify-center space-x-4 flex-wrap gap-4">
-            <Link to="/tenant/demo/ai-operations">
-              <Button size="lg" style={{backgroundColor: '#1C1C4D', color: '#FFFFFF'}} className="hover:opacity-90">
-                <BarChart3 className="mr-2 h-5 w-5" />
-                Try AI Operations Center
+            <Link to="/tenant/demo/dashboard">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90">
+                <Monitor className="mr-2 h-5 w-5" />
+                Try Admin Dashboard
               </Button>
             </Link>
             <Link to="/customer-app">
-              <Button size="lg" variant="outline" style={{borderColor: '#3F85C8', color: '#3F85C8'}}>
+              <Button size="lg" variant="outline">
                 <Smartphone className="mr-2 h-5 w-5" />
                 Customer App Demo
               </Button>
