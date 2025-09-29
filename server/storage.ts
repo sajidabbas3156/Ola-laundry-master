@@ -386,16 +386,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllCustomers(): Promise<(Customer & { user: User })[]> {
-    const results = await db
+    return await db
       .select()
       .from(customers)
       .innerJoin(users, eq(customers.userId, users.id))
       .orderBy(desc(customers.createdAt));
-    
-    return results.map(result => ({
-      ...result.customers,
-      user: result.users,
-    }));
   }
 
   async getAllServices(): Promise<Service[]> {
@@ -540,16 +535,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrderItems(orderId: number): Promise<(OrderItem & { service: Service })[]> {
-    const results = await db
-      .select()
-      .from(orderItems)
-      .innerJoin(services, eq(orderItems.serviceId, services.id))
-      .where(eq(orderItems.orderId, orderId));
-    
-    return results.map(result => ({
-      ...result.order_items,
-      service: result.services,
-    }));
+    return await db.query.orderItems.findMany({
+      where: eq(orderItems.orderId, orderId),
+      with: {
+        service: true,
+      },
+    });
   }
 
   async getAllMachines(): Promise<Machine[]> {
@@ -737,20 +728,17 @@ export class DatabaseStorage implements IStorage {
 
   async getActivePromotions(tenantId?: number): Promise<Promotion[]> {
     const now = new Date();
-    const conditions = [
-      eq(promotions.isActive, true),
-      sql`${promotions.validFrom} <= ${now}`,
-      sql`${promotions.validUntil} >= ${now}`
-    ];
-    
+    const query = db.select().from(promotions).where(
+      and(
+        eq(promotions.isActive, true),
+        sql`${promotions.validFrom} <= ${now}`,
+        sql`${promotions.validUntil} >= ${now}`
+      )
+    );
     if (tenantId) {
-      conditions.push(eq(promotions.tenantId, tenantId));
+      return await query.where(eq(promotions.tenantId, tenantId));
     }
-    
-    return await db
-      .select()
-      .from(promotions)
-      .where(and(...conditions));
+    return await query;
   }
 
   async getPromotion(id: number): Promise<Promotion | undefined> {
@@ -843,15 +831,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAnalyticsEvents(tenantId?: number, eventType?: string): Promise<AnalyticsEvent[]> {
-    const conditions: any[] = [];
+    let query = db.select().from(analyticsEvents);
+    
+    const conditions = [];
     if (tenantId) conditions.push(eq(analyticsEvents.tenantId, tenantId));
     if (eventType) conditions.push(eq(analyticsEvents.eventType, eventType));
     
-    return await db
-      .select()
-      .from(analyticsEvents)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(analyticsEvents.timestamp));
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(analyticsEvents.timestamp));
   }
 
   // Business settings operations
@@ -1049,6 +1039,38 @@ export class DatabaseStorage implements IStorage {
     return newTransaction;
   }
 
+  // Simple inventory method to replace complex one
+  async getInventoryItems(): Promise<InventoryItem[]> {
+    const result = await db.select().from(inventoryItems);
+    return result;
+  }
+
+  async createInventoryItem(item: InsertInventoryItem): Promise<InventoryItem> {
+    const [newItem] = await db.insert(inventoryItems).values(item).returning();
+    return newItem;
+  }
+
+  // Simple supplier methods
+  async getSuppliers(): Promise<Supplier[]> {
+    const result = await db.select().from(suppliers);
+    return result;
+  }
+
+  async createSupplier(supplier: InsertSupplier): Promise<Supplier> {
+    const [newSupplier] = await db.insert(suppliers).values(supplier).returning();
+    return newSupplier;
+  }
+
+  // Purchase order methods
+  async getPurchaseOrders(): Promise<PurchaseOrder[]> {
+    const result = await db.select().from(purchaseOrders);
+    return result;
+  }
+
+  async createPurchaseOrder(order: InsertPurchaseOrder): Promise<PurchaseOrder> {
+    const [newOrder] = await db.insert(purchaseOrders).values(order).returning();
+    return newOrder;
+  }
 
   // Advanced inventory management with automatic reordering
   async getItemsBelowReorderPoint(tenantId?: number): Promise<InventoryItem[]> {
@@ -1091,7 +1113,6 @@ export class DatabaseStorage implements IStorage {
       const supplierIdNum = parseInt(supplierId);
       
       const purchaseOrder = await this.createPurchaseOrder({
-        orderNumber: `AUTO-${Date.now()}-${supplierIdNum}`,
         tenantId: tenantId || items[0].tenantId,
         supplierId: supplierIdNum === 0 ? null : supplierIdNum,
         status: 'draft',
@@ -1103,9 +1124,9 @@ export class DatabaseStorage implements IStorage {
 
       // Add items to purchase order
       for (const item of items) {
-        const quantity: number = item.reorderQuantity || (item.maximumStock && item.currentStock !== null ? parseFloat((item.maximumStock as any).toString()) - parseFloat((item.currentStock as any).toString()) : 50);
+        const quantity = item.reorderQuantity || (item.maximumStock ? parseFloat(item.maximumStock.toString()) - parseFloat(item.currentStock.toString()) : 50);
         const unitPrice = item.unitCost || 0;
-        const totalPrice = quantity * (typeof unitPrice === 'number' ? unitPrice : parseFloat((unitPrice as any).toString()));
+        const totalPrice = quantity * parseFloat(unitPrice.toString());
         totalAmount += totalPrice;
 
         await this.createPurchaseOrderItem({
@@ -1162,7 +1183,7 @@ export class DatabaseStorage implements IStorage {
 
     // Update usage rates for each item
     for (const transaction of transactions) {
-      const dailyUsage = parseFloat((transaction.totalUsage as any).toString()) / 30;
+      const dailyUsage = parseFloat(transaction.totalUsage.toString()) / 30;
       await db
         .update(inventoryItems)
         .set({ 
@@ -1690,8 +1711,8 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    const totalRevenue = parseFloat((revenueResult[0].total as any).toString());
-    const totalExpenses = parseFloat((expenseResult[0].total as any).toString()) + parseFloat((payrollResult[0].total as any).toString());
+    const totalRevenue = parseFloat(revenueResult[0].total.toString());
+    const totalExpenses = parseFloat(expenseResult[0].total.toString()) + parseFloat(payrollResult[0].total.toString());
     const grossProfit = totalRevenue - totalExpenses;
     const netProfit = grossProfit; // Can be adjusted for taxes, etc.
 
@@ -1969,7 +1990,7 @@ export class DatabaseStorage implements IStorage {
     return {
       totalTenants: totalTenantsResult[0].count,
       activeTenants: activeTenantsResult[0].count,
-      totalRevenue: parseFloat((totalRevenueResult[0].total as any).toString()),
+      totalRevenue: parseFloat(totalRevenueResult[0].total.toString()),
       totalUsers: totalUsersResult[0].count,
       subscriptionsByPlan,
     };

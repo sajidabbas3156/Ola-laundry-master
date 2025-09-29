@@ -1,4 +1,16 @@
-modules = ["nodejs-20", "bash", "bun-1.2", "bun-1.1", "bun-1.0", "gcloud", "java-graalvm22.3", "nodejs-24", "nodejs-23", "nodejs-22", "nodejs-19", "nodejs-18", "nodejs-16", "php-8.4", "postgresql-17", "python-3.9", "svelte-kit-node-20", "typescript-language-server", "vue-node-20", "web", "nodejs-with-prybar-18", "swift-5.8"]
+modules = ["nodejs-20", "web", "postgresql-16"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["unzip", "openjdk17"]
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
+ignorePorts = true
 
 [[ports]]
 localPort = 5000
@@ -19,13 +31,30 @@ externalPort = 3003
 [[ports]]
 localPort = 44207
 externalPort = 3001
+
 [env]
 PORT = "5000"
-EXTERNAL_PORT = "80"
 
-[nix]
-channel = "stable-25_05"
-packages = ["python312Packages.cleanlab"]
-# Add additional environment variables as needed
-# Example:
-# ANOTHER_VARIABLE = "value"
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[agent]
+integrations = ["javascript_stripe==1.0.0", "javascript_log_in_with_replit==1.0.0", "javascript_database==1.0.0"]
