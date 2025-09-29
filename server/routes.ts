@@ -25,7 +25,6 @@ import { registerRoutes as registerWorkflowRoutes } from "./routes/workflows";
 import { registerRoutes as registerNotificationRoutes } from "./routes/notifications";
 import { registerRoutes as registerTenantRoutes } from "./routes/tenants";
 import { registerRoutes as registerSuperAdminRoutes } from "./routes/superadmin";
-import { registerRoutes as registerWebSocketRoutes } from "./websocket";
 import aiOperationsRouter from "./routes/ai-operations";
 import productionConfigRouter from "./routes/production-config";
 import laundryFinancialAIRouter from "./routes/laundry-financial-ai";
@@ -1535,7 +1534,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(productionConfigRouter);
   app.use(laundryFinancialAIRouter);
 
-  const server = registerWebSocketRoutes(app);
+  // Initialize WebSocket server
+  initializeWebSocket(httpServer);
 
   return httpServer;
 }
