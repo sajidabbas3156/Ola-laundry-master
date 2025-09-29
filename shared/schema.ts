@@ -566,13 +566,13 @@ export type BusinessSetting = typeof businessSettings.$inferSelect;
 export type InsertBusinessSetting = z.infer<typeof insertBusinessSettingSchema>;
 
 // Organizations table for branch management
-export const organizations = pgTable("organizations", {
+export const organizations: any = pgTable("organizations", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   code: varchar("code", { length: 50 }).unique(),
   type: varchar("type", { length: 50 }).default("branch"), // headquarters, branch, franchise
-  parentId: integer("parent_id").references(() => organizations.id),
+  parentId: integer("parent_id").references((): any => organizations.id),
   address: text("address"),
   city: varchar("city", { length: 100 }),
   state: varchar("state", { length: 100 }),
@@ -635,11 +635,11 @@ export const payrollRecords = pgTable("payroll_records", {
 });
 
 // Expense categories
-export const expenseCategories = pgTable("expense_categories", {
+export const expenseCategories: any = pgTable("expense_categories", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
-  parentId: integer("parent_id").references(() => expenseCategories.id),
+  parentId: integer("parent_id").references((): any => expenseCategories.id),
   code: varchar("code", { length: 50 }),
   description: text("description"),
   isActive: boolean("is_active").default(true),

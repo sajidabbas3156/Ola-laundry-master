@@ -386,11 +386,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllCustomers(): Promise<(Customer & { user: User })[]> {
-    return await db
+    const results = await db
       .select()
       .from(customers)
       .innerJoin(users, eq(customers.userId, users.id))
       .orderBy(desc(customers.createdAt));
+    
+    return results.map(result => ({
+      ...result.customers,
+      user: result.users,
+    }));
   }
 
   async getAllServices(): Promise<Service[]> {
@@ -535,12 +540,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrderItems(orderId: number): Promise<(OrderItem & { service: Service })[]> {
-    return await db.query.orderItems.findMany({
-      where: eq(orderItems.orderId, orderId),
-      with: {
-        service: true,
-      },
-    });
+    const results = await db
+      .select()
+      .from(orderItems)
+      .innerJoin(services, eq(orderItems.serviceId, services.id))
+      .where(eq(orderItems.orderId, orderId));
+    
+    return results.map(result => ({
+      ...result.order_items,
+      service: result.services,
+    }));
   }
 
   async getAllMachines(): Promise<Machine[]> {
@@ -728,17 +737,20 @@ export class DatabaseStorage implements IStorage {
 
   async getActivePromotions(tenantId?: number): Promise<Promotion[]> {
     const now = new Date();
-    const query = db.select().from(promotions).where(
-      and(
-        eq(promotions.isActive, true),
-        sql`${promotions.validFrom} <= ${now}`,
-        sql`${promotions.validUntil} >= ${now}`
-      )
-    );
+    const conditions = [
+      eq(promotions.isActive, true),
+      sql`${promotions.validFrom} <= ${now}`,
+      sql`${promotions.validUntil} >= ${now}`
+    ];
+    
     if (tenantId) {
-      return await query.where(eq(promotions.tenantId, tenantId));
+      conditions.push(eq(promotions.tenantId, tenantId));
     }
-    return await query;
+    
+    return await db
+      .select()
+      .from(promotions)
+      .where(and(...conditions));
   }
 
   async getPromotion(id: number): Promise<Promotion | undefined> {
@@ -831,17 +843,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAnalyticsEvents(tenantId?: number, eventType?: string): Promise<AnalyticsEvent[]> {
-    let query = db.select().from(analyticsEvents);
-    
-    const conditions = [];
+    const conditions: any[] = [];
     if (tenantId) conditions.push(eq(analyticsEvents.tenantId, tenantId));
     if (eventType) conditions.push(eq(analyticsEvents.eventType, eventType));
     
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions));
-    }
-    
-    return await query.orderBy(desc(analyticsEvents.timestamp));
+    return await db
+      .select()
+      .from(analyticsEvents)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(desc(analyticsEvents.timestamp));
   }
 
   // Business settings operations
