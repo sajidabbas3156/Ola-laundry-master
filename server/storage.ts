@@ -1091,6 +1091,7 @@ export class DatabaseStorage implements IStorage {
       const supplierIdNum = parseInt(supplierId);
       
       const purchaseOrder = await this.createPurchaseOrder({
+        orderNumber: `AUTO-${Date.now()}-${supplierIdNum}`,
         tenantId: tenantId || items[0].tenantId,
         supplierId: supplierIdNum === 0 ? null : supplierIdNum,
         status: 'draft',
@@ -1102,9 +1103,9 @@ export class DatabaseStorage implements IStorage {
 
       // Add items to purchase order
       for (const item of items) {
-        const quantity = item.reorderQuantity || (item.maximumStock ? parseFloat(item.maximumStock.toString()) - parseFloat(item.currentStock.toString()) : 50);
+        const quantity = item.reorderQuantity || (item.maximumStock && item.currentStock !== null ? parseFloat(item.maximumStock.toString()) - parseFloat(item.currentStock.toString()) : 50);
         const unitPrice = item.unitCost || 0;
-        const totalPrice = quantity * parseFloat(unitPrice.toString());
+        const totalPrice = quantity * (typeof unitPrice === 'number' ? unitPrice : parseFloat(unitPrice.toString()));
         totalAmount += totalPrice;
 
         await this.createPurchaseOrderItem({
@@ -1161,7 +1162,7 @@ export class DatabaseStorage implements IStorage {
 
     // Update usage rates for each item
     for (const transaction of transactions) {
-      const dailyUsage = parseFloat(transaction.totalUsage.toString()) / 30;
+      const dailyUsage = parseFloat((transaction.totalUsage as any).toString()) / 30;
       await db
         .update(inventoryItems)
         .set({ 
