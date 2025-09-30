@@ -120,21 +120,59 @@ export function registerRoutes(app: Express): void {
   app.patch("/api/orders/:id", authenticateToken, async (req, res) => {
     try {
       const updates = req.body;
-      const order = await storage.updateOrder(parseInt(req.params.id), updates);
+      const orderId = parseInt(req.params.id);
+      
+      // Get the order before update to check status change
+      const orderBefore = await storage.getOrder(orderId);
+      if (!orderBefore) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Update the order
+      const order = await storage.updateOrder(orderId, updates);
+
+      // Check if order was marked as completed and add loyalty points
+      let loyaltyPointsEarned = 0;
+      if (updates.status === 'completed' && orderBefore.status !== 'completed') {
+        // Calculate loyalty points (1 point per BHD spent)
+        const totalAmount = parseFloat(order.totalAmount);
+        loyaltyPointsEarned = Math.floor(totalAmount);
+        
+        if (loyaltyPointsEarned > 0) {
+          try {
+            await storage.addLoyaltyPoints(
+              order.customerId,
+              loyaltyPointsEarned,
+              order.id,
+              'earned',
+              `Earned ${loyaltyPointsEarned} points from order #${order.orderNumber || order.id}`
+            );
+          } catch (loyaltyError) {
+            console.error('Failed to add loyalty points:', loyaltyError);
+            // Continue even if loyalty points fail
+          }
+        }
+      }
 
       // Get full order details
       const fullOrder = await storage.getOrder(order.id);
+
+      // Add loyalty points earned to response
+      const orderWithLoyalty = {
+        ...fullOrder,
+        loyaltyPointsEarned
+      };
 
       // Broadcast real-time update
       const wsManager = getWebSocketManager();
       if (wsManager) {
         wsManager.broadcast({
           type: 'order_updated',
-          data: fullOrder,
+          data: orderWithLoyalty,
         });
       }
 
-      res.json(fullOrder);
+      res.json(orderWithLoyalty);
     } catch (error: any) {
       res.status(400).json({ message: error.message });
     }

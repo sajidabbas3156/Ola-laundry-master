@@ -153,6 +153,138 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Loyalty endpoints
+  app.post("/api/loyalty/earn", authenticateToken, async (req, res) => {
+    try {
+      const { customerId, orderId, amount } = req.body;
+      
+      if (!customerId || !orderId || !amount) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Calculate points: 1 point per BHD spent (round down)
+      const points = Math.floor(amount);
+      
+      if (points <= 0) {
+        return res.status(400).json({ message: "Order amount too small to earn points" });
+      }
+
+      const transaction = await storage.addLoyaltyPoints(
+        customerId,
+        points,
+        orderId,
+        'earned',
+        `Earned ${points} points from order #${orderId}`
+      );
+
+      const balance = await storage.getLoyaltyBalance(customerId);
+
+      res.json({ 
+        transaction, 
+        balance,
+        pointsEarned: points 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post("/api/loyalty/redeem", authenticateToken, async (req, res) => {
+    try {
+      const { customerId, points } = req.body;
+      
+      if (!customerId || !points) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      if (points <= 0) {
+        return res.status(400).json({ message: "Invalid points amount" });
+      }
+
+      // Check if points are in multiples of 100 (100 points = 5 BHD)
+      if (points % 100 !== 0) {
+        return res.status(400).json({ message: "Points must be in multiples of 100" });
+      }
+
+      // Calculate discount value
+      const discountValue = (points / 100) * 5;
+
+      const transaction = await storage.redeemPoints(
+        customerId,
+        points,
+        `Redeemed ${points} points for ${discountValue} BHD discount`
+      );
+
+      const balance = await storage.getLoyaltyBalance(customerId);
+
+      res.json({ 
+        transaction, 
+        balance,
+        pointsRedeemed: points,
+        discountValue 
+      });
+    } catch (error: any) {
+      if (error.message === 'Insufficient loyalty points') {
+        return res.status(400).json({ message: error.message });
+      }
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/loyalty/:customerId", authenticateToken, async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      
+      if (!customerId) {
+        return res.status(400).json({ message: "Invalid customer ID" });
+      }
+
+      const balance = await storage.getLoyaltyBalance(customerId);
+      const history = await storage.getLoyaltyHistory(customerId);
+
+      res.json({ 
+        balance, 
+        history 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get("/api/loyalty/:customerId/available", authenticateToken, async (req, res) => {
+    try {
+      const customerId = parseInt(req.params.customerId);
+      
+      if (!customerId) {
+        return res.status(400).json({ message: "Invalid customer ID" });
+      }
+
+      const balance = await storage.getLoyaltyBalance(customerId);
+      
+      // Calculate available redemption options (100 points = 5 BHD)
+      const availableRedemptions = [];
+      
+      if (balance >= 100) {
+        const maxRedeemable = Math.floor(balance / 100) * 100;
+        
+        for (let points = 100; points <= maxRedeemable && points <= 1000; points += 100) {
+          availableRedemptions.push({
+            points,
+            value: (points / 100) * 5,
+            description: `${points} points for ${(points / 100) * 5} BHD discount`
+          });
+        }
+      }
+
+      res.json({ 
+        balance,
+        availableRedemptions 
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
   // Tenant management routes
   app.get("/api/tenants", authenticateToken, async (req, res) => {
     try {

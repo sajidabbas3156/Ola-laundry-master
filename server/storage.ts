@@ -25,6 +25,7 @@ import {
   subscriptionPlans,
   tenantSubscriptions,
   attendanceRecords,
+  loyaltyTransactions,
   type User,
   type InsertUser,
   type Customer,
@@ -96,6 +97,8 @@ import {
   inventoryTransactions,
   type InventoryTransaction,
   type InsertInventoryTransaction,
+  type LoyaltyTransaction,
+  type InsertLoyaltyTransaction,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, or, like, count, sum, sql } from "drizzle-orm";
@@ -113,6 +116,12 @@ export interface IStorage {
   createCustomer(customer: InsertCustomer): Promise<Customer>;
   updateCustomer(id: number, updates: Partial<InsertCustomer>): Promise<Customer>;
   getAllCustomers(): Promise<(Customer & { user: User })[]>;
+
+  // Loyalty operations
+  addLoyaltyPoints(customerId: number, points: number, orderId: number | null, type: string, description: string): Promise<LoyaltyTransaction>;
+  getLoyaltyBalance(customerId: number): Promise<number>;
+  getLoyaltyHistory(customerId: number): Promise<LoyaltyTransaction[]>;
+  redeemPoints(customerId: number, points: number, description: string): Promise<LoyaltyTransaction>;
 
   // Service operations
   getAllServices(): Promise<Service[]>;
@@ -391,6 +400,52 @@ export class DatabaseStorage implements IStorage {
       .from(customers)
       .innerJoin(users, eq(customers.userId, users.id))
       .orderBy(desc(customers.createdAt));
+  }
+
+  // Loyalty operations
+  async addLoyaltyPoints(customerId: number, points: number, orderId: number | null, type: string, description: string): Promise<LoyaltyTransaction> {
+    // Create the transaction record
+    const [transaction] = await db.insert(loyaltyTransactions).values({
+      customerId,
+      orderId,
+      points,
+      transactionType: type,
+      description,
+    }).returning();
+
+    // Update customer's loyalty points balance
+    const customer = await this.getCustomer(customerId);
+    if (customer) {
+      await db.update(customers)
+        .set({ loyaltyPoints: (customer.loyaltyPoints || 0) + points })
+        .where(eq(customers.id, customerId));
+    }
+
+    return transaction;
+  }
+
+  async getLoyaltyBalance(customerId: number): Promise<number> {
+    const customer = await this.getCustomer(customerId);
+    return customer?.loyaltyPoints || 0;
+  }
+
+  async getLoyaltyHistory(customerId: number): Promise<LoyaltyTransaction[]> {
+    return await db
+      .select()
+      .from(loyaltyTransactions)
+      .where(eq(loyaltyTransactions.customerId, customerId))
+      .orderBy(desc(loyaltyTransactions.createdAt));
+  }
+
+  async redeemPoints(customerId: number, points: number, description: string): Promise<LoyaltyTransaction> {
+    // Check if customer has enough points
+    const balance = await this.getLoyaltyBalance(customerId);
+    if (balance < points) {
+      throw new Error('Insufficient loyalty points');
+    }
+
+    // Create a redemption transaction (negative points)
+    return await this.addLoyaltyPoints(customerId, -points, null, 'redeemed', description);
   }
 
   async getAllServices(): Promise<Service[]> {

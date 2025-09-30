@@ -4,9 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useData } from "@/contexts/DataContext";
 import { useCustomer } from "@/contexts/CustomerContext";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import {
   Store,
   Package,
@@ -18,7 +22,10 @@ import {
   Clock,
   Star,
   Droplets,
-  Shirt
+  Shirt,
+  TrendingUp,
+  TrendingDown,
+  Coins
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
 import { LaundrySpinner } from "@/components/ui/laundry-spinner";
@@ -28,6 +35,8 @@ export default function CustomerApp() {
   const { orders } = useData();
   const { selectedCustomer } = useCustomer();
   const [activeTab, setActiveTab] = useState("store");
+  const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
+  const [selectedRedemption, setSelectedRedemption] = useState<number>(0);
   const { toast } = useToast();
 
   // Mock customer data for demo
@@ -44,6 +53,67 @@ export default function CustomerApp() {
 
   // Mock wallet balance for demo
   const mockWalletBalance = 15.50;
+
+  // Fetch loyalty data
+  const { data: loyaltyData, isLoading: loyaltyLoading } = useQuery({
+    queryKey: ['/api/loyalty', customer.id],
+    queryFn: async () => {
+      const response = await fetch(`/api/loyalty/${customer.id}`, {
+        headers: {
+          'Authorization': 'Bearer demo-token-123'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch loyalty data');
+      return response.json();
+    },
+    enabled: !!customer.id,
+  });
+
+  // Fetch available redemptions
+  const { data: availableRedemptions } = useQuery({
+    queryKey: ['/api/loyalty', customer.id, 'available'],
+    queryFn: async () => {
+      const response = await fetch(`/api/loyalty/${customer.id}/available`, {
+        headers: {
+          'Authorization': 'Bearer demo-token-123'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch available redemptions');
+      return response.json();
+    },
+    enabled: !!customer.id,
+  });
+
+  // Redeem points mutation
+  const redeemMutation = useMutation({
+    mutationFn: async (points: number) => {
+      return await apiRequest(`/api/loyalty/redeem`, {
+        method: 'POST',
+        body: JSON.stringify({ customerId: customer.id, points }),
+      });
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Points Redeemed!",
+        description: `You've redeemed ${data.pointsRedeemed} points for ${data.discountValue} BHD discount`,
+      });
+      setRedeemDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/loyalty', customer.id] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Redemption Failed",
+        description: error.message || "Failed to redeem points",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleRedemption = () => {
+    if (selectedRedemption > 0) {
+      redeemMutation.mutate(selectedRedemption);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,18 +235,70 @@ export default function CustomerApp() {
               </CardHeader>
               <CardContent>
                 <div className="text-center py-6">
-                  <div className="text-4xl font-bold text-primary mb-2">
-                    {customer.loyaltyPoints}
-                  </div>
-                  <p className="text-muted-foreground">Available Points</p>
-                  <Button 
-                    className="mt-4"
-                    onClick={() => toast({ description: "Rewards redemption feature coming soon!" })}
-                    data-testid="button-redeem-rewards"
-                  >
-                    Redeem Rewards
-                  </Button>
+                  {loyaltyLoading ? (
+                    <LaundrySpinner variant="bubbles" size="lg" />
+                  ) : (
+                    <>
+                      <div className="text-4xl font-bold text-primary mb-2">
+                        {loyaltyData?.balance || 0}
+                      </div>
+                      <p className="text-muted-foreground">Available Points</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        100 points = 5 BHD discount
+                      </p>
+                      <Button 
+                        className="mt-4"
+                        onClick={() => setRedeemDialogOpen(true)}
+                        disabled={!loyaltyData?.balance || loyaltyData.balance < 100}
+                        data-testid="button-redeem-rewards"
+                      >
+                        <Coins className="mr-2 h-4 w-4" />
+                        Redeem Rewards
+                      </Button>
+                    </>
+                  )}
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Transaction History */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Transaction History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loyaltyData?.history && loyaltyData.history.length > 0 ? (
+                  <ScrollArea className="h-64">
+                    <div className="space-y-3">
+                      {loyaltyData.history.map((transaction: any) => (
+                        <div key={transaction.id} className="flex justify-between items-center p-3 bg-muted rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            {transaction.points > 0 ? (
+                              <TrendingUp className="h-5 w-5 text-green-600" />
+                            ) : (
+                              <TrendingDown className="h-5 w-5 text-red-600" />
+                            )}
+                            <div>
+                              <p className="text-sm font-medium">{transaction.description}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {new Date(transaction.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className={`text-lg font-bold ${transaction.points > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {transaction.points > 0 ? '+' : ''}{transaction.points}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Gift className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                    <p>No transaction history yet</p>
+                    <p className="text-xs mt-1">Start earning points with your orders!</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -292,6 +414,70 @@ export default function CustomerApp() {
           ))}
         </div>
       </nav>
+
+      {/* Redemption Dialog */}
+      <Dialog open={redeemDialogOpen} onOpenChange={setRedeemDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Redeem Loyalty Points</DialogTitle>
+            <DialogDescription>
+              Select the amount of points you want to redeem for a discount.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="text-center p-4 bg-muted rounded-lg">
+              <p className="text-sm text-muted-foreground">Your Balance</p>
+              <p className="text-2xl font-bold text-primary">{loyaltyData?.balance || 0} points</p>
+            </div>
+
+            {availableRedemptions?.availableRedemptions && availableRedemptions.availableRedemptions.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Select redemption option:</p>
+                <div className="grid gap-2">
+                  {availableRedemptions.availableRedemptions.map((option: any) => (
+                    <Button
+                      key={option.points}
+                      variant={selectedRedemption === option.points ? "default" : "outline"}
+                      className="w-full justify-between"
+                      onClick={() => setSelectedRedemption(option.points)}
+                    >
+                      <span className="flex items-center">
+                        <Coins className="mr-2 h-4 w-4" />
+                        {option.points} points
+                      </span>
+                      <Badge variant="secondary">{option.value} BHD</Badge>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  You need at least 100 points to redeem
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRedeemDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleRedemption}
+              disabled={!selectedRedemption || redeemMutation.isPending}
+            >
+              {redeemMutation.isPending ? (
+                <LaundrySpinner variant="bubbles" size="sm" className="mr-2" />
+              ) : (
+                <Gift className="mr-2 h-4 w-4" />
+              )}
+              Confirm Redemption
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

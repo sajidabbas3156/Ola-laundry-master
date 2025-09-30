@@ -42,6 +42,19 @@ export const customers = pgTable("customers", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Loyalty transactions table to track point history
+export const loyaltyTransactions = pgTable("loyalty_transactions", {
+  id: serial("id").primaryKey(),
+  customerId: integer("customer_id").references(() => customers.id).notNull(),
+  orderId: integer("order_id").references(() => orders.id),
+  points: integer("points").notNull(), // positive for earned, negative for redeemed
+  transactionType: varchar("transaction_type", { length: 20 }).notNull(), // earned, redeemed, bonus, expired
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("idx_loyalty_customer_id").on(table.customerId),
+]);
+
 // Services offered
 export const services = pgTable("services", {
   id: serial("id").primaryKey(),
@@ -154,6 +167,7 @@ export const customersRelations = relations(customers, ({ one, many }) => ({
     references: [users.id],
   }),
   orders: many(orders),
+  loyaltyTransactions: many(loyaltyTransactions),
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
@@ -199,6 +213,17 @@ export const deliveryStopsRelations = relations(deliveryStops, ({ one }) => ({
   }),
   order: one(orders, {
     fields: [deliveryStops.orderId],
+    references: [orders.id],
+  }),
+}));
+
+export const loyaltyTransactionsRelations = relations(loyaltyTransactions, ({ one }) => ({
+  customer: one(customers, {
+    fields: [loyaltyTransactions.customerId],
+    references: [customers.id],
+  }),
+  order: one(orders, {
+    fields: [loyaltyTransactions.orderId],
     references: [orders.id],
   }),
 }));
@@ -514,6 +539,11 @@ export const insertBusinessSettingSchema = createInsertSchema(businessSettings).
   updatedAt: true,
 });
 
+export const insertLoyaltyTransactionSchema = createInsertSchema(loyaltyTransactions).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Workflow automation tables
 export const workflows = pgTable("workflows", {
   id: serial("id").primaryKey(),
@@ -574,6 +604,8 @@ export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 export type BusinessSetting = typeof businessSettings.$inferSelect;
 export type InsertBusinessSetting = z.infer<typeof insertBusinessSettingSchema>;
+export type LoyaltyTransaction = typeof loyaltyTransactions.$inferSelect;
+export type InsertLoyaltyTransaction = z.infer<typeof insertLoyaltyTransactionSchema>;
 
 // Organizations table for branch management
 export const organizations = pgTable("organizations", {
