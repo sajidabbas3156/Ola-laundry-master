@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useData } from "@/contexts/DataContext";
 import { useCustomer } from "@/contexts/CustomerContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   Store,
   Package,
@@ -27,6 +28,7 @@ export default function CustomerApp() {
   const { orders } = useData();
   const { selectedCustomer } = useCustomer();
   const [activeTab, setActiveTab] = useState("store");
+  const { toast } = useToast();
 
   // Mock customer data for demo
   const customer = selectedCustomer || {
@@ -135,7 +137,12 @@ export default function CustomerApp() {
                   
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold text-foreground">{order.totalAmount} BHD</span>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast({ description: "Driver contact feature coming soon!" })}
+                      data-testid={`button-contact-driver-${order.id}`}
+                    >
                       <Phone className="mr-2 h-4 w-4" />
                       Contact Driver
                     </Button>
@@ -162,7 +169,13 @@ export default function CustomerApp() {
                     {customer.loyaltyPoints}
                   </div>
                   <p className="text-muted-foreground">Available Points</p>
-                  <Button className="mt-4">Redeem Rewards</Button>
+                  <Button 
+                    className="mt-4"
+                    onClick={() => toast({ description: "Rewards redemption feature coming soon!" })}
+                    data-testid="button-redeem-rewards"
+                  >
+                    Redeem Rewards
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -186,8 +199,22 @@ export default function CustomerApp() {
                   </div>
                   <p className="text-muted-foreground">Current Balance</p>
                   <div className="flex gap-2 mt-4">
-                    <Button variant="outline" className="flex-1">Add Funds</Button>
-                    <Button variant="outline" className="flex-1">Payment History</Button>
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => toast({ description: "Add funds feature coming soon!" })}
+                      data-testid="button-add-funds"
+                    >
+                      Add Funds
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => toast({ description: "Payment history feature coming soon!" })}
+                      data-testid="button-payment-history"
+                    >
+                      Payment History
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -226,7 +253,12 @@ export default function CustomerApp() {
                   </div>
                 </div>
 
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => toast({ description: "Edit profile feature coming soon!" })}
+                  data-testid="button-edit-profile"
+                >
                   Edit Profile
                 </Button>
               </CardContent>

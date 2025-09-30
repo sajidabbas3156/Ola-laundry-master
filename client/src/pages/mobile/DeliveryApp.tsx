@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 import { useDrivers } from "@/contexts/DriversContext";
 import { useData } from "@/contexts/DataContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   MapPin,
   Navigation,
@@ -27,6 +28,7 @@ export default function DeliveryApp() {
   const { orders } = useData();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [isOnline, setIsOnline] = useState(true);
+  const { toast } = useToast();
   
   // Mock driver data for demo
   const currentDriver = drivers[0] || {
@@ -151,7 +153,12 @@ export default function DeliveryApp() {
                     <p className="text-sm font-medium">Manama City Center</p>
                     <p className="text-xs text-muted-foreground">Speed: 0 km/h • GPS: Strong</p>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => toast({ description: "Navigation feature coming soon!" })}
+                    data-testid="button-navigate-current"
+                  >
                     <Navigation className="mr-2 h-4 w-4" />
                     Navigate
                   </Button>
@@ -198,15 +205,32 @@ export default function DeliveryApp() {
                   </div>
                   
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => toast({ description: `Calling ${order.customerName}...` })}
+                      data-testid={`button-call-${order.id}`}
+                    >
                       <Phone className="mr-2 h-4 w-4" />
                       Call
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => toast({ description: "Opening maps for navigation..." })}
+                      data-testid={`button-navigate-${order.id}`}
+                    >
                       <Navigation className="mr-2 h-4 w-4" />
                       Navigate
                     </Button>
-                    <Button size="sm" className="flex-1">
+                    <Button 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => toast({ description: "Order marked as complete!" })}
+                      data-testid={`button-complete-${order.id}`}
+                    >
                       <CheckCircle className="mr-2 h-4 w-4" />
                       Complete
                     </Button>
@@ -239,7 +263,11 @@ export default function DeliveryApp() {
                     </div>
                   </div>
                   
-                  <Button className="w-full">
+                  <Button 
+                    className="w-full"
+                    onClick={() => toast({ description: "Starting route navigation..." })}
+                    data-testid="button-start-navigation"
+                  >
                     <Navigation className="mr-2 h-4 w-4" />
                     Start Navigation
                   </Button>
@@ -279,7 +307,12 @@ export default function DeliveryApp() {
                   </div>
                 </div>
 
-                <Button variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => toast({ description: "Full statistics feature coming soon!" })}
+                  data-testid="button-view-statistics"
+                >
                   View Full Statistics
                 </Button>
               </CardContent>
