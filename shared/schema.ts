@@ -9,7 +9,8 @@ import {
   varchar,
   uuid,
   jsonb,
-  index
+  index,
+  type AnyPgColumn
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -57,9 +58,11 @@ export const services = pgTable("services", {
 // Orders
 export const orders = pgTable("orders", {
   id: serial("id").primaryKey(),
+  orderNumber: varchar("order_number", { length: 50 }),
   customerId: integer("customer_id").references(() => customers.id).notNull(),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+  serviceType: varchar("service_type", { length: 50 }).notNull().default("wash"), // wash, iron, wash_iron - ONLY these allowed
   status: varchar("status", { length: 50 }).notNull().default("pending"), // pending, processing, ready, delivered, cancelled
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   itemCount: integer("item_count").default(0),
   weight: decimal("weight", { precision: 5, scale: 2 }), // in lbs
   pickupDate: timestamp("pickup_date"),
@@ -69,7 +72,10 @@ export const orders = pgTable("orders", {
   paymentStatus: varchar("payment_status", { length: 50 }).default("pending"), // pending, paid, refunded
   paymentMethod: varchar("payment_method", { length: 50 }),
   instructions: text("instructions"),
+  driverId: integer("driver_id").references(() => users.id),
   processedBy: integer("processed_by").references(() => users.id), // staff who processed the order
+  tenantId: integer("tenant_id").references(() => tenants.id),
+  organizationId: integer("organization_id").references(() => organizations.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 }, (table) => [
@@ -420,6 +426,10 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  serviceType: z.enum(["wash", "iron", "wash_iron"], {
+    errorMap: () => ({ message: "Service type must be one of: wash, iron, wash_iron. Dry cleaning is not allowed." }),
+  }),
 });
 
 export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
@@ -572,7 +582,7 @@ export const organizations = pgTable("organizations", {
   name: varchar("name", { length: 255 }).notNull(),
   code: varchar("code", { length: 50 }).unique(),
   type: varchar("type", { length: 50 }).default("branch"), // headquarters, branch, franchise
-  parentId: integer("parent_id").references(() => organizations.id),
+  parentId: integer("parent_id").references((): AnyPgColumn => organizations.id),
   address: text("address"),
   city: varchar("city", { length: 100 }),
   state: varchar("state", { length: 100 }),
@@ -639,7 +649,7 @@ export const expenseCategories = pgTable("expense_categories", {
   id: serial("id").primaryKey(),
   tenantId: integer("tenant_id").references(() => tenants.id).notNull(),
   name: varchar("name", { length: 100 }).notNull(),
-  parentId: integer("parent_id").references(() => expenseCategories.id),
+  parentId: integer("parent_id").references((): AnyPgColumn => expenseCategories.id),
   code: varchar("code", { length: 50 }),
   description: text("description"),
   isActive: boolean("is_active").default(true),
@@ -779,6 +789,160 @@ export const attendanceRecords = pgTable("attendance_records", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Addresses table for customer delivery addresses with lat/lng
+export const addresses = pgTable("addresses", {
+  id: serial("id").primaryKey(),
+  customerId: integer("customer_id").references(() => customers.id).notNull(),
+  label: varchar("label", { length: 100 }), // home, work, etc
+  fullAddress: text("full_address").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 7 }).notNull(),
+  longitude: decimal("longitude", { precision: 10, scale: 7 }).notNull(),
+  city: varchar("city", { length: 100 }),
+  zipCode: varchar("zip_code", { length: 20 }),
+  instructions: text("instructions"), // delivery instructions
+  isDefault: boolean("is_default").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Driver profiles
+export const driverProfiles = pgTable("driver_profiles", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull().unique(),
+  photo: text("photo"),
+  licenseNumber: varchar("license_number", { length: 100 }),
+  vehicleType: varchar("vehicle_type", { length: 50 }),
+  vehiclePlate: varchar("vehicle_plate", { length: 20 }),
+  status: varchar("status", { length: 20 }).default("active"), // active, inactive, on_leave
+  currentLatitude: decimal("current_latitude", { precision: 10, scale: 7 }),
+  currentLongitude: decimal("current_longitude", { precision: 10, scale: 7 }),
+  lastLocationUpdate: timestamp("last_location_update"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Driver statistics
+export const driverStats = pgTable("driver_stats", {
+  id: serial("id").primaryKey(),
+  driverId: integer("driver_id").references(() => users.id).notNull().unique(),
+  totalDeliveries: integer("total_deliveries").default(0),
+  deliveriesThisWeek: integer("deliveries_this_week").default(0),
+  deliveriesThisMonth: integer("deliveries_this_month").default(0),
+  onTimeDeliveries: integer("on_time_deliveries").default(0),
+  lateDeliveries: integer("late_deliveries").default(0),
+  avgDeliveryTimeMinutes: decimal("avg_delivery_time_minutes", { precision: 5, scale: 2 }),
+  totalTipsEarned: decimal("total_tips_earned", { precision: 10, scale: 2 }).default("0"),
+  averageRating: decimal("average_rating", { precision: 3, scale: 2 }),
+  totalRatings: integer("total_ratings").default(0),
+  lastDeliveryDate: timestamp("last_delivery_date"),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Driver reviews from customers
+export const driverReviews = pgTable("driver_reviews", {
+  id: serial("id").primaryKey(),
+  driverId: integer("driver_id").references(() => users.id).notNull(),
+  customerId: integer("customer_id").references(() => customers.id).notNull(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  rating: integer("rating").notNull(), // 1-5
+  comment: text("comment"),
+  tip: decimal("tip", { precision: 10, scale: 2 }).default("0"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Payments table for tracking all payment transactions
+export const payments = pgTable("payments", {
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").references(() => orders.id).notNull(),
+  customerId: integer("customer_id").references(() => customers.id).notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: varchar("payment_method", { length: 50 }).notNull(), // benefit_pay, cash_on_delivery, debit_card, credit_card
+  paymentStatus: varchar("payment_status", { length: 20 }).default("pending"), // pending, completed, failed, refunded
+  transactionId: varchar("transaction_id", { length: 255 }),
+  benefitPayReference: varchar("benefit_pay_reference", { length: 255 }),
+  cardLastFour: varchar("card_last_four", { length: 4 }),
+  cardType: varchar("card_type", { length: 20 }),
+  splitPayments: jsonb("split_payments"), // for split payment tracking
+  metadata: jsonb("metadata"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Branding configuration for Super Admin
+export const branding = pgTable("branding", {
+  id: serial("id").primaryKey(),
+  logo: text("logo"),
+  favicon: text("favicon"),
+  primaryColor: varchar("primary_color", { length: 7 }),
+  secondaryColor: varchar("secondary_color", { length: 7 }),
+  accentColor: varchar("accent_color", { length: 7 }),
+  backgroundColor: varchar("background_color", { length: 7 }),
+  textColor: varchar("text_color", { length: 7 }),
+  themeTokens: jsonb("theme_tokens"),
+  fontFamily: varchar("font_family", { length: 100 }),
+  companyName: varchar("company_name", { length: 255 }),
+  tagline: text("tagline"),
+  releaseId: integer("release_id").references(() => releases.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Animations configuration for Super Admin
+export const animations = pgTable("animations", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  type: varchar("type", { length: 50 }).notNull(), // loading, success, error, transition
+  animationData: jsonb("animation_data").notNull(), // Lottie JSON or animation config
+  duration: integer("duration"), // in milliseconds
+  triggerEvent: varchar("trigger_event", { length: 100 }), // page_load, button_click, etc
+  isActive: boolean("is_active").default(true),
+  schedule: jsonb("schedule"), // { startDate, endDate, daysOfWeek, etc }
+  releaseId: integer("release_id").references(() => releases.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Landing page sections for CMS
+export const landingPageSections = pgTable("landing_page_sections", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(),
+  sectionType: varchar("section_type", { length: 50 }).notNull(), // hero, features, testimonials, cta, etc
+  content: jsonb("content").notNull(), // section-specific content
+  order: integer("order").notNull().default(0),
+  isVisible: boolean("is_visible").default(true),
+  customStyles: jsonb("custom_styles"),
+  releaseId: integer("release_id").references(() => releases.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Releases table for Draft → Stage → Prod workflow
+export const releases = pgTable("releases", {
+  id: serial("id").primaryKey(),
+  version: varchar("version", { length: 50 }).notNull(),
+  environment: varchar("environment", { length: 20 }).notNull(), // draft, stage, prod
+  description: text("description"),
+  changes: jsonb("changes"), // summary of what changed
+  publishedBy: integer("published_by").references(() => users.id),
+  publishedAt: timestamp("published_at"),
+  rolledBackFrom: integer("rolled_back_from"), // references another release
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Audit logs for Super Admin actions
+export const auditLogs = pgTable("audit_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  action: varchar("action", { length: 100 }).notNull(), // create, update, delete, publish, rollback
+  resourceType: varchar("resource_type", { length: 50 }).notNull(), // branding, animation, section, release
+  resourceId: integer("resource_id"),
+  changes: jsonb("changes"), // before/after data
+  ipAddress: varchar("ip_address", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas for new tables
 export const insertOrganizationSchema = createInsertSchema(organizations).omit({
   id: true,
@@ -844,6 +1008,62 @@ export const insertAttendanceRecordSchema = createInsertSchema(attendanceRecords
   updatedAt: true,
 });
 
+export const insertAddressSchema = createInsertSchema(addresses).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDriverProfileSchema = createInsertSchema(driverProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertDriverStatsSchema = createInsertSchema(driverStats).omit({
+  id: true,
+  updatedAt: true,
+});
+
+export const insertDriverReviewSchema = createInsertSchema(driverReviews).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPaymentSchema = createInsertSchema(payments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertBrandingSchema = createInsertSchema(branding).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAnimationSchema = createInsertSchema(animations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertLandingPageSectionSchema = createInsertSchema(landingPageSections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertReleaseSchema = createInsertSchema(releases).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAuditLogSchema = createInsertSchema(auditLogs).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types for new tables
 export type Organization = typeof organizations.$inferSelect;
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
@@ -867,6 +1087,26 @@ export type TenantSubscription = typeof tenantSubscriptions.$inferSelect;
 export type InsertTenantSubscription = z.infer<typeof insertTenantSubscriptionSchema>;
 export type AttendanceRecord = typeof attendanceRecords.$inferSelect;
 export type InsertAttendanceRecord = z.infer<typeof insertAttendanceRecordSchema>;
+export type Address = typeof addresses.$inferSelect;
+export type InsertAddress = z.infer<typeof insertAddressSchema>;
+export type DriverProfile = typeof driverProfiles.$inferSelect;
+export type InsertDriverProfile = z.infer<typeof insertDriverProfileSchema>;
+export type DriverStats = typeof driverStats.$inferSelect;
+export type InsertDriverStats = z.infer<typeof insertDriverStatsSchema>;
+export type DriverReview = typeof driverReviews.$inferSelect;
+export type InsertDriverReview = z.infer<typeof insertDriverReviewSchema>;
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = z.infer<typeof insertPaymentSchema>;
+export type Branding = typeof branding.$inferSelect;
+export type InsertBranding = z.infer<typeof insertBrandingSchema>;
+export type Animation = typeof animations.$inferSelect;
+export type InsertAnimation = z.infer<typeof insertAnimationSchema>;
+export type LandingPageSection = typeof landingPageSections.$inferSelect;
+export type InsertLandingPageSection = z.infer<typeof insertLandingPageSectionSchema>;
+export type Release = typeof releases.$inferSelect;
+export type InsertRelease = z.infer<typeof insertReleaseSchema>;
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type InsertAuditLog = z.infer<typeof insertAuditLogSchema>;
 
 // Extended types for API responses
 export type OrderWithDetails = Order & {
