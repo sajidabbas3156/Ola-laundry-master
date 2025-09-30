@@ -64,10 +64,11 @@ export default function ServiceSelection() {
 
   const handleContinue = () => {
     if (selectedService) {
-      // TODO: Navigate to order details page with selected service
-      console.log("Selected service:", selectedService);
-      // For now, go back to customer app
-      setLocation("/customer-app");
+      // Store selected service in sessionStorage for use in next step
+      sessionStorage.setItem("selectedService", selectedService);
+      
+      // Navigate to order address page
+      setLocation("/customer-app/order-address");
     }
   };
 
