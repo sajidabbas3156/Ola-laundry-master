@@ -31,6 +31,7 @@ import SubscriptionPlansManagement from "@/pages/superadmin/SubscriptionPlansMan
 
 // Mobile Apps
 import CustomerApp from "@/pages/mobile/CustomerApp";
+import ServiceSelection from "@/pages/mobile/ServiceSelection";
 import DeliveryApp from "@/pages/mobile/DeliveryApp";
 import VendorPosApp from "@/pages/mobile/VendorPosApp";
 import CustomerQRApp from "@/pages/mobile/CustomerQRApp";
@@ -74,6 +75,7 @@ function App() {
                           
                           {/* Mobile Applications */}
                           <Route path="/customer-app" component={CustomerApp} />
+                          <Route path="/customer-app/new-order" component={ServiceSelection} />
                           <Route path="/delivery-app" component={DeliveryApp} />
                           <Route path="/vendor-pos" component={VendorPosApp} />
                           <Route path="/quick-order" component={CustomerQRApp} />

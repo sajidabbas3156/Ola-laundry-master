@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,12 +15,15 @@ import {
   Phone,
   MapPin,
   Clock,
-  Star
+  Star,
+  Droplets,
+  Shirt
 } from "lucide-react";
 import PWAInstallButton from "@/components/PWAInstallButton";
 import { LaundrySpinner } from "@/components/ui/laundry-spinner";
 
 export default function CustomerApp() {
+  const [, setLocation] = useLocation();
   const { orders } = useData();
   const { selectedCustomer } = useCustomer();
   const [activeTab, setActiveTab] = useState("store");
@@ -67,31 +71,45 @@ export default function CustomerApp() {
               <Store className="h-16 w-16 text-primary mx-auto mb-4" />
               <h2 className="text-xl font-bold mb-2">Welcome to Our Store</h2>
               <p className="text-muted-foreground mb-6">Place your laundry order with just a few taps</p>
-              <Button className="w-full max-w-sm">
+              <Button 
+                className="w-full max-w-sm"
+                onClick={() => setLocation("/customer-app/new-order")}
+                data-testid="button-start-order"
+              >
                 <LaundrySpinner variant="clothes" size="sm" className="mr-2" />
                 Start New Order
               </Button>
             </div>
 
             {/* Quick Services */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Package className="h-6 w-6 text-primary" />
+                    <Droplets className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-medium">Wash & Fold</h3>
-                  <p className="text-sm text-muted-foreground">From 2.5 BHD/kg</p>
+                  <h3 className="font-medium text-sm">Wash</h3>
+                  <p className="text-xs text-muted-foreground">2.5 BHD/kg</p>
                 </CardContent>
               </Card>
               
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Star className="h-6 w-6 text-accent-foreground" />
+                    <Shirt className="h-6 w-6 text-primary" />
                   </div>
-                  <h3 className="font-medium">Dry Cleaning</h3>
-                  <p className="text-sm text-muted-foreground">From 6 BHD/item</p>
+                  <h3 className="font-medium text-sm">Iron</h3>
+                  <p className="text-xs text-muted-foreground">1.5 BHD/item</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4 text-center">
+                  <div className="w-12 h-12 bg-accent rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Star className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-medium text-sm">Wash+Iron</h3>
+                  <p className="text-xs text-muted-foreground">3.5 BHD/kg</p>
                 </CardContent>
               </Card>
             </div>
