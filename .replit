@@ -10,6 +10,7 @@ packages = ["unzip", "openjdk17"]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
+ignorePorts = true
 
 [[ports]]
 localPort = 5000
@@ -18,6 +19,18 @@ externalPort = 80
 [[ports]]
 localPort = 35367
 externalPort = 3000
+
+[[ports]]
+localPort = 40353
+externalPort = 3002
+
+[[ports]]
+localPort = 42381
+externalPort = 3003
+
+[[ports]]
+localPort = 44207
+externalPort = 3001
 
 [env]
 PORT = "5000"

@@ -106,9 +106,9 @@
   --card-foreground: hsl(240, 50%, 15%);
   --border: hsl(240, 20%, 85%);
   --input: hsl(240, 20%, 85%);
-  --primary: hsl(260, 56%, 23%);
+  --primary: hsl(240, 46%, 21%); /* Primary Deep Blue #1C1C4D */
   --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(217, 91%, 60%);
+  --secondary: hsl(209, 52%, 52%); /* Accent Light Blue #3F85C8 */
   --secondary-foreground: hsl(0, 0%, 100%);
   --accent: hsl(240, 20%, 96%);
   --accent-foreground: hsl(240, 50%, 15%);
@@ -125,11 +125,17 @@
   --info: hsl(200, 100%, 50%);
   --info-foreground: hsl(0, 0%, 100%);
   
-  /* OLA Brand Colors */
-  --ola-navy: hsl(260, 56%, 23%); /* Exact #2C1A5B */
-  --ola-blue: hsl(217, 91%, 60%); /* Exact #3B82F6 */
-  --ola-light-blue: hsl(200, 100%, 95%);
-  --ola-green: hsl(120, 60%, 50%);
+  /* OLA Brand Colors - Updated to Exact Specifications */
+  --ola-primary-blue: hsl(240, 46%, 21%); /* Primary Deep Blue #1C1C4D */
+  --ola-white: hsl(0, 0%, 100%); /* White #FFFFFF */
+  --ola-eco-green: hsl(134, 61%, 41%); /* Eco Green #27A844 */
+  --ola-accent-blue: hsl(209, 52%, 52%); /* Accent Light Blue #3F85C8 */
+  
+  /* Legacy colors for backward compatibility */
+  --ola-navy: hsl(240, 46%, 21%); /* Updated to match primary */
+  --ola-blue: hsl(209, 52%, 52%); /* Updated to accent blue */
+  --ola-light-blue: hsl(209, 100%, 95%);
+  --ola-green: hsl(134, 61%, 41%); /* Updated to eco green */
 }
 
 .dark {
@@ -143,7 +149,7 @@
   --card-foreground: hsl(0, 0%, 98%);
   --border: hsl(240, 50%, 12%);
   --input: hsl(240, 50%, 12%);
-  --primary: hsl(260, 56%, 23%);
+  --primary: hsl(240, 46%, 21%); /* Primary Deep Blue #1C1C4D */
   --primary-foreground: hsl(0, 0%, 100%);
   --secondary: hsl(240, 50%, 12%);
   --secondary-foreground: hsl(0, 0%, 98%);
